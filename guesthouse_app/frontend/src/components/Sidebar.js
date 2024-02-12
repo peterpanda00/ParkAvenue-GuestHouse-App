@@ -44,7 +44,7 @@ const Sidebar = ({children}) => {
           }
     ]
     return (
-        <div className="container">
+        <div>
            <div style={{width: isOpen ? "200px" : "50px"}} className="sidebar">
                <div className="top_section">
                    <h1 style={{display: isOpen ? "block" : "none"}} className="logo">Logo</h1>

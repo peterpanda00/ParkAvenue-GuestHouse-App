@@ -4,7 +4,7 @@ import { FaFilter, FaSort, FaSearch, FaSave, FaEye, FaEyeSlash, FaTrash} from 'r
 import { Row, Col, Form, CardBody, Card, Table, InputGroup} from 'react-bootstrap';
 import '../index.css';
 
-const RoomSelection = ({offerList, onOfferSubmission}) => {
+const RoomSelectionList = ({offerList, onOfferSubmission}) => {
   const [hasItems, setHasItems] = useState(false);
   const [isFullView, setIsFullView] = useState(true);
   const [validated, setValidated] = useState(false);
@@ -112,7 +112,7 @@ const handleAddToItemList = (offer) => {
                 {/* Initial View Display */}
                 
                 {itemList.length == 0 ? (
-                    <Col lg="12" style={{marginLeft:'300px'}}>
+                    <Col lg="12">
                         <Row>
                         {offerList.map((offer, index) => (
                             <Col className="mt-3" lg="2" key={index}>
@@ -330,4 +330,4 @@ const handleAddToItemList = (offer) => {
   );
 };
 
-export default RoomSelection;
+export default RoomSelectionList;

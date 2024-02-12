@@ -3,10 +3,11 @@ import React, { useState } from 'react';
 import { FaFilter, FaSort, FaSearch, FaSave} from 'react-icons/fa';
 import { Row, Col, Form, CardBody, Card, Table } from 'react-bootstrap';
 import '../index.css';
-import RoomSelection from './RoomSelection';
+import RoomSelection from '../components/RoomSelectionList';
 import '../App.css';
+import Sidebar from '../components/Sidebar';
 
-const Room_Booking = () => {
+const RoomBooking = () => {
   const [hasItems, setHasItems] = useState(true);
   const [validated, setValidated] = useState(false);
 
@@ -153,14 +154,14 @@ const offerList = [
 
   return (
     
-    <div style={{ width: '100%', padding: '20px', background: '#E5EDF4', color: '#014c91', display:'flex'}}>
+    <div style={{ width: '100%', background: '#E5EDF4', color: '#014c91', display:'flex'}}>
       
       
-
-      {selectionType === 'offer' && <RoomSelection offerList={offerList} onOfferSubmission={handleOfferSubmission}/>}
+      <Sidebar/>
+      <RoomSelection offerList={offerList}/>
 
     </div>
   );
 };
 
-export default Room_Booking;
+export default RoomBooking;
