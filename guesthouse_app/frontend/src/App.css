@@ -14,8 +14,8 @@ main{
   padding: 20px;
 }
 .sidebar{
-  background: #000;
-  color: #fff;
+  background: white;
+  color: #665651;
   height: 100vh;
   width: 200px;
   transition: all 0.5s;
@@ -26,7 +26,7 @@ main{
   padding:20px 15px;
 }
 .logo{
-  font-size: 30px;
+  height:110px;
 }
 .bars{
   display: flex;
@@ -34,22 +34,28 @@ main{
   margin-left: 50px;
 }
 .link{
+  text-decoration: none;
+  padding: 15px 15px;
   display: flex;
-  color: #fff;
-  padding: 10px 15px;
+  color: #665651;
+  margin-bottom: 30px;
   gap: 15px;
   transition: all 0.5s;
 }
 .link:hover{
-  background:lightskyblue;
-  color: #000;
+  background:#665651;
+  color: white;
   transition: all 0.5s;
+
 }
 .active{
-  background: lightskyblue;
-  color: #000;
+  background: #665651;
+  color: white;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px; 
 }
 .icon, .link_text{
   font-size: 20px;
 }
+
 

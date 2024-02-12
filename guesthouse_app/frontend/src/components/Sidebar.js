@@ -6,6 +6,7 @@ import * as AiIcons from "react-icons/ai";
 import * as IoIcons from "react-icons/io";
 import { IoRestaurantSharp } from "react-icons/io5";
 import { BiSolidReport } from "react-icons/bi";
+import logo from "../assets/logo.png"
 
 
 const Sidebar = ({children}) => {
@@ -45,9 +46,10 @@ const Sidebar = ({children}) => {
     ]
     return (
         <div>
-           <div style={{width: isOpen ? "200px" : "50px"}} className="sidebar">
+           <div style={{width: isOpen ? "250px" : "80px"}} className="sidebar">
+             
                <div className="top_section">
-                   <h1 style={{display: isOpen ? "block" : "none"}} className="logo">Logo</h1>
+                   <div style={{display: isOpen ? "block" : "none"}} className="logo"> <img src={logo} alt="logo" style={{height:"100px", marginLeft:"15px"}}></img></div>
                    <div style={{marginLeft: isOpen ? "50px" : "0px"}} className="bars">
                        <FaBars onClick={toggle}/>
                    </div>
