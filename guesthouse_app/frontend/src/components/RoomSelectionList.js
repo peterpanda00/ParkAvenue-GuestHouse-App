@@ -2,9 +2,10 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import React, { useState, useEffect } from 'react';
 import { FaFilter, FaSort, FaSearch, FaSave, FaEye, FaEyeSlash, FaTrash} from 'react-icons/fa';
 import { Row, Col, Form, CardBody, Card, Table, InputGroup} from 'react-bootstrap';
+import BookingForm from "../components/BookingForm"
 import '../index.css';
 
-const RoomSelectionList = ({offerList, onOfferSubmission}) => {
+const RoomSelectionList = ({roomList, onOfferSubmission}) => {
   const [hasItems, setHasItems] = useState(false);
   const [isFullView, setIsFullView] = useState(true);
   const [validated, setValidated] = useState(false);
@@ -57,12 +58,12 @@ const handleRemoveFromItemList = (index) => {
 
 console.log(itemList)
 
-const handleAddToItemList = (offer) => {
+const handleAddToItemList = (room) => {
     // Create a new object with the offer's properties and add additional fields
     const newItem = {
-      ...offer,
+      ...room,
       quantity: 1,
-      discPrice: offer.price // Set discPrice to be the same as price initially
+      discPrice: room.price // Set discPrice to be the same as price initially
     };
     // Add the new item to the itemList
     setItemList(prevItemList => [...prevItemList, newItem]);
@@ -112,16 +113,14 @@ const handleAddToItemList = (offer) => {
                 {/* Initial View Display */}
                 
                 {itemList.length == 0 ? (
-                    <Col lg="12">
+                    <Col lg="11" style={{marginLeft:"40px", marginRight:"10px"}}>
                         <Row>
-                        {offerList.map((offer, index) => (
+                        {roomList.map((room, index) => (
                             <Col className="mt-3" lg="2" key={index}>
-                            <Card style={{ height: '100%',cursor: 'pointer', padding: '20px', background: 'white', color: '#014c91' }} onClick={() => handleAddToItemList(offer)}>
-                                <Card.Title>{offer.name}</Card.Title>
-                                <Card.Text>
-                                {offer.code} <br />
-                                <strong>₱ {formatNumber(offer.price)}  </strong><br />
-                                {offer.type}
+                            <Card style={{ height: '200px',width:'200px',cursor: 'pointer', padding: '10px', background: '#665651', color: 'white' , justifyContent: 'flex-end'}} onClick={() => handleAddToItemList(room)}>
+                                <Card.Title style={{textAlign: 'center'}}>{room.name}</Card.Title>
+                                <Card.Text style={{textAlign: 'center'}} >
+                                {room.type}
                                 </Card.Text>
                             </Card>
                             </Col>
@@ -133,10 +132,10 @@ const handleAddToItemList = (offer) => {
                 ):(
                     
                 <>
-                {/*Quotation Summary*/}
-                    <Col lg={isFullView ? "7" : "12"} style={{ transition: 'all 0.2s ease' }}>
-                        <div className="mt-3" style={{ padding: '6px', borderRadius: '10px', background: 'white', color: '#014c91', textAlign: 'center' }}>
-                             <strong>Quotation Summary </strong>
+                {/*Booking Form*/}
+                    <Col lg='6' style={{ transition: 'all 0.2s ease' }}>
+                        <div className="mt-3" style={{ padding: '6px', borderRadius: '10px', background: 'white', color: '#665651', textAlign: 'center', fontSize:"30px"}}>
+                            <strong>Booking Form</strong>
                         </div>
 
                         <div style={{ marginTop:'6px', overflowY: 'auto', overflowX:'hidden', overflowY:'hidden' }}>
@@ -144,91 +143,20 @@ const handleAddToItemList = (offer) => {
                             <Card style={{ borderRadius: '20px', marginTop: '20px', background: 'white', color: '#014c91'  }}>
                                 <CardBody>
                                     <Form validated={validated} onSubmit={handleSubmit}>
-                                        <Table>
-                                            <thead>
-                                                <tr>
-                                                    <th style={{color: '#014c91', width: '10%'}}>Quantity</th>
-                                                    <th style={{color: '#014c91'}}>Description</th>
-                                                    <th style={{color: '#014c91'}}>Unit Model</th>
-                                                    <th style={{color: '#014c91'}}>SRP</th>
-                                                    <th style={{color: '#014c91'}}>Discounted Price</th>
-                                                    <th style={{color: '#014c91', width: '5%'}}></th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                            {itemList.map((item, index) => (
-                                                    <tr key={index} style={{ borderRadius: '20px', padding: '10px' }}>
-                                                    <td style={{ color: '#014c91' }}>
-                                                        <Form.Group controlId={`qty-${index}`}>
-                                                            <Form.Control   type="number" inputmode="numeric" min="1" required
-                                                                            value={item.quantity} onChange={(e) => handleItemListChange(e, index, 'quantity')} />
-                                                        </Form.Group>
-                                                    </td>
-                                                    <td style={{ color: '#014c91' }}>{item.name}</td>
-                                                    <td style={{ color: '#014c91' }}>{item.code}</td>
-                                                    <td style={{ color: '#014c91' }}>
-                                                        ₱ {formatNumber(item.price)}
-                                                    </td>
-                                                    <td style={{ color: '#014c91' }}>
-                                                        <Form.Group controlId={`discPrice-${index}`}>
-                                                            <InputGroup>
-                                                                <InputGroup.Text> ₱ </InputGroup.Text>
-                                                                <Form.Control   className="money" type="number" inputmode="numeric" min="0" 
-                                                                                required onWheel={(e) => e.target.blur()} value={item.discPrice}
-                                                                                onChange={(e) => handleItemListChange(e, index, 'discPrice')} />
-                                                            </InputGroup>
-                                                        </Form.Group>
-                                                    </td>
-                                                    <td style={{ color: '#014c91' }}>
-                                                        {React.createElement(FaTrash, { 
-                                                            size: 18, 
-                                                            style: { marginTop: '6px', cursor: 'pointer' }, 
-                                                            onClick: () => handleRemoveFromItemList(index) // Attach onClick event handler
-                                                        })}
-                                                    </td>
-                                                </tr>
-                                            
-                                            ))}
+                                        
 
-                                            </tbody>
-                                        </Table>
-
-                                        {/*Total*/}
-                                        <div style={{ padding: '10px', borderRadius: '10px', marginTop: '20px', background: '#E5EDF4', color: '#014c91'  }}>
-                                            <Row >
-                                                <Col lg="3">
-                                                    Subtotal
-                                                </Col>
-                                                <Col lg="3">
-                                                    ₱ {formatNumber(itemListTotals.subtotal)}
-                                                </Col>
-                                            </Row>
-                                            <Row >
-                                                <Col lg="3">
-                                                    Total Discount
-                                                </Col>
-                                                <Col lg="3">
-                                                (₱ {formatNumber(itemListTotals.totalDisc)})
-                                                    
-                                                </Col>
-                                            </Row>
-                                            <Row className="mt-2" >
-                                                <Col lg="3">
-                                                    <strong> Total </strong>
-                                                </Col>
-                                                <Col lg="3">
-                                                    <strong>₱ {formatNumber(itemListTotals.total)} </strong>
-                                                </Col>
-                                            </Row>
+                                        
+                                        <div style={{ padding: '10px', borderRadius: '10px', marginTop: '20px', background: '#665651', color: 'white'  }}>
+                                            <BookingForm></BookingForm>
                                         </div>
 
                                         <Row className="mt-4">
-                                            <Col lg="12" className="d-flex justify-content-end">
-                                                <button className="btn" style={{ color: "white", backgroundColor: "#014c91" }}>
-                                                {React.createElement(FaSave, { size: 18, style: { marginRight: '5px' } })} Save Quotation
+                                            <Col lg="6" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' , marginLeft:'200px'}}>
+                                                <button className="btn" style={{ color: "white", backgroundColor: "#665651" }}>
+                                                {React.createElement(FaSave, { size: 18, style: { marginRight: '5px' } })} Book Room
                                                 </button>
                                             </Col>
-                                        </Row>
+                                            </Row>
                                     </Form>                
                                 </CardBody>
                             </Card>
@@ -237,44 +165,27 @@ const handleAddToItemList = (offer) => {
                     </Col>
 
                     {/*Offer List*/}
-                    {isFullView && shouldRender && (
+                    
                     <Col lg="5" >
 
-                    {/* Navigation Mechanism */}
+                   
                      <Row>
-                        <Col lg="6">
-                            <div className="mb-2 mt-3 input-group" style={{ maxWidth: "100%", display: "flex", 
-                                                                            backgroundColor: "#014c91", borderRadius: "10px", 
-                                                                            overflow: "hidden"}}>
-                                <div style={{backgroundColor: "#014c91", width: "30px", height: "100%"}}>
-                                    <div style={{padding: "5px", color: 'white'}}>
-                                        {React.createElement(FaSort, { size: 20 })}
-                                    </div>
-                                </div>
-                                <select className="form-select">
-                                    <option value="">Sort by Name (A-Z)</option>
-                                    <option value="1">Sort by Name (Z-A)</option>
-                                    <option value="2">Sort by Price (A-Z)</option>
-                                    <option value="3">Sort by Price (Z-A)</option>
-                                </select>
-                            </div>
-                        </Col>
+                        
                         {/*Filtering Mechanism*/ }
                         <Col lg="6">
                             <div className="mb-2 mt-3 input-group" style={{ maxWidth: "100%", display: "flex",
-                                                                            backgroundColor: "#014c91", borderRadius: "10px",
+                                                                            backgroundColor: "#665651", borderRadius: "10px",
                                                                             overflow: "hidden"}}>
-                                <div style={{backgroundColor: "#014c91", width: "30px", height: "100%"}}>   
+                                <div style={{backgroundColor: "#665651", width: "30px", height: "100%"}}>   
                                     <div style={{padding: "5px", color: 'white'}}>
                                         {React.createElement(FaFilter, { size: 20 })}
                                     </div>  
                                 </div>
                                 <select className="form-select">
-                                    <option value="">All Products/Services</option>
-                                    <option value="0">Window-type Products</option>
-                                    <option value="1">Split-type Products</option>
-                                    <option value="2">Product Parts</option>
-                                    <option value="3">Services</option>
+                                    <option value="">Single Room</option>
+                                    <option value="0">Twin Room</option>
+                                    <option value="1">Queen Room</option>
+                                    <option value="2">Family Size</option>
                                 </select>
                             </div>
                         </Col>
@@ -284,9 +195,9 @@ const handleAddToItemList = (offer) => {
                         {/*Search Bar*/ }
                         <Col lg="12">
                         <div className="mb-2 mt-3 input-group" style={{ maxWidth: "100%", display: "flex",
-                                                                            backgroundColor: "#014c91", borderRadius: "10px",
+                                                                            backgroundColor: "#665651", borderRadius: "10px",
                                                                             overflow: "hidden"}}>
-                                <div style={{backgroundColor: "#014c91", width: "30px", height: "100%"}}>   
+                                <div style={{backgroundColor: "#665651", width: "30px", height: "100%"}}>   
                                     <div style={{padding: "5px", color: 'white'}}>
                                         {React.createElement(FaSearch, { size: 20 })}
                                     </div>  
@@ -299,14 +210,12 @@ const handleAddToItemList = (offer) => {
 
                     <div style={{ maxHeight: '78vh', overflowY: 'auto', overflowX:'hidden'}}>
                         <Row>
-                        {offerList.map((offer, index) => (
+                        {roomList.map((room, index) => (
                             <Col className="mt-3" lg="4" key={index}>
-                            <Card style={{ height: '100%',cursor: 'pointer', padding: '20px', background: 'white', color: '#014c91' }} onClick={() => handleAddToItemList(offer)}>
-                                <Card.Title>{offer.name}</Card.Title>
+                            <Card style={{ height:'200px',width:'200px',cursor: 'pointer', padding: '10px', background: '#665651', color: 'white' , justifyContent: 'flex-end'}} onClick={() => handleAddToItemList(room)}>
+                                <Card.Title>{room.name}</Card.Title>
                                 <Card.Text>
-                                {offer.code} <br />
-                                <strong>₱ {formatNumber(offer.price)}  </strong><br />
-                                {offer.type}
+                                {room.type}
                                 </Card.Text>
                             </Card>
                             </Col>
@@ -314,7 +223,7 @@ const handleAddToItemList = (offer) => {
                         </Row>
                     </div>
                     </Col>
-                    )}
+                    
                     
                     </>
                 )} 

@@ -21,144 +21,80 @@ const RoomBooking = () => {
     setValidated(true);
   };
 
-  const [selectionType, setSelectionType] = useState('offer'); // Default to offer selection
+  const [selectionType, setSelectionType] = useState('room'); // Default to room selection
 
   const handleOfferSubmission = () => {
     setSelectionType('client');
   };
 
 // Sample data for different products and services
-const offerList = [
+const roomList = [
     {
       name: 'Room 811',
-      roomtype: 'Single Room',
-      price: 36999,
-      type: 'Split-type',
+      type: 'Single Room'
     },
     {
       name: 'Room 812',
-      roomtype: 'Single Room',
-      price: 12000,
-      type: 'Window-type',
+      type: 'Single Room'
     },
     {
       name: 'Room 813',
-      roomtype: 'SRV-98765',
-      price: 12000,
-      type: 'Service',
+      type: 'Single Room'
     },
     {
-      name: 'Part 1',
-      code: 'PART-12345',
-      price: 12000,
-      type: 'Parts',
+      name: 'Room 815',
+      type: 'Twin Room'
     },
     {
-      name: 'Product 3',
-      code: 'GHI-54321',
-      price: 12000,
-      type: 'Split-type',
+      name: 'Room 816',
+      type: 'Twin Room'
     },
     {
-      name: 'Product 4',
-      code: 'JKL-67890',
-      price: 12000,
-      type: 'Window-type',
+      name: 'Room 816',
+      type: 'Twin Room'
     },
     {
-      name: 'Service 2',
-      code: 'SRV-54321',
-      price: 12000,
-      type: 'Service',
+      name: 'Room 821',
+      type: 'Queen Room'
     },
     {
-      name: 'Part 2',
-      code: 'PART-67890',
-      price: 12000,
-      type: 'Parts',
+      name: 'Room 822',
+      type: 'Queen Room'
     },
     {
-      name: 'Product 5',
-      code: 'MNO-98765',
-      price: 12000,
-      type: 'Split-type',
+      name: 'Room 823',
+      type: 'Queen Room'
     },
     {
-      name: 'Product 6',
-      code: 'PQR-54321',
-      price: 12000,
-      type: 'Window-type',
+      name: 'Room 825',
+      type: 'Twin Room'
     },
     {
-      name: 'Service 3',
-      code: 'SRV-34567',
-      price: 12000,
-      type: 'Service',
+      name: 'Room 826',
+      type: 'Twin Room'
     },
     {
-      name: 'Part 3',
-      code: 'PART-87654',
-      price: 12000,
-      type: 'Parts',
+      name: 'Room 827',
+      type: 'Twin Room'
     },
     {
-      name: 'Product 7',
-      code: 'STU-12345',
-      price: 12000,
-      type: 'Split-type',
+      name: 'Room 828',
+      type: 'Family Room'
     },
     {
-      name: 'Product 8',
-      code: 'VWX-67890',
-      price: 12000,
-      type: 'Window-type',
-    },
-    {
-      name: 'Service 4',
-      code: 'SRV-87654',
-      price: 12000,
-      type: 'Service',
-    },
-    {
-      name: 'Part 4',
-      code: 'PART-23456',
-      price: 12000,
-      type: 'Parts',
-    },
-    {
-      name: 'Product 9',
-      code: 'YZA-98765',
-      price: 12000,
-      type: 'Split-type',
-    },
-    {
-      name: 'Product 10',
-      code: 'BCD-54321',
-      price: 12000,
-      type: 'Window-type',
-    },
-    {
-      name: 'Service 5',
-      code: 'SRV-56789',
-      price: 12000,
-      type: 'Service',
-    },
-    {
-      name: 'Part 5',
-      code: 'PART-65432',
-      price: 12000,
-      type: 'Parts',
+      name: 'Room 829',
+      type: 'Family Room'
     },
   ];
   
 
   return (
     
-    <div style={{ width: '100%', background: '#E5EDF4', color: '#014c91', display:'flex'}}>
+    <div style={{ width: '100%', background: 'white', color: '#014c91', display:'flex'}}>
       
       
       <Sidebar/>
-      <RoomSelection offerList={offerList}/>
+      <RoomSelection roomList={roomList}/>
 
     </div>
   );
