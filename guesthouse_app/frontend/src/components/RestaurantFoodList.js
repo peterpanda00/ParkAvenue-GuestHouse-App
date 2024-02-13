@@ -116,12 +116,22 @@ const RoomSelectionList = ({ roomList, onOfferSubmission }) => {
                     <Col lg="11" style={{ marginLeft: "40px", marginRight: "10px" }}>
                         <Row>
                             {roomList.map((room, index) => (
+                                // <Col className="mt-3" lg="2" key={index}>
+                                //     <Card style={{ height: '200px', width: '200px', cursor: 'pointer', padding: '10px', background: '#665651', color: 'white', justifyContent: 'flex-end' }} onClick={() => handleAddToItemList(room)}>
+                                //     <img src={room.imageUrl} style={{width:'auto' , height:'100px'}}/>
+                                //         <Card.Title style={{ textAlign: 'center' }}>{room.name}</Card.Title>
+                                //         <Card.Text style={{ textAlign: 'center' }} >
+                                //             {room.type}
+                                //         </Card.Text>
+                                //     </Card>
+                                // </Col>
                                 <Col className="mt-3" lg="2" key={index}>
-                                    <Card style={{ height: '200px', width: '200px', cursor: 'pointer', padding: '10px', background: '#665651', color: 'white', justifyContent: 'flex-end' }} onClick={() => handleAddToItemList(room)}>
-                                        <Card.Title style={{ textAlign: 'center' }}>{room.name}</Card.Title>
-                                        <Card.Text style={{ textAlign: 'center' }} >
-                                            {room.type}
-                                        </Card.Text>
+                                    <Card style={{ position: 'relative', height: '200px', width: '200px', cursor: 'pointer', padding: '10px', background: '#665651', color: 'white' }} onClick={() => handleAddToItemList(room)}>
+                                        <div style={{ position: 'relative', width: '100%', height: '100%', zIndex: 1 }}>
+                                            <Card.Title style={{ textAlign: 'center', marginBottom: '10px', position: 'relative', zIndex: 2 }}>{room.name}</Card.Title>
+                                            <Card.Text style={{ textAlign: 'center', position: 'relative', zIndex: 2 }}>{room.type}</Card.Text>
+                                        </div>
+                                        <img src={room.imageUrl} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 }} alt={room.name} />
                                     </Card>
                                 </Col>
                             ))}
