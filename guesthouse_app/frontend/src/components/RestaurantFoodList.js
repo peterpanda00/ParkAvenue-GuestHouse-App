@@ -168,6 +168,13 @@ const RestaurantFoodList = ({ foodList, onOfferSubmission }) => {
                                                     <td style={{ color: '#665651' }}>
                                                         ₱ {formatNumber(item.price)}
                                                     </td>
+                                                    <td style={{ color: '#665651' }}>
+                                                        {React.createElement(FaTrash, { 
+                                                            size: 18, 
+                                                            style: { marginTop: '6px', cursor: 'pointer' }, 
+                                                            onClick: () => handleRemoveFromItemList(index) // Attach onClick event handler
+                                                        })}
+                                                    </td>
                                                     
                                                 </tr>
                                             
