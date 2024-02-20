@@ -28,7 +28,7 @@ import tapSilog from '../restaurant/FILIPINO-BREAKFAST-2/Tapsilog.png'
 import toCilog from '../restaurant/FILIPINO-BREAKFAST-2/Tocilog.png'
 
 
-const RoomBooking = () => {
+const Restaurant = () => {
   const [hasItems, setHasItems] = useState(true);
   const [validated, setValidated] = useState(false);
 
@@ -49,111 +49,132 @@ const RoomBooking = () => {
   };
 
   // Sample data for different products and services
-  const roomList = [
+  const foodList = [
     {
       name: 'Classic Pancakes',
       type: 'All-Day Breakfast',
+      price: 100,
       imageUrl: classicPancakes
     },
     {
       name: 'Classic Pancakes with Fruits',
       type: 'All-Day Breakfast',
+      price: 100,
       imageUrl: classicPancakesWdFruits
     },
     {
       name: 'Pancakes with Chocolate',
       type: 'All-Day Breakfast',
+      price: 100,
       imageUrl: pancakesWdChoco
     },
     {
       name: 'Burger Pancake with Egg',
       type: 'All-Day Breakfast',
+      price: 100,
       imageUrl: burgerPancakeWdEgg
 
     },
     {
       name: 'Cheesy Bacon Burger Pancake',
       type: 'All-Day Breakfast',
+      price: 100,
       imageUrl: cheesyBaconBurgerPancake
     },
     {
       name: 'Ham, Egg, & Cheese Burrito',
       type: 'All-Day Breakfast',
+      price: 100,
       imageUrl: hamEggCheeseBurrito
     },
     {
       name: 'Ham & Cheese Omelet',
       type: 'All-Day Breakfast',
+      price: 100,
       imageUrl: hamCheeseOme
     },
     {
       name: 'Chicken Fillet Sandwhich',
       type: 'All-Day Breakfast',
+      price: 100,
       imageUrl: chickenFillSandwich
     },
     {
       name: 'Bacon, Egg, Sausage & Toasts',
       type: 'All-Day Breakfast',
+      price: 100,
       imageUrl: baconEggSausageToast
     },
     {
       name: 'Bacsilog',
       type: 'Filipino Breakfast',
+      price: 100,
       imageUrl: bacSilog
     },
     {
       name: 'Chix-silog',
       type: 'Filipino Breakfast',
+      price: 100,
       imageUrl: chixSilog
     },
     {
       name: 'Cornsilog',
       type: 'Filipino Breakfast',
+      price: 100,
       imageUrl: cornSilog
     },
     {
       name: 'Bangsilog',
       type: 'Filipino Breakfast',
+      price: 100,
       imageUrl: bangSilog
     },
     {
       name: 'Burgersilog',
       type: 'Filipino Breakfast',
+      price: 100,
       imageUrl: burgerSilog
     },
     {
       name: 'Danggitsilog',
       type: 'Filipino Breakfast',
+      price: 100,
       imageUrl: danggitSilog
     },
     {
       name: 'Longsilog',
       type: 'Filipino Breakfast',
+      price: 100,
       imageUrl: longSilog
     },
     {
       name: 'Lumpiasilog',
       type: 'Filipino Breakfast',
+      price: 100,
       imageUrl: lumpiaSilog
     },
     {
       name: 'Sisigsilog',
       type: 'Filipino Breakfast',
+      price: 100,
       imageUrl: sisigSilog
     },
     {
       name: 'Tapsilog',
       type: 'Filipino Breakfast',
+      price: 100,
       imageUrl: tapSilog
     },
     {
       name: 'Cornsilog',
       type: 'Filipino Breakfast',
+      price: 100,
       imageUrl: cornSilog
     },
     {
       name: 'Tocilog',
       type: 'Filipino Breakfast',
+      price: 100,
       imageUrl: toCilog
     },
 
@@ -168,10 +189,10 @@ const RoomBooking = () => {
 
 
       <Sidebar />
-      <RoomSelection roomList={roomList} />
+      <RoomSelection foodList={foodList} />
 
     </div>
   );
 };
 
-export default RoomBooking;
+export default Restaurant;

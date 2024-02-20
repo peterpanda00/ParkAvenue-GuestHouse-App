@@ -5,7 +5,7 @@ import { Row, Col, Form, CardBody, Card, Table, InputGroup } from 'react-bootstr
 import BookingForm from "./BookingForm"
 import '../index.css';
 
-const RoomSelectionList = ({ roomList, onOfferSubmission }) => {
+const RestaurantFoodList = ({ foodList, onOfferSubmission }) => {
     const [hasItems, setHasItems] = useState(false);
     const [isFullView, setIsFullView] = useState(true);
     const [validated, setValidated] = useState(false);
@@ -115,16 +115,8 @@ const RoomSelectionList = ({ roomList, onOfferSubmission }) => {
                 {itemList.length == 0 ? (
                     <Col lg="11" style={{ marginLeft: "40px", marginRight: "10px" }}>
                         <Row>
-                            {roomList.map((room, index) => (
-                                // <Col className="mt-3" lg="2" key={index}>
-                                //     <Card style={{ height: '200px', width: '200px', cursor: 'pointer', padding: '10px', background: '#665651', color: 'white', justifyContent: 'flex-end' }} onClick={() => handleAddToItemList(room)}>
-                                //     <img src={room.imageUrl} style={{width:'auto' , height:'100px'}}/>
-                                //         <Card.Title style={{ textAlign: 'center' }}>{room.name}</Card.Title>
-                                //         <Card.Text style={{ textAlign: 'center' }} >
-                                //             {room.type}
-                                //         </Card.Text>
-                                //     </Card>
-                                // </Col>
+                            {foodList.map((room, index) => (
+                                
                                 <Col className="mt-3" lg="2" key={index}>
                                     <Card style={{ position: 'relative', height: '200px', width: '200px', cursor: 'pointer', padding: '10px', background: '#665651', color: 'white' }} onClick={() => handleAddToItemList(room)}>
                                         <div style={{ position: 'relative', width: '100%', height: '100%', zIndex: 1 }}>
@@ -142,41 +134,94 @@ const RoomSelectionList = ({ roomList, onOfferSubmission }) => {
                 ) : (
 
                     <>
-                        {/*Booking Form*/}
-                        <Col lg='6' style={{ transition: 'all 0.2s ease' }}>
-                            <div className="mt-3" style={{ padding: '6px', borderRadius: '10px', background: 'white', color: '#665651', textAlign: 'center', fontSize: "30px" }}>
-                                <strong>Booking Form</strong>
-                            </div>
+                    {/*Order Summary*/}
+                    <Col lg={isFullView ? "5" : "12"} style={{ transition: 'all 0.2s ease' }}>
+                        <div className="mt-3" style={{ padding: '6px', borderRadius: '10px', background: 'white', color: '#665651', textAlign: 'center',fontSize:"30px" }}>
+                             <strong>Order Summary </strong>
+                        </div>
 
-                            <div style={{ marginTop: '6px', overflowY: 'auto', overflowX: 'hidden', overflowY: 'hidden' }}>
+                        <div style={{ marginTop:'6px', overflowY: 'auto', overflowX:'hidden', overflowY:'hidden' }}>
 
-                                <Card style={{ borderRadius: '20px', marginTop: '20px', background: 'white', color: '#014c91' }}>
-                                    <CardBody>
-                                        <Form validated={validated} onSubmit={handleSubmit}>
+                            <Card style={{ borderRadius: '20px', marginTop: '20px', background: 'white', color: '#014c91'  }}>
+                                <CardBody>
+                                    <Form validated={validated} onSubmit={handleSubmit}>
+                                        <Table>
+                                            <thead>
+                                                <tr>
+                                                    <th style={{color: '#665651', width: '10%'}}>Quantity</th>
+                                                    <th style={{color: '#665651'}}>Name</th>
+                                                    <th style={{color: '#665651'}}>Price</th>
+                                                    
+                                             
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                            {itemList.map((item, index) => (
+                                                    <tr key={index} style={{ borderRadius: '20px', padding: '10px' }}>
+                                                    <td style={{ color: '#665651' }}>
+                                                        <Form.Group controlId={`qty-${index}`}>
+                                                            <Form.Control   type="number" inputmode="numeric" min="1" required
+                                                                            value={item.quantity} onChange={(e) => handleItemListChange(e, index, 'quantity')} />
+                                                        </Form.Group>
+                                                    </td>
+                                                    <td style={{ color: '#665651' }}>{item.name}</td>
+                                                    <td style={{ color: '#665651' }}>
+                                                        ₱ {formatNumber(item.price)}
+                                                    </td>
+                                                    
+                                                </tr>
+                                            
+                                            ))}
 
+                                            </tbody>
+                                        </Table>
 
-
-                                            <div style={{ padding: '10px', borderRadius: '10px', marginTop: '20px', background: '#665651', color: 'white' }}>
-                                                <BookingForm></BookingForm>
-                                            </div>
-
-                                            <Row className="mt-4">
-                                                <Col lg="6" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginLeft: '200px' }}>
-                                                    <button className="btn" style={{ color: "white", backgroundColor: "#665651" }}>
-                                                        {React.createElement(FaSave, { size: 18, style: { marginRight: '5px' } })} Book Room
-                                                    </button>
+                                        {/*Total*/}
+                                        <div style={{ padding: '10px', borderRadius: '10px', marginTop: '20px', background: '#F2EFEB', color: '#665651'  }}>
+                                            <Row >
+                                                <Col lg="3">
+                                                    Subtotal
+                                                </Col>
+                                                <Col lg="3">
+                                                    ₱ {formatNumber(itemListTotals.subtotal)}
                                                 </Col>
                                             </Row>
-                                        </Form>
-                                    </CardBody>
-                                </Card>
+                                            <Row >
+                                                <Col lg="3">
+                                                    Total Discount
+                                                </Col>
+                                                <Col lg="3">
+                                                (₱ {formatNumber(itemListTotals.totalDisc)})
+                                                    
+                                                </Col>
+                                            </Row>
+                                            <Row className="mt-2" >
+                                                <Col lg="3">
+                                                    <strong> Total </strong>
+                                                </Col>
+                                                <Col lg="3">
+                                                    <strong>₱ {formatNumber(itemListTotals.total)} </strong>
+                                                </Col>
+                                            </Row>
+                                        </div>
 
-                            </div>
-                        </Col>
+                                        <Row className="mt-4">
+                                            <Col lg="12" className="d-flex justify-content-center">
+                                                <button className="btn" style={{ color: "white", backgroundColor: "#665651" }}>
+                                                {React.createElement(FaSave, { size: 18, style: { marginRight: '5px' } })} Save Order
+                                                </button>
+                                            </Col>
+                                        </Row>
+                                    </Form>                
+                                </CardBody>
+                            </Card>
+
+                        </div>
+                    </Col>
 
                         {/*Offer List*/}
 
-                        <Col lg="5" >
+                        <Col lg="7" >
 
 
                             <Row>
@@ -194,10 +239,9 @@ const RoomSelectionList = ({ roomList, onOfferSubmission }) => {
                                             </div>
                                         </div>
                                         <select className="form-select">
-                                            <option value="">Single Room</option>
-                                            <option value="0">Twin Room</option>
-                                            <option value="1">Queen Room</option>
-                                            <option value="2">Family Size</option>
+                                            <option value="">Breakfast</option>
+                                            <option value="0">Lunch & Dinner</option>
+                                            <option value="1">Beverages</option>
                                         </select>
                                     </div>
                                 </Col>
@@ -205,7 +249,7 @@ const RoomSelectionList = ({ roomList, onOfferSubmission }) => {
 
                             <Row>
                                 {/*Search Bar*/}
-                                <Col lg="12">
+                                <Col lg="6">
                                     <div className="mb-2 mt-3 input-group" style={{
                                         maxWidth: "100%", display: "flex",
                                         backgroundColor: "#665651", borderRadius: "10px",
@@ -224,16 +268,16 @@ const RoomSelectionList = ({ roomList, onOfferSubmission }) => {
 
                             <div style={{ maxHeight: '78vh', overflowY: 'auto', overflowX: 'hidden' }}>
                                 <Row>
-                                    {roomList.map((room, index) => (
-                                        <Col className="mt-3" lg="4" key={index}>
-                                            <Card style={{ height: '200px', width: '200px', cursor: 'pointer', padding: '10px', background: '#665651', color: 'white', justifyContent: 'flex-end' }} onClick={() => handleAddToItemList(room)}>
-                                                {room.image && <img src={room.image} alt={room.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
-                                                <Card.Title>{room.name}</Card.Title>
-                                                <Card.Text>
-                                                    {room.type}
-                                                </Card.Text>
-                                            </Card>
-                                        </Col>
+                                    {foodList.map((room, index) => (
+                                         <Col className="mt-3" lg="6" key={index}>
+                                         <Card style={{ position: 'relative', height: '200px', width: '200px', cursor: 'pointer', padding: '10px', background: '#665651', color: 'white' }} onClick={() => handleAddToItemList(room)}>
+                                             <div style={{ position: 'relative', width: '100%', height: '100%', zIndex: 1 }}>
+                                                 <Card.Title style={{ textAlign: 'center', marginBottom: '10px', position: 'relative', zIndex: 2 }}>{room.name}</Card.Title>
+                                                 <Card.Text style={{ textAlign: 'center', position: 'relative', zIndex: 2 }}>{room.type}</Card.Text>
+                                             </div>
+                                             <img src={room.imageUrl} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 }} alt={room.name} />
+                                         </Card>
+                                     </Col>
                                     ))}
                                 </Row>
                             </div>
@@ -254,4 +298,4 @@ const RoomSelectionList = ({ roomList, onOfferSubmission }) => {
     );
 };
 
-export default RoomSelectionList;
+export default RestaurantFoodList;
