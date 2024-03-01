@@ -4,12 +4,16 @@ import { FaFilter, FaSort, FaSearch, FaSave, FaEye, FaEyeSlash, FaTrash} from 'r
 import { Row, Col, Form, CardBody, Card, Table, InputGroup} from 'react-bootstrap';
 import BookingForm from "../components/BookingForm"
 import '../index.css';
+import { IoNavigateCircleOutline } from 'react-icons/io5';
+import supabase from "../config/supabaseClient";
 
-const RoomSelectionList = ({roomList, onOfferSubmission}) => {
+const RoomSelectionList = ({onOfferSubmission}) => {
+  const [fetchError,setFetchError] = useState(null)
+  const [roomList,setRoomList] = useState(null)
   const [hasItems, setHasItems] = useState(false);
   const [isFullView, setIsFullView] = useState(true);
   const [validated, setValidated] = useState(false);
-
+  
   //Rendering Transition Logic for Alternating Views
   const [shouldRender, setShouldRender] = useState(false);
   useEffect(() => {
@@ -19,6 +23,36 @@ const RoomSelectionList = ({roomList, onOfferSubmission}) => {
 
     return () => clearTimeout(timeout);
   }, [isFullView]);
+
+
+  useEffect(() => {
+    console.log('Supabase URL:', process.env.REACT_APP_SUPABASE_URL);
+    console.log('Supabase Key:', process.env.REACT_APP_ANON_KEY);
+    const fetchRooms = async () => {
+      try {
+        const { data, error } = await supabase.from('rooms').select();
+  
+        console.log("fetchRooms is called"); // Add this line
+  
+        if (error) {
+          setFetchError('Could not fetch rooms');
+          setRoomList(null);
+          console.log(error);
+        }
+  
+        if (data) {
+          setRoomList(data);
+          setFetchError(null);
+        }
+      } catch (error) {
+        console.error("Error fetching rooms:", error);
+      }
+    };
+  
+    fetchRooms();
+    console.log("trigger")
+  }, []);
+
 
   const handleSubmit = (event) => {
     const form = event.currentTarget;
@@ -56,7 +90,7 @@ const handleRemoveFromItemList = (index) => {
     });
 };
 
-console.log(itemList)
+console.log(roomList)
 
 const handleAddToItemList = (room) => {
     // Create a new object with the offer's properties and add additional fields
@@ -111,20 +145,21 @@ const handleAddToItemList = (room) => {
             <Row>
 
                 {/* Initial View Display */}
+
                 
-                {itemList.length == 0 ? (
+                {itemList.length === 0 ? (
                     <Col lg="11" style={{marginLeft:"40px", marginRight:"10px"}}>
                         <Row>
-                        {roomList.map((room, index) => (
+                       {/*} {roomList.map((room, index) => (
                             <Col className="mt-3" lg="2" key={index}>
                             <Card style={{ height: '200px',width:'200px',cursor: 'pointer', padding: '10px', background: '#665651', color: 'white' , justifyContent: 'flex-end'}} onClick={() => handleAddToItemList(room)}>
-                                <Card.Title style={{textAlign: 'center'}}>{room.name}</Card.Title>
+                                <Card.Title style={{textAlign: 'center'}}>{room.RoomNumber}</Card.Title>
                                 <Card.Text style={{textAlign: 'center'}} >
-                                {room.type}
+                                {room.RoomType}
                                 </Card.Text>
                             </Card>
                             </Col>
-                        ))}
+                       ))}*/}
                         </Row>
                         
                   </Col>

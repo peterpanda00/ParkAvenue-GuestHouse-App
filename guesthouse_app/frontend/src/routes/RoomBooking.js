@@ -1,5 +1,5 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaFilter, FaSort, FaSearch, FaSave} from 'react-icons/fa';
 import { Row, Col, Form, CardBody, Card, Table } from 'react-bootstrap';
 import '../index.css';
@@ -10,6 +10,8 @@ import Sidebar from '../components/Sidebar';
 const RoomBooking = () => {
   const [hasItems, setHasItems] = useState(true);
   const [validated, setValidated] = useState(false);
+
+  
 
   const handleSubmit = (event) => {
     const form = event.currentTarget;
@@ -26,66 +28,6 @@ const RoomBooking = () => {
   const handleOfferSubmission = () => {
     setSelectionType('client');
   };
-
-// Sample data for different products and services
-const roomList = [
-    {
-      name: 'Room 811',
-      type: 'Single Room'
-    },
-    {
-      name: 'Room 812',
-      type: 'Single Room'
-    },
-    {
-      name: 'Room 813',
-      type: 'Single Room'
-    },
-    {
-      name: 'Room 815',
-      type: 'Twin Room'
-    },
-    {
-      name: 'Room 816',
-      type: 'Twin Room'
-    },
-    {
-      name: 'Room 816',
-      type: 'Twin Room'
-    },
-    {
-      name: 'Room 821',
-      type: 'Queen Room'
-    },
-    {
-      name: 'Room 822',
-      type: 'Queen Room'
-    },
-    {
-      name: 'Room 823',
-      type: 'Queen Room'
-    },
-    {
-      name: 'Room 825',
-      type: 'Twin Room'
-    },
-    {
-      name: 'Room 826',
-      type: 'Twin Room'
-    },
-    {
-      name: 'Room 827',
-      type: 'Twin Room'
-    },
-    {
-      name: 'Room 828',
-      type: 'Family Room'
-    },
-    {
-      name: 'Room 829',
-      type: 'Family Room'
-    },
-  ];
   
 
   return (
@@ -94,7 +36,7 @@ const roomList = [
       
       
       <Sidebar/>
-      <RoomSelection roomList={roomList}/>
+      <RoomSelection/>
 
     </div>
   );
