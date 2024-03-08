@@ -1,0 +1,45 @@
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+      sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: margin-left 0.5s;
+  }
+  
+  code {
+    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+      monospace;
+  }
+  
+  .custom-table {
+    border-radius: 20px;
+    border-color: #014c91;
+    border-width: 2px;
+    border-style: solid;
+  }
+
+  .selected-card {
+    background-color: #ffcc00;
+
+  }
+
+  .overlay-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000; /* Adjust the z-index based on your needs */
+  }
+  
+  .overlay-content {
+    width: 80%; /* Adjust the width of the overlay content */
+    max-width: 600px; /* Set a maximum width if needed */
+  }
+  
