@@ -1,5 +1,5 @@
 import  React, { useEffect,useState } from 'react';
-import { Col, Row, Form, Button, Card,Table,CardBody,Dropdown,CheckBox  } from 'react-bootstrap';
+import { Col, Row, Form, Button, Card,Table,CardBody,InputGroup,FormControl  } from 'react-bootstrap';
 import { FaEllipsisH, FaSave, FaEye, FaEyeSlash, FaTrash, FaCheck} from 'react-icons/fa';
 import supabase from "../config/supabaseClient";
 
@@ -14,6 +14,7 @@ const BookingForm = () => {
   const [roomList,setRoomList] = useState([])
   const [roomCount, setRoomCount] = useState(0);
   const [filterValue, setFilterValue] = useState("");
+  const [numOfGuests, setNumOfGuests] = useState(1);
 
   const [formData, setFormData] = useState({
     guestName: '',
@@ -55,16 +56,20 @@ const BookingForm = () => {
       console.log(filteredroomList)
   }, []);
 
-  const handleCheckboxChange = (roomNumber) => {
-    // Check if the room is already in the selectedRooms array
-    const isSelected = selectedRooms.includes(roomNumber);
-  
-    // If it's selected, remove it; otherwise, add it
+ 
+
+  const handleCheckboxChange = (room) => {
+    // Check if the room is already selected
+    const isSelected = selectedRooms.includes(room);
+    
+
+    // Update the selectedRooms state based on the current state
     if (isSelected) {
-      setSelectedRooms(selectedRooms.filter((room) => room !== roomNumber));
+      setSelectedRooms(selectedRooms.filter((selectedRoom) => selectedRoom !== room));
     } else {
-      setSelectedRooms([...selectedRooms, roomNumber]);
+      setSelectedRooms([...selectedRooms, room]);
     }
+    
   };
 
   const filteredroomList = roomList.filter((room) => {
@@ -83,16 +88,36 @@ const BookingForm = () => {
     console.log('Form submitted:', formData);
   };
 
+  const handleNumOfGuestsChange = (value) => {
+    // Ensure the number of guests is within the range of 1 to 20
+    const newValue = Math.min(Math.max(value, 1), 20);
+    setNumOfGuests(newValue);
+  };
+
   
       
 
   return (
-    <div style={{ width: '100%', padding: '5px', borderRadius: '10px', marginTop: '20px', background: '#665651', color: 'white', alignItems: 'center', justifyContent: 'center', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ width: '100%',maxHeight: '750px', padding: '10px', borderRadius: '10px', marginTop: '20px', background: '#665651', color: 'white', display: 'flex', flexDirection: 'column', overflowY: 'auto'  }}>
   <Form onSubmit={handleSubmit}>
 
     {/* Guest Information */}
     <div style={{ marginBottom: '20px' }}>
-      <h2>Guest Information</h2>
+    <div
+        style={{
+          height: '2px', // Adjust the height of the horizontal bar
+          backgroundColor: 'white',
+          margin: '10px 0', // Adjust the margin as needed
+        }}
+      ></div>
+      <h3>Guest Information</h3>
+      <div
+        style={{
+          height: '2px', // Adjust the height of the horizontal bar
+          backgroundColor: 'white',
+          margin: '10px 0', // Adjust the margin as needed
+        }}
+      ></div>
       <Row className="mb-2">
         <Col lg=""><strong>First Name</strong></Col>
         <Col lg="6">
@@ -148,8 +173,22 @@ const BookingForm = () => {
     </div>
 
     {/* Booking Information */}
+    <div
+        style={{
+          height: '2px', // Adjust the height of the horizontal bar
+          backgroundColor: 'white',
+          margin: '10px 0', // Adjust the margin as needed
+        }}
+      ></div>
     <div>
-      <h2>Booking Information</h2>
+      <h3>Booking Information</h3>
+      <div
+        style={{
+          height: '2px', // Adjust the height of the horizontal bar
+          backgroundColor: 'white',
+          margin: '10px 0', // Adjust the margin as needed
+        }}
+      ></div>
       <Row className="mb-2">
         <Col lg="6"><strong>Check-In</strong></Col>
         <Col lg="6">
@@ -175,9 +214,9 @@ const BookingForm = () => {
         </Col>
       </Row>
       <Row>
-        <Col lg="6"><strong>Available Rooms</strong></Col>
+        <Col lg="6"><strong>Select Available Rooms</strong></Col>
         
-        <Card style={{ borderRadius: '20px', marginTop: '20px' }}>
+        <Card style={{ borderRadius: '20px', marginTop: '20px', maxHeight: '400px', overflowY: 'auto' }}>
       <CardBody>
         <Table>
           <thead>
@@ -200,11 +239,11 @@ const BookingForm = () => {
                 <td style={{ color: '#665651' }}>{room.AddPrice}</td>
                 <td style={{ color: '#665651' }}>
                   <div style={{ display: 'flex', alignItems: 'center' }}>
-                    
+                 
                     <input
                       type="checkbox"
-                      checked={selectedRooms.includes(room.RoomNumber)}
-                      onChange={() => handleCheckboxChange(room.RoomNumber)}
+                      checked={selectedRooms.includes(room)}
+                      onChange={() => handleCheckboxChange(room)}
                     />
                     
                   </div>
@@ -217,6 +256,27 @@ const BookingForm = () => {
     </Card>
               
       </Row>
+      <Row className="mb-2">
+      <Col lg="6" className="mt-3">
+        <strong>Number of Guests</strong>
+      </Col>
+      <Col lg="6" className="mt-3">
+        <InputGroup>
+          <Button variant="outline-secondary" onClick={() => handleNumOfGuestsChange(numOfGuests - 1)} style={{ backgroundColor: 'white', borderColor: '#665651', color:'#665651' }}>-</Button>
+          <Form.Control
+            type="number"
+            name="numOfGuests"
+            value={numOfGuests}
+            onChange={(e) => handleNumOfGuestsChange(parseInt(e.target.value, 10))}
+            min="1"
+            max="20"
+          />
+          <Button variant="outline-secondary" onClick={() => handleNumOfGuestsChange(numOfGuests + 1)} style={{ backgroundColor: 'white', borderColor: '#665651', color:'#665651' }}>+</Button>
+        </InputGroup>
+      </Col>
+
+      </Row>
+      
       <Row className="mb-2">
         <Col lg="6"><strong>Booking Channel</strong></Col>
         <Col lg="6">
@@ -241,9 +301,9 @@ const BookingForm = () => {
 
     {/* Submit Button */}
     <Row className="mt-4">
-      <Col lg="5" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginLeft: '200px' }}>
-        <button className="btn" style={{ color: "white", backgroundColor: "#665651" }}>
-          {React.createElement(FaSave, { size: 18, style: { marginRight: '5px' } })} Save Guest Information
+      <Col lg="5" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginLeft: '180px',marginTop: '30px' }}>
+        <button className="btn" style={{ color: "#665651", backgroundColor: "white" }}>
+          {React.createElement(FaSave, { size: 18, style: { marginRight: '5px' } })} Save Booking
         </button>
       </Col>
     </Row>

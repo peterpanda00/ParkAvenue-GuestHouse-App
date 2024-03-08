@@ -240,14 +240,14 @@ const RoomBooking= () => {
         {showBookingForm && 
         <div className="overlay-container">
           <div className="overlay-content">
-            <div className="overlay-header" style={{ padding: '6px', borderRadius: '10px', background: 'white', color: '#665651', textAlign: 'center', fontSize: '30px' }}>
+            <div className="overlay-header" style={{  display: 'flex',justifyContent: 'space-between',padding: '6px', borderRadius: '10px', background: 'white', color: '#665651', textAlign: 'center', fontSize: '30px' }}>
               <strong>Booking Form</strong>
               <button
               className="btn"
-              style={{ color: 'white', backgroundColor: '#665651', padding: '5px', borderRadius: '5px' }}
+              style={{ color: 'white', backgroundColor: '#665651', padding: '5px', borderRadius: '5px',alignSelf: 'flex-end', }}
               onClick={() => setShowBookingForm(false)} // Close button functionality
             >
-              Close
+              X
         </button>
             </div>
             <div className="overlay-body" style={{ marginTop: '6px', overflowY: 'auto', overflowX: 'hidden', overflowY: 'hidden' }}>
