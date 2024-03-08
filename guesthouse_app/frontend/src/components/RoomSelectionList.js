@@ -1,19 +1,27 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import React, { useState, useEffect } from 'react';
 import { FaFilter, FaSort, FaSearch, FaSave, FaEye, FaEyeSlash, FaTrash} from 'react-icons/fa';
-import { Row, Col, Form, CardBody, Card, Table, InputGroup} from 'react-bootstrap';
-import BookingForm from "../components/BookingForm"
+import { Row, Col, Form, CardBody, Card, Table, InputGroup, Button} from 'react-bootstrap';
 import '../index.css';
 import { IoNavigateCircleOutline } from 'react-icons/io5';
 import supabase from "../config/supabaseClient";
+import { FadeLoader } from 'react-spinners'
+import { FaAlignCenter } from 'react-icons/fa6';
 
 const RoomSelectionList = ({onOfferSubmission}) => {
   const [fetchError,setFetchError] = useState(null)
-  const [roomList,setRoomList] = useState(null)
+  const [roomList,setRoomList] = useState([])
   const [hasItems, setHasItems] = useState(false);
   const [isFullView, setIsFullView] = useState(true);
   const [validated, setValidated] = useState(false);
-  
+  const [roomCount, setRoomCount] = useState(0);
+  const [filterValue, setFilterValue] = useState("");
+  const [loading, setLoading] = useState(true); 
+  const [selectedRoom, setSelectedRoom] = useState(null);
+  const [selectedCardIndex, setSelectedCardIndex] = useState(null);
+  const [showBookingForm, setShowBookingForm] = useState(false);
+
+
   //Rendering Transition Logic for Alternating Views
   const [shouldRender, setShouldRender] = useState(false);
   useEffect(() => {
@@ -26,32 +34,48 @@ const RoomSelectionList = ({onOfferSubmission}) => {
 
 
   useEffect(() => {
-    console.log('Supabase URL:', process.env.REACT_APP_SUPABASE_URL);
-    console.log('Supabase Key:', process.env.REACT_APP_ANON_KEY);
+    console.log(supabase)
+
     const fetchRooms = async () => {
       try {
-        const { data, error } = await supabase.from('rooms').select();
-  
-        console.log("fetchRooms is called"); // Add this line
+        const { data, error } = await supabase
+          .from('rooms')
+          .select();
   
         if (error) {
           setFetchError('Could not fetch rooms');
-          setRoomList(null);
-          console.log(error);
+          setRoomList([]);
+          setRoomCount(0);
         }
   
         if (data) {
           setRoomList(data);
           setFetchError(null);
+          setRoomCount(data.length);
         }
       } catch (error) {
-        console.error("Error fetching rooms:", error);
+        console.error(error);
+      } finally {
+        setLoading(false); // Set loading to false when done fetching
       }
     };
   
-    fetchRooms();
-    console.log("trigger")
+      fetchRooms()
+      console.log(roomList)
+      console.log(filteredRoomList)
   }, []);
+
+  const handleFilterChange = (event) => {
+    setFilterValue(event.target.value);
+    setSelectedCardIndex(null);
+    setShowBookingForm(false); 
+  };
+
+  const filteredRoomList = roomList.filter((room) => {
+    // Customize this condition based on your filtering criteria
+    return filterValue === "" || room.RoomType === filterValue;
+  });
+
 
 
   const handleSubmit = (event) => {
@@ -66,76 +90,34 @@ const RoomSelectionList = ({onOfferSubmission}) => {
     setValidated(true);
   };
 
-
-
-
-const [itemList, setItemList] = useState([]);
-const [itemListTotals, setItemListTotals] = useState([]);
-
-const handleItemListChange = (event, index, property) => {
-    const { value } = event.target;
-
-    setItemList(prevItemList => {
-        const updatedItemList = [...prevItemList];
-        updatedItemList[index][property] = value;
-        return updatedItemList;
-    });
-};
-
-const handleRemoveFromItemList = (index) => {
-    setItemList(prevItemList => {
-        const updatedItemList = [...prevItemList];
-        updatedItemList.splice(index, 1); // Remove the item at the specified index
-        return updatedItemList;
-    });
-};
-
-console.log(roomList)
-
-const handleAddToItemList = (room) => {
-    // Create a new object with the offer's properties and add additional fields
-    const newItem = {
-      ...room,
-      quantity: 1,
-      discPrice: room.price // Set discPrice to be the same as price initially
-    };
-    // Add the new item to the itemList
-    setItemList(prevItemList => [...prevItemList, newItem]);
+  const handleCheckIn = () => {
+    // Implement the logic for check-in based on the selected card or room
+    if (selectedCardIndex !== null ) {
+      // Access the selected room using roomList[selectedCardIndex]
+      console.log(`Check-in for room: ${roomList[selectedCardIndex]["RoomNumber "]}`);
+      setShowBookingForm(true); // Show booking form after check-in
+    } else {
+      console.log('No room selected for check-in');
+    }
   };
 
-  // Function to calculate totals
-  const calculateTotals = () => {
-    let subtotal = 0;
-    let total = 0;
-    let totalDisc = 0;
-  
-    // Calculate subtotal and total
-    itemList.forEach(item => {
-      subtotal += parseFloat(item.price) * item.quantity;
-      total += parseFloat(item.discPrice) * item.quantity;
-    });
-  
-    // Calculate total discount
-    totalDisc = total - subtotal;
-  
-    // Update itemListTotals state
-    setItemListTotals({
-      subtotal: subtotal,
-      total: total,
-      totalDisc: totalDisc
-    });
+  const handleCheckOut = () => {
+    // Implement the logic for check-out based on the selected card or room
+    if (selectedCardIndex !== null) {
+      // Access the selected room using roomList[selectedCardIndex]
+      console.log(`Check-out for room: ${roomList[selectedCardIndex]["RoomNumber "]}`);
+    } else {
+      console.log('No room selected for check-out');
+    }
   };
-  
-  
 
-  // Calculate totals when itemList changes
-  useEffect(() => {
-    calculateTotals();
-  }, [itemList]);
-
-  const formatNumber = (number) => {
-    return number.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const handleCardClick = (index) => {
+    setSelectedCardIndex(index);
+    setShowBookingForm(true);
   };
+
+
+
   
 
   return (
@@ -143,71 +125,10 @@ const handleAddToItemList = (room) => {
             
 
             <Row>
-
-                {/* Initial View Display */}
-
-                
-                {itemList.length === 0 ? (
-                    <Col lg="11" style={{marginLeft:"40px", marginRight:"10px"}}>
-                        <Row>
-                       {/*} {roomList.map((room, index) => (
-                            <Col className="mt-3" lg="2" key={index}>
-                            <Card style={{ height: '200px',width:'200px',cursor: 'pointer', padding: '10px', background: '#665651', color: 'white' , justifyContent: 'flex-end'}} onClick={() => handleAddToItemList(room)}>
-                                <Card.Title style={{textAlign: 'center'}}>{room.RoomNumber}</Card.Title>
-                                <Card.Text style={{textAlign: 'center'}} >
-                                {room.RoomType}
-                                </Card.Text>
-                            </Card>
-                            </Col>
-                       ))}*/}
-                        </Row>
-                        
-                  </Col>
-                 
-                ):(
-                    
-                <>
-                {/*Booking Form*/}
-                    <Col lg='6' style={{ transition: 'all 0.2s ease' }}>
-                        <div className="mt-3" style={{ padding: '6px', borderRadius: '10px', background: 'white', color: '#665651', textAlign: 'center', fontSize:"30px"}}>
-                            <strong>Booking Form</strong>
-                        </div>
-
-                        <div style={{ marginTop:'6px', overflowY: 'auto', overflowX:'hidden', overflowY:'hidden' }}>
-
-                            <Card style={{ borderRadius: '20px', marginTop: '20px', background: 'white', color: '#014c91'  }}>
-                                <CardBody>
-                                    <Form validated={validated} onSubmit={handleSubmit}>
-                                        
-
-                                        
-                                        <div style={{ padding: '10px', borderRadius: '10px', marginTop: '20px', background: '#665651', color: 'white'  }}>
-                                            <BookingForm></BookingForm>
-                                        </div>
-
-                                        <Row className="mt-4">
-                                            <Col lg="6" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' , marginLeft:'200px'}}>
-                                                <button className="btn" style={{ color: "white", backgroundColor: "#665651" }}>
-                                                {React.createElement(FaSave, { size: 18, style: { marginRight: '5px' } })} Book Room
-                                                </button>
-                                            </Col>
-                                            </Row>
-                                    </Form>                
-                                </CardBody>
-                            </Card>
-
-                        </div>
-                    </Col>
-
-                    {/*Offer List*/}
-                    
-                    <Col lg="5" >
-
-                   
-                     <Row>
+                <Row>
                         
                         {/*Filtering Mechanism*/ }
-                        <Col lg="6">
+                        <Col lg="6" style={{marginLeft:"40px", marginRight:"10px",marginTop:"50px"}}>
                             <div className="mb-2 mt-3 input-group" style={{ maxWidth: "100%", display: "flex",
                                                                             backgroundColor: "#665651", borderRadius: "10px",
                                                                             overflow: "hidden"}}>
@@ -216,52 +137,77 @@ const handleAddToItemList = (room) => {
                                         {React.createElement(FaFilter, { size: 20 })}
                                     </div>  
                                 </div>
-                                <select className="form-select">
-                                    <option value="">Single Room</option>
-                                    <option value="0">Twin Room</option>
-                                    <option value="1">Queen Room</option>
-                                    <option value="2">Family Size</option>
+                                <select className="form-select" value={filterValue} onChange={handleFilterChange}>
+                                    <option value="">All</option>
+                                    <option value="Single Room">Single Room</option>
+                                    <option value="Superior Twin">Superior Twin</option>
+                                    <option value="Deluxe Queen">Deluxe Queen</option>
+                                    <option value="Imperial King">Imperial King</option>
+                                    <option value="Family Room">Family Room</option>
+                                    
                                 </select>
                             </div>
                         </Col>
                     </Row>
 
-                    <Row>
-                        {/*Search Bar*/ }
-                        <Col lg="12">
-                        <div className="mb-2 mt-3 input-group" style={{ maxWidth: "100%", display: "flex",
-                                                                            backgroundColor: "#665651", borderRadius: "10px",
-                                                                            overflow: "hidden"}}>
-                                <div style={{backgroundColor: "#665651", width: "30px", height: "100%"}}>   
-                                    <div style={{padding: "5px", color: 'white'}}>
-                                        {React.createElement(FaSearch, { size: 20 })}
-                                    </div>  
-                                </div>
-                                <input type="search" className="form-control" placeholder="Search"/>
-                            </div>
-                        </Col>
-                    </Row>
-
-
-                    <div style={{ maxHeight: '78vh', overflowY: 'auto', overflowX:'hidden'}}>
+                    <Col style={{ marginLeft: "40px", marginRight: "10px" }}>
+                      {loading ? (
+                      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+                        <FadeLoader
+                          color="#665651"
+                     
+                        />
+                      </div>
+                      ) : (
                         <Row>
-                        {roomList.map((room, index) => (
-                            <Col className="mt-3" lg="4" key={index}>
-                            <Card style={{ height:'200px',width:'200px',cursor: 'pointer', padding: '10px', background: '#665651', color: 'white' , justifyContent: 'flex-end'}} onClick={() => handleAddToItemList(room)}>
-                                <Card.Title>{room.name}</Card.Title>
-                                <Card.Text>
-                                {room.type}
+                          {filteredRoomList.map((room, index) => (
+                            <Col className="mt-3" lg="2" key={index}>
+                              <Card style={{ height: '200px', width: '200px', cursor: 'pointer', padding: '10px', 
+                                            background: selectedCardIndex === index ? '#9A8D88' : '#665651', 
+                                            color: 'white', justifyContent: 'flex-end' }} onClick={() => handleCardClick(index)} >
+                                <Card.Title style={{ textAlign: 'center', color: 'white' }}>{room["RoomNumber "]}</Card.Title>
+                                <Card.Text style={{ textAlign: 'center' }}>
+                                  {room.RoomType}
                                 </Card.Text>
-                            </Card>
+                              </Card>
                             </Col>
-                        ))}
+                          ))}
                         </Row>
-                    </div>
+                      )}
                     </Col>
+
+                    {/* Buttons for Check-in and Check-out */}
+                  <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+                    <Button variant="success" style={{ marginRight: '10px' }} onClick={handleCheckIn}>
+                      Check-in
+                    </Button>
+                    <Button variant="danger" onClick={handleCheckOut}>
+                      Check-out
+                    </Button>
+                  </div>
+        
+                 
+                <>
+               
+                {/* Form Overlay */}
+        {showBookingForm && (
+          <div className="overlay-container overlay-content">
+              
+            {/* Close button for the overlay */}
+            <button className="close-button" onClick={() => setShowBookingForm(false)}>
+              Close
+            </button>
+          </div>
+        )}
+
+
+
+                 
+                
                     
                     
                     </>
-                )} 
+                 
                 
 
             
