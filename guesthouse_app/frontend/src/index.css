@@ -19,3 +19,27 @@ body {
     border-width: 2px;
     border-style: solid;
   }
+
+  .selected-card {
+    background-color: #ffcc00;
+
+  }
+
+  .overlay-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000; /* Adjust the z-index based on your needs */
+  }
+  
+  .overlay-content {
+    width: 80%; /* Adjust the width of the overlay content */
+    max-width: 600px; /* Set a maximum width if needed */
+  }
+  

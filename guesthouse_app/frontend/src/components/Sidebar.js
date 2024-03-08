@@ -5,6 +5,7 @@ import * as FaIcons from "react-icons/fa";
 import * as AiIcons from "react-icons/ai";
 import * as IoIcons from "react-icons/io";
 import { IoRestaurantSharp } from "react-icons/io5";
+import { FaCalendarPlus } from "react-icons/fa6";
 import { BiSolidReport } from "react-icons/bi";
 import logo from "../assets/logo.png"
 
@@ -20,9 +21,15 @@ const Sidebar = ({children}) => {
            
           },
           {
+            name: "Room Check-In",
+            path: "/room_check_in",
+            icon: <FaIcons.FaBell/>,
+         
+          },
+          {
             name: "Room Booking",
             path: "/room_booking",
-            icon: <FaIcons.FaBell/>,
+            icon: <FaCalendarPlus />
          
           },
           {
