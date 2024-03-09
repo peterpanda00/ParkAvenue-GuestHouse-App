@@ -166,12 +166,6 @@ const Restaurant = () => {
       imageUrl: tapSilog
     },
     {
-      name: 'Cornsilog',
-      type: 'Filipino Breakfast',
-      price: 100,
-      imageUrl: cornSilog
-    },
-    {
       name: 'Tocilog',
       type: 'Filipino Breakfast',
       price: 100,
