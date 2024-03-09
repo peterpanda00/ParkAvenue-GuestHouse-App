@@ -31,116 +31,15 @@ const Restaurant = () => {
   // Sample data for different products and services
   const foodList = [
     {
-      name: 'Classic Pancakes',
-      type: 'All-Day Breakfast',
-      price: 100,
-
+      name: 'Revenue Report',
     },
     {
-      name: 'Classic Pancakes with Fruits',
-      type: 'All-Day Breakfast',
-      price: 100,
+      name: 'Guest Trend Report',
     },
     {
-      name: 'Pancakes with Chocolate',
-      type: 'All-Day Breakfast',
-      price: 100,
+      name: 'Occupancy',
     },
-    {
-      name: 'Burger Pancake with Egg',
-      type: 'All-Day Breakfast',
-      price: 100,
-
-    },
-    {
-      name: 'Cheesy Bacon Burger Pancake',
-      type: 'All-Day Breakfast',
-      price: 100,
-    },
-    {
-      name: 'Ham, Egg, & Cheese Burrito',
-      type: 'All-Day Breakfast',
-      price: 100,
-    },
-    {
-      name: 'Ham & Cheese Omelet',
-      type: 'All-Day Breakfast',
-      price: 100,
-    },
-    {
-      name: 'Chicken Fillet Sandwhich',
-      type: 'All-Day Breakfast',
-      price: 100,
-    },
-    {
-      name: 'Bacon, Egg, Sausage & Toasts',
-      type: 'All-Day Breakfast',
-      price: 100,
-    },
-    {
-      name: 'Bacsilog',
-      type: 'Filipino Breakfast',
-      price: 100,
-
-    },
-    {
-      name: 'Chix-silog',
-      type: 'Filipino Breakfast',
-      price: 100,
-    },
-    {
-      name: 'Cornsilog',
-      type: 'Filipino Breakfast',
-      price: 100,
-    },
-    {
-      name: 'Bangsilog',
-      type: 'Filipino Breakfast',
-      price: 100,
-    },
-    {
-      name: 'Burgersilog',
-      type: 'Filipino Breakfast',
-      price: 100,
-    },
-    {
-      name: 'Danggitsilog',
-      type: 'Filipino Breakfast',
-      price: 100,
-    },
-    {
-      name: 'Longsilog',
-      type: 'Filipino Breakfast',
-      price: 100,
-    },
-    {
-      name: 'Lumpiasilog',
-      type: 'Filipino Breakfast',
-      price: 100,
-    },
-    {
-      name: 'Sisigsilog',
-      type: 'Filipino Breakfast',
-      price: 100,
-    },
-    {
-      name: 'Tapsilog',
-      type: 'Filipino Breakfast',
-      price: 100,
-    },
-    {
-      name: 'Cornsilog',
-      type: 'Filipino Breakfast',
-      price: 100,
-    },
-    {
-      name: 'Tocilog',
-      type: 'Filipino Breakfast',
-      price: 100,
-    },
-
-
-
+    
   ];
 
 
