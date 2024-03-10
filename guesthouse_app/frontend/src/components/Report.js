@@ -1,35 +1,116 @@
 import React, { useState } from 'react';
-import { Card, Table, Button } from 'react-bootstrap';
+import { Card, Table, Button, Row, Col, Form, InputGroup, Dropdown } from 'react-bootstrap';
+import { FaFilter } from 'react-icons/fa';
 
 const Report = () => {
     const [selectedReport, setSelectedReport] = useState('Revenue Report');
+    const [selectedFilter, setSelectedFilter] = useState('');
     const [bookingList, setBookingList] = useState([]);
 
     // Hardcoded data for testing purposes
     const revenueData = [
-        { bookingNumber: 1, clientName: 'John Doe', roomCharges: 100, additionalServices: 20, otherIncomeStreams: 10, totalRevenue: 130 },
-        { bookingNumber: 2, clientName: 'Jane Doe', roomCharges: 120, additionalServices: 30, otherIncomeStreams: 15, totalRevenue: 165 },
-        { bookingNumber: 3, clientName: 'Bob Smith', roomCharges: 150, additionalServices: 25, otherIncomeStreams: 12, totalRevenue: 187 },
+        { bookingNumber: 1, date: '2024-03-04', clientName: 'Jiliana Tan', roomCharges: 1000, additionalServices: 200, otherIncomeStreams: 100, totalRevenue: 1300 },
+        { bookingNumber: 2, date: '2024-01-12', clientName: 'Jilliane Elloso', roomCharges: 1200, additionalServices: 300, otherIncomeStreams: 150, totalRevenue: 1650 },
+        { bookingNumber: 3,  date: '2024-02-13', clientName: 'Taylor Swift', roomCharges: 1500, additionalServices: 250, otherIncomeStreams: 120, totalRevenue: 1870 },
     ];
 
     const guestTrendData = [
-        { roomType: 'Single', averageLengthOfStay: 3, commonBookingChannel: 'Website', percentageOfRepeatGuests: '30%' },
-        { roomType: 'Double', averageLengthOfStay: 2.5, commonBookingChannel: 'Online Travel Agency', percentageOfRepeatGuests: '25%' },
-        { roomType: 'Suite', averageLengthOfStay: 4, commonBookingChannel: 'Phone', percentageOfRepeatGuests: '40%' },
+        { roomType: 'Single', averageLengthOfStay: 3, percentageOfRepeatGuests: 30 },
+        { roomType: 'Double', averageLengthOfStay: 2.5, percentageOfRepeatGuests: 25 },
+        { roomType: 'Suite', averageLengthOfStay: 4, percentageOfRepeatGuests: 40 },
     ];
 
     const occupancyAnalysisData = [
-        { date: '2024-03-10', occupancyRate: '75%' },
-        { date: '2024-03-11', occupancyRate: '80%' },
-        { date: '2024-03-12', occupancyRate: '85%' },
+        { month: 'March', occupancyRate: '75%', peakPeriod: 'Yes', roomTypeOccupancy: '80%', cancellationRate: '10%', revenuePerRoom: '₱15000' },
+        { month: 'April', occupancyRate: '55%', peakPeriod: 'No', roomTypeOccupancy: '45%', cancellationRate: '15%', revenuePerRoom: '₱9000' },
+        { month: 'May', occupancyRate: '85%', peakPeriod: 'Yes', roomTypeOccupancy: '90%', cancellationRate: '12%', revenuePerRoom: '₱17000' },
     ];
+
+    // Function to compute totals for revenue data
+    const computeRevenueTotals = () => {
+        let totalRoomCharges = 0;
+        let totalAdditionalServices = 0;
+        let totalOtherIncomeStreams = 0;
+        let totalRevenue = 0;
+
+        revenueData.forEach(data => {
+            totalRoomCharges += data.roomCharges;
+            totalAdditionalServices += data.additionalServices;
+            totalOtherIncomeStreams += data.otherIncomeStreams;
+            totalRevenue += data.totalRevenue;
+        });
+
+        return { totalRoomCharges, totalAdditionalServices, totalOtherIncomeStreams, totalRevenue };
+    };
+
+    // Render the totals row for Revenue Report
+    const renderRevenueTotalsRow = () => {
+        const totals = computeRevenueTotals();
+        return (
+            <tr>
+                <td colSpan={3}><b>Total:</b></td>
+                <td colSpan={1}><b>₱{totals.totalRoomCharges}</b></td>
+                <td><b>₱{totals.totalAdditionalServices}</b></td>
+                <td><b>₱{totals.totalOtherIncomeStreams}</b></td>
+                <td><b>₱{totals.totalRevenue}</b></td>
+            </tr>
+        );
+    };
+
+    // Function to compute totals for occupancy analysis data
+    const computeOccupancyAnalysisTotals = () => {
+        let totalOccupancyRate = 0;
+        let totalRevenuePerRoom = 0;
+
+        occupancyAnalysisData.forEach(data => {
+            // Assuming revenuePerRoom is a string containing the currency symbol and value
+            const revenueValue = Number(data.revenuePerRoom.slice(1)); // Removing currency symbol and converting to number
+            totalOccupancyRate += parseFloat(data.occupancyRate);
+            totalRevenuePerRoom += revenueValue;
+        });
+
+        return { totalOccupancyRate: totalOccupancyRate.toFixed(2), totalRevenuePerRoom };
+    };
 
     const handleReportSelection = (reportType) => {
         setSelectedReport(reportType);
     };
 
+    const handleFilterSelection = (filterType) => {
+        setSelectedFilter(filterType);
+    };
+
+    // Filter revenue data based on selected filter
+    const filteredRevenueData = () => {
+        if (selectedFilter === '') return revenueData;
+
+        // Logic to filter data based on selected filter
+        // You can implement filtering logic here based on selectedFilter
+        return revenueData; // Placeholder, replace with actual filtered data
+    };
+
     return (
         <div style={{ width: '100%', padding: '20px' }}>
+            <Row>
+                <Col lg="8" className="text-end">
+                    <div className="mb-2 mt-3 input-group" style={{ maxWidth: "50%", display: "flex",
+                                                                        backgroundColor: "#665651", borderRadius: "10px",
+                                                                        overflow: "hidden"}}>
+                        <div style={{backgroundColor: "#665651", width: "30px", height: "100%"}}>   
+                            <div style={{padding: "5px", color: 'white'}}>
+                                <FaFilter size={20} />
+                            </div>  
+                        </div>
+                        <select className="form-select" onChange={(e) => handleFilterSelection(e.target.value)}>
+                            <option value="">All Bookings</option>
+                            <option value="Daily">Daily</option>
+                            <option value="Weekly">Weekly</option>
+                            <option value="Monthly">Monthly</option>
+                            <option value="Yearly">Yearly</option>
+                        </select>
+                    </div>
+                </Col>
+            </Row>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
                 <Button 
                     variant="first" 
@@ -74,6 +155,7 @@ const Report = () => {
                         <thead>
                             <tr>
                                 <th>Booking #</th>
+                                <th>Date</th>
                                 <th>Client Name</th>
                                 <th>Room Charges</th>
                                 <th>Additional Services</th>
@@ -82,16 +164,18 @@ const Report = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {revenueData.map((data, index) => (
+                            {filteredRevenueData().map((data, index) => (
                                 <tr key={index}>
                                     <td>{data.bookingNumber}</td>
+                                    <td>{data.date}</td>
                                     <td>{data.clientName}</td>
-                                    <td>{data.roomCharges}</td>
-                                    <td>{data.additionalServices}</td>
-                                    <td>{data.otherIncomeStreams}</td>
-                                    <td>{data.totalRevenue}</td>
+                                    <td>₱{data.roomCharges}</td>
+                                    <td>₱{data.additionalServices}</td>
+                                    <td>₱{data.otherIncomeStreams}</td>
+                                    <td>₱{data.totalRevenue}</td>
                                 </tr>
                             ))}
+                            {renderRevenueTotalsRow()}
                         </tbody>
                     </Table>
                 </Card>
@@ -104,7 +188,6 @@ const Report = () => {
                             <tr>
                                 <th>Room Type</th>
                                 <th>Average Length of Stay</th>
-                                <th>Common Booking Channel</th>
                                 <th>Percentage of Repeat Guests</th>
                             </tr>
                         </thead>
@@ -113,8 +196,7 @@ const Report = () => {
                                 <tr key={index}>
                                     <td>{data.roomType}</td>
                                     <td>{data.averageLengthOfStay}</td>
-                                    <td>{data.commonBookingChannel}</td>
-                                    <td>{data.percentageOfRepeatGuests}</td>
+                                    <td>{data.percentageOfRepeatGuests}%</td>
                                 </tr>
                             ))}
                         </tbody>
@@ -127,17 +209,31 @@ const Report = () => {
                     <Table striped bordered hover>
                         <thead>
                             <tr>
-                                <th>Date</th>
+                                <th>Month</th>
                                 <th>Occupancy Rate</th>
+                                <th>Peak Period</th>
+                                <th>Room Occupancy Rate</th>
+                                <th>Cancellation Rate</th>
+                                <th>Revenue</th>
                             </tr>
                         </thead>
                         <tbody>
                             {occupancyAnalysisData.map((data, index) => (
                                 <tr key={index}>
-                                    <td>{data.date}</td>
+                                    <td>{data.month}</td>
                                     <td>{data.occupancyRate}</td>
+                                    <td>{data.peakPeriod}</td>
+                                    <td>{data.roomTypeOccupancy}</td>
+                                    <td>{data.cancellationRate}</td>
+                                    <td>{data.revenuePerRoom}</td>
                                 </tr>
                             ))}
+                            {/* Render the total row */}
+                            <tr>
+                                <td colSpan={5}><b>Total Revenue:</b></td>                                
+
+                                <td><b>₱{computeOccupancyAnalysisTotals().totalRevenuePerRoom}</b></td>
+                            </tr>
                         </tbody>
                     </Table>
                 </Card>
