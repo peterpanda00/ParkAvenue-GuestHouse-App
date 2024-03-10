@@ -32,7 +32,7 @@ const Restaurant = () => {
   const [hasItems, setHasItems] = useState(true);
   const [validated, setValidated] = useState(false);
 
-  useEffect(() => {
+  /*useEffect(() => {
     console.log(supabase)
 
     const fetchOrders = async () => {
@@ -66,7 +66,7 @@ const Restaurant = () => {
     fetchOrders();
     console.log(orderList)
     console.log(filteredorderList)
-  }, []);
+  }, []); */
 
   const handleSubmit = (event) => {
     const form = event.currentTarget;
