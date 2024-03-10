@@ -32,6 +32,42 @@ const Restaurant = () => {
   const [hasItems, setHasItems] = useState(true);
   const [validated, setValidated] = useState(false);
 
+  useEffect(() => {
+    console.log(supabase)
+
+    const fetchOrders = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('orders')
+          .select(
+            `
+              *,
+              guests:guests("GuestID ", FirstName, LastName); // Set loading to false when done fetching
+            `
+          );
+        if (error) {
+          setFetchError('Could not fetch orders');
+          setOrderList([]);
+          setOrderCount(0);
+        }
+
+        if (data) {
+          setOrderList(data);
+          setFetchError(null);
+          setOrderCount(data.length);
+        }
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false); // Set loading to false when done fetching
+      }
+    };
+
+    fetchOrders();
+    console.log(orderList)
+    console.log(filteredorderList)
+  }, []);
+
   const handleSubmit = (event) => {
     const form = event.currentTarget;
     if (form.checkValidity() === false) {
@@ -53,122 +89,122 @@ const Restaurant = () => {
     {
       name: 'Classic Pancakes',
       type: 'All-Day Breakfast',
-      price: 100,
+      price: 120,
       imageUrl: classicPancakes
     },
     {
       name: 'Classic Pancakes with Fruits',
       type: 'All-Day Breakfast',
-      price: 100,
+      price: 220,
       imageUrl: classicPancakesWdFruits
     },
     {
       name: 'Pancakes with Chocolate',
       type: 'All-Day Breakfast',
-      price: 100,
+      price: 185,
       imageUrl: pancakesWdChoco
     },
     {
       name: 'Burger Pancake with Egg',
       type: 'All-Day Breakfast',
-      price: 100,
+      price: 220,
       imageUrl: burgerPancakeWdEgg
 
     },
     {
       name: 'Cheesy Bacon Burger Pancake',
       type: 'All-Day Breakfast',
-      price: 100,
+      price: 240,
       imageUrl: cheesyBaconBurgerPancake
     },
     {
       name: 'Ham, Egg, & Cheese Burrito',
       type: 'All-Day Breakfast',
-      price: 100,
+      price: 220,
       imageUrl: hamEggCheeseBurrito
     },
     {
       name: 'Ham & Cheese Omelet',
       type: 'All-Day Breakfast',
-      price: 100,
+      price: 195,
       imageUrl: hamCheeseOme
     },
     {
       name: 'Chicken Fillet Sandwhich',
       type: 'All-Day Breakfast',
-      price: 100,
+      price: 230,
       imageUrl: chickenFillSandwich
     },
     {
       name: 'Bacon, Egg, Sausage & Toasts',
       type: 'All-Day Breakfast',
-      price: 100,
+      price: 240,
       imageUrl: baconEggSausageToast
     },
     {
       name: 'Bacsilog',
       type: 'Filipino Breakfast',
-      price: 100,
+      price: 165,
       imageUrl: bacSilog
     },
     {
       name: 'Chix-silog',
       type: 'Filipino Breakfast',
-      price: 100,
+      price: 220,
       imageUrl: chixSilog
     },
     {
       name: 'Cornsilog',
       type: 'Filipino Breakfast',
-      price: 100,
+      price: 220,
       imageUrl: cornSilog
     },
     {
       name: 'Bangsilog',
       type: 'Filipino Breakfast',
-      price: 100,
+      price: 220,
       imageUrl: bangSilog
     },
     {
       name: 'Burgersilog',
       type: 'Filipino Breakfast',
-      price: 100,
+      price: 250,
       imageUrl: burgerSilog
     },
     {
       name: 'Danggitsilog',
       type: 'Filipino Breakfast',
-      price: 100,
+      price: 220,
       imageUrl: danggitSilog
     },
     {
       name: 'Longsilog',
       type: 'Filipino Breakfast',
-      price: 100,
+      price: 220,
       imageUrl: longSilog
     },
     {
       name: 'Lumpiasilog',
       type: 'Filipino Breakfast',
-      price: 100,
+      price: 220,
       imageUrl: lumpiaSilog
     },
     {
       name: 'Sisigsilog',
       type: 'Filipino Breakfast',
-      price: 100,
+      price: 220,
       imageUrl: sisigSilog
     },
     {
       name: 'Tapsilog',
       type: 'Filipino Breakfast',
-      price: 100,
+      price: 250,
       imageUrl: tapSilog
     },
     {
       name: 'Tocilog',
       type: 'Filipino Breakfast',
-      price: 100,
+      price: 220,
       imageUrl: toCilog
     },
 
