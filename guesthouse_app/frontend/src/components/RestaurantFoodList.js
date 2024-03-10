@@ -115,8 +115,8 @@ const RestaurantFoodList = ({ foodList, onOfferSubmission }) => {
                                 <Col className="mt-3" lg="2" key={index} style={{ marginBottom: '20px' }}>
                                 <Card style={{ position: 'relative', height: '250px', width: '200px', cursor: 'pointer', padding: '10px', background: '#665651', color: 'white' }} onClick={() => handleAddToItemList(room)}>
                                     <div style={{ position: 'relative', width: '100%', height: '100%', zIndex: 1 }}>
-                                        <Card.Title style={{ textAlign: 'center', marginBottom: '10px', position: 'relative', zIndex: 2 }}>{room.name}</Card.Title>
-                                        <Card.Text style={{ textAlign: 'center', position: 'relative', zIndex: 2 }}>{room.type}</Card.Text>
+                                        <Card.Title style={{ textAlign: 'center', marginBottom: '10px', position: 'relative', zIndex: 2 }}></Card.Title>
+                                        <Card.Text style={{ textAlign: 'center', position: 'relative', zIndex: 2 }}></Card.Text>
                                     </div>
                                     <img src={room.imageUrl} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 }} alt={room.name} />
                                     <div style={{ backgroundColor: '#665651', color: 'white', marginBottom: '110px', textAlign: 'center', position: 'absolute', bottom: '-100px', left: '50%', transform: 'translateX(-50%)', width: '80%', padding: '5px', borderRadius: '5px',fontSize:'15px' }}>{room.name}</div>
