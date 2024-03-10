@@ -31,6 +31,8 @@ import toCilog from '../restaurant/FILIPINO-BREAKFAST-2/Tocilog.png'
 const Restaurant = () => {
   const [hasItems, setHasItems] = useState(true);
   const [validated, setValidated] = useState(false);
+  const [selectedFilter, setSelectedFilter] = useState(''); // State for the selected filter
+  const [filteredFoodList, setFilteredFoodList] = useState([]); // State for the filtered food list
 
   /*useEffect(() => {
     console.log(supabase)
@@ -212,15 +214,45 @@ const Restaurant = () => {
 
   ];
 
+  const handleFilterChange = (event) => {
+    const { value } = event.target;
+    setSelectedFilter(value);
+
+    // Filter the food list based on the selected filter
+    if (value === '') {
+      setFilteredFoodList(foodList);
+    } else {
+      const filteredList = foodList.filter(item => item.type === value);
+      setFilteredFoodList(filteredList);
+    }
+  };
 
   return (
-
     <div style={{ width: '100%', background: 'white', color: '#014c91', display: 'flex' }}>
-
-
       <Sidebar />
-      <RoomSelection foodList={foodList} />
+      <div style={{ padding: '20px' }}>
+        {/* Dropdown Filter */}
+        <div className="mb-2 input-group" style={{ maxWidth: "300px", display: "flex" }}>
+          <div style={{ marginLeft: "10px", width: "30px", height: "100%" }}>
+            <div style={{ padding: "5px", color: 'white' }}>
+              {React.createElement(FaFilter, { size: 20 })}
+            </div>
+          </div>
+          <select
+            className="form-select"
+            value={selectedFilter}
+            onChange={handleFilterChange}
+          >
+            <option value="">All</option>
+            <option value="All-Day Breakfast">All-Day Breakfast</option>
+            <option value="Filipino Breakfast">Filipino Breakfast</option>
+            {/* Add more options as needed */}
+          </select>
+        </div>
 
+        {/* RestaurantFoodList Component with filtered food list */}
+        <RoomSelection foodList={filteredFoodList.length > 0 ? filteredFoodList : foodList} />
+      </div>
     </div>
   );
 };
