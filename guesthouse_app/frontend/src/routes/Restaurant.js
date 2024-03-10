@@ -7,32 +7,7 @@ import RestaurantFoodList from '../components/RestaurantFoodList';
 import '../App.css';
 import Sidebar from '../components/Sidebar';
 import { Alert } from 'react-bootstrap';
-import classicPancakes from '../restaurant/ALL DAY BREAKFAST/CLASSIC PANCAKES.png';
-import classicPancakesWdFruits from '../restaurant/ALL DAY BREAKFAST/CLASSIC PANCAKES WITH FRUITS.png';
-import pancakesWdChoco from '../restaurant/ALL DAY BREAKFAST/PANCAKES WITH CHOCOLATE.png';
-import burgerPancakeWdEgg from '../restaurant/ALL DAY BREAKFAST/BURGER PANCAKE WITH EGG.png';
-import cheesyBaconBurgerPancake from '../restaurant/ALL DAY BREAKFAST/CHEESY BACON BURGER PANCAKE.png';
-import hamEggCheeseBurrito from '../restaurant/ALL DAY BREAKFAST/HAM, EGG, & CHEESE BURRITO.png';
-import hamCheeseOme from '../restaurant/ALL DAY BREAKFAST/HAM & CHEESE OMELET.png';
-import chickenFillSandwich from '../restaurant/ALL DAY BREAKFAST/CHICKEN FILLET SANDWICH.png';
-import baconEggSausageToast from '../restaurant/ALL DAY BREAKFAST/BACON, EGG, SAUSAGE, & TOASTS.png';
-import bacSilog from '../restaurant/FILIPINO-BREAKFAST-2/Bacsilog.png'
-import chixSilog from '../restaurant/FILIPINO-BREAKFAST-2/Chix-silog.png'
-import cornSilog from '../restaurant/FILIPINO-BREAKFAST-2/Cornsilog.png'
-import bangSilog from '../restaurant/FILIPINO-BREAKFAST-2/Bangsilog.png'
-import burgerSilog from '../restaurant/FILIPINO-BREAKFAST-2/Burgersilog.png'
-import danggitSilog from '../restaurant/FILIPINO-BREAKFAST-2/Danggitsilog.png'
-import longSilog from '../restaurant/FILIPINO-BREAKFAST-2/Longsilog.png'
-import lumpiaSilog from '../restaurant/FILIPINO-BREAKFAST-2/Lumpiasilog.png'
-import sisigSilog from '../restaurant/FILIPINO-BREAKFAST-2/Sisigsilog.png'
-import tapSilog from '../restaurant/FILIPINO-BREAKFAST-2/Tapsilog.png'
-import toCilog from '../restaurant/FILIPINO-BREAKFAST-2/Tocilog.png'
-import doritos from '../restaurant/CHIPS/Doritos.png'
-import pringles from '../restaurant/CHIPS/Pringles.png'
-import tonkariCorn from '../restaurant/CHIPS/Tonkari Corn.png'
-import okonomiyaki from '../restaurant/SPECIAL MENU/Okonomiyaki.png'
-import icedTea from '../restaurant/BEVERAGES/Iced Tea.png'
-import coffee from '../restaurant/BEVERAGES/Coffee.png'
+
 
 
 const Restaurant = () => {

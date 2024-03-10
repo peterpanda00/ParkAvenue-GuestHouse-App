@@ -152,7 +152,7 @@ const RestaurantFoodList = ({ onOfferSubmission }) => {
                                         <Card.Title style={{ textAlign: 'center', marginBottom: '10px', position: 'relative', zIndex: 2 }}></Card.Title>
                                         <Card.Text style={{ textAlign: 'center', position: 'relative', zIndex: 2 }}></Card.Text>
                                     </div>
-                                    <img src={food.imageUrl} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 }} alt={food.ItemName} />
+                                    <img src={food.imgURL} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 }} alt={food.ItemName} />
                                     <div style={{ backgroundColor: '#665651', color: 'white', marginBottom: '110px', textAlign: 'center', position: 'absolute', bottom: '-100px', left: '50%', transform: 'translateX(-50%)', width: '80%', padding: '5px', borderRadius: '5px',fontSize:'15px' }}>{food.ItemName}</div>
                                 </Card>
                             </Col>
