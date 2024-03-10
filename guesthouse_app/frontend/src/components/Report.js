@@ -88,8 +88,7 @@ const Report = () => {
                         </thead>
                         <tbody>
                             {/* Populate the table with guest trend data */}
-                            {/* You need to fetch and map the data from your backend */}
-                            {/* For now, you can leave this part empty or with mock data */}
+                            {/* need to fetch and map the data from backend */}
                         </tbody>
                     </Table>
                 </Card>
@@ -98,7 +97,16 @@ const Report = () => {
             {selectedReport === 'Occupancy Analysis' && (
                 <Card style={{ borderRadius: '20px', marginTop: '20px' }}>
                     <Table striped bordered hover>
-                        {/* Insert Occupancy Analysis Table here */}
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Occupancy Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {/* Populate the table with occupancy analysis data */}
+                            {/* need to fetch and map the data from backend */}
+                        </tbody>
                     </Table>
                 </Card>
             )}
