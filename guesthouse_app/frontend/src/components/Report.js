@@ -165,12 +165,12 @@ const RestaurantFoodList = ({ foodList, onOfferSubmission }) => {
           };
 
     return (
-        <>
+        <div style = {{ width: '100%'}}>
             <Row className="justify-content-center">
                 {foodList.slice(0, 3).map((room, index) => (
                     <Col className="mt-3" lg="4" key={index}>
                         <Card style={{ height: '200px', width: '200px', cursor: 'pointer', padding: '10px', background: '#665651', color: 'white' }} onClick={() => handleAddToItemList(room)}>
-                            <div style={{ width: '100%', height: '100%', zIndex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                            <div style={{ width: '100%', height: '100%', zIndex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
                                 <Card.Title style={{ textAlign: 'center', marginBottom: '10px', position: 'relative', zIndex: 2 }}>{room.name}</Card.Title>
                                 <Card.Text style={{ textAlign: 'center', position: 'relative', zIndex: 2 }}>{room.type}</Card.Text>
                             </div>
@@ -231,7 +231,7 @@ const RestaurantFoodList = ({ foodList, onOfferSubmission }) => {
                     </Table>
                 </CardBody>
             </Card>
-        </>                     
+        </div>                     
     );
 };
 
