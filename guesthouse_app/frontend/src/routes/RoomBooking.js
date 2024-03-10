@@ -18,6 +18,8 @@ const RoomBooking= () => {
   const [bookingList,setBookingList] = useState([])
   const [bookingCount, setBookingCount] = useState(0);
   const [filterValue, setFilterValue] = useState("");
+  const [searchValue, setSearchValue] = useState('');
+  const [sortOrder, setSortOrder] = useState('asc');
 
 
   useEffect(() => {
@@ -30,7 +32,7 @@ const RoomBooking= () => {
           .select(
             `
             *,
-            bookings: BookingID(CheckIn,CheckOut,Status,guests:GuestID(FirstName,LastName))
+            bookings: BookingID(CheckIn,CheckOut,Status,guests:GuestID(FirstName,LastName),CreatedAt)
             `
           );
         if (error) {
@@ -61,10 +63,39 @@ const RoomBooking= () => {
   
 
 
-  const filteredbookingList = bookingList.filter((booking) => {
-    // Customize this condition based on your filtering criteria
-    return filterValue === "" || booking.GuestID === filterValue;
+  const sortedBookingList = [...bookingList].sort((a, b) => {
+    // Assuming booking.bookings.CreatedAt is a valid date string
+    const dateA = new Date(a.bookings.CreatedAt);
+    const dateB = new Date(b.bookings.CreatedAt);
+
+    return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
   });
+
+  const filteredbookingList = bookingList
+    .filter((booking) => {
+      // Customize this condition based on your filtering criteria
+      return (
+        (filterValue === '' || booking.bookings.Status === filterValue) &&
+        (searchValue === '' ||
+          booking.bookings.guests.FirstName.toLowerCase().includes(searchValue.toLowerCase()) ||
+          booking.bookings.guests.LastName.toLowerCase().includes(searchValue.toLowerCase())
+          // Add other properties you want to search by
+          // For example: booking.RoomNumber.toString().includes(searchValue.toLowerCase())
+        )
+      );
+    })
+    .sort((a, b) => {
+      // Customize this sorting logic based on your requirements
+      const dateA = new Date(a.bookings.CreatedAt);
+      const dateB = new Date(b.bookings.CreatedAt);
+
+      if (sortOrder === 'asc') {
+        return dateA - dateB;
+      } else {
+        return dateB - dateA;
+      }
+    });
+
 
   const handleReserveRoom = () => {
     // Set the state to show the BookingForm when the button is clicked
@@ -131,7 +162,7 @@ const RoomBooking= () => {
                     <form>
                         <div className="mb-2 mt-3 input-group" style={{ maxWidth: "100%", borderRadius: "10px", 
                                                                         overflow: "hidden"}} >
-                            <input type="search" className="form-control" placeholder="Search"/>
+                            <input type="search" className="form-control" placeholder="Search Guest Name" value={searchValue} onChange={(e) => setSearchValue(e.target.value)}/>
                             <button className="btn me-auto" style={{color: "white", backgroundColor: "#665651"}}>
                                 <div style={{color: 'white'}}>
                                     {React.createElement(FaSearch, { size: 20 })}
@@ -150,9 +181,10 @@ const RoomBooking= () => {
                                 {React.createElement(FaSort, { size: 20 })}
                             </div>
                         </div>
-                        <select className="form-select">
-                            <option value="FirstName">Sort by Name (A-Z)</option>
-                            <option value="FirstName">Sort by Name (Z-A)</option>
+                        <select className="form-select" value={sortOrder}
+                                onChange={(e) => setSortOrder(e.target.value)}>
+                            <option value="asc">Sort by Date Booked (Oldest to Newest)</option>
+                            <option value="desc">Sort by Date Booked (Newest to Oldest)</option>
                         </select>
                     </div>
                 </Col>
@@ -166,7 +198,9 @@ const RoomBooking= () => {
                                 {React.createElement(FaFilter, { size: 20 })}
                             </div>  
                         </div>
-                        <select className="form-select">
+                        <select className="form-select" 
+                                value={filterValue}
+                                onChange={(e) => setFilterValue(e.target.value)}>
                             <option value="">All Bookings</option>
                             <option value="Pending">Pending</option>
                             <option value="Confirmed">Confirmed</option>
@@ -189,11 +223,12 @@ const RoomBooking= () => {
                                 <th style={{color: '#665651'}}>Check-In Date</th>
                                 <th style={{color: '#665651'}}>Check-Out Date</th>
                                 <th style={{color: '#665651'}}>Status</th>
+                                <th style={{color: '#665651'}}>Date Booked</th>
                                 <th style={{color: '#665651'}}></th>
                             </tr>
                         </thead>
                         <tbody>
-                            {bookingList.map((room_booking, index) => (
+                            {filteredbookingList.map((room_booking, index) => (
                                 <React.Fragment key={room_booking.RoomBookingID}>
                                     <tr style={{ borderRadius: '20px', padding: '10px' }}>
                                         <td style={{color: '#665651'}}>{room_booking.RoomBookingID}</td>
@@ -210,6 +245,9 @@ const RoomBooking= () => {
                                           {room_booking.bookings.CheckOut ? new Date(room_booking.bookings.CheckOut).toLocaleDateString() : 'N/A'}
                                         </td>
                                         <td style={{color: '#665651'}}>{room_booking.bookings.Status}</td>
+                                        <td style={{ color: '#665651' }}>
+                                          {room_booking.bookings.CreatedAt? new Date(room_booking.bookings.CreatedAt).toLocaleDateString() : 'N/A'}
+                                        </td>
                                         <td style={{ color: '#665651' }}>
                                         <div style={{ position: 'relative' }}>
                         <div style={{cursor: 'pointer'}} onClick={() => handleEllipsisClick(index)}>
@@ -235,7 +273,7 @@ const RoomBooking= () => {
           style={{ color: 'white', backgroundColor: '#665651', marginTop: '20px' }}
           onClick={handleReserveRoom}
         >
-          Reserve Room
+          + Add Booking
         </button>
 
         </div>
