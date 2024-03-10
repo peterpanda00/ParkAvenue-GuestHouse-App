@@ -6,6 +6,7 @@ import '../index.css';
 import RoomSelection from '../components/RestaurantFoodList';
 import '../App.css';
 import Sidebar from '../components/Sidebar';
+import { Alert } from 'react-bootstrap';
 import classicPancakes from '../restaurant/ALL DAY BREAKFAST/CLASSIC PANCAKES.png';
 import classicPancakesWdFruits from '../restaurant/ALL DAY BREAKFAST/CLASSIC PANCAKES WITH FRUITS.png';
 import pancakesWdChoco from '../restaurant/ALL DAY BREAKFAST/PANCAKES WITH CHOCOLATE.png';
@@ -26,6 +27,12 @@ import lumpiaSilog from '../restaurant/FILIPINO-BREAKFAST-2/Lumpiasilog.png'
 import sisigSilog from '../restaurant/FILIPINO-BREAKFAST-2/Sisigsilog.png'
 import tapSilog from '../restaurant/FILIPINO-BREAKFAST-2/Tapsilog.png'
 import toCilog from '../restaurant/FILIPINO-BREAKFAST-2/Tocilog.png'
+import doritos from '../restaurant/CHIPS/Doritos.png'
+import pringles from '../restaurant/CHIPS/Pringles.png'
+import tonkariCorn from '../restaurant/CHIPS/Tonkari Corn.png'
+import okonomiyaki from '../restaurant/SPECIAL MENU/Okonomiyaki.png'
+import icedTea from '../restaurant/BEVERAGES/Iced Tea.png'
+import coffee from '../restaurant/BEVERAGES/Coffee.png'
 
 
 const Restaurant = () => {
@@ -209,9 +216,42 @@ const Restaurant = () => {
       price: 220,
       imageUrl: toCilog
     },
-
-
-
+    {
+      name: 'Doritos',
+      type: 'Chips',
+      price: 85,
+      imageUrl: doritos
+    },
+    {
+      name: 'Pringles',
+      type: 'Chips',
+      price: 100,
+      imageUrl: pringles
+    },
+    {
+      name: 'TonkariCorn',
+      type: 'Chips',
+      price: 100,
+      imageUrl: tonkariCorn
+    },
+    {
+      name: 'Okonomiyaki',
+      type: 'Special Menu',
+      price: 165,
+      imageUrl: okonomiyaki
+    },
+    {
+      name: 'Iced Tea',
+      type: 'Beverages',
+      price: 65,
+      imageUrl: icedTea
+    },
+    {
+      name: 'Coffee',
+      type: 'Beverages',
+      price: 85,
+      imageUrl: coffee
+    },
   ];
 
   const handleFilterChange = (event) => {
@@ -227,10 +267,29 @@ const Restaurant = () => {
     }
   };
 
+  const notificationInfo = "Bed & Breakfast (BnB) Menu is open from Monday - Saturday at 7:00 am – 7:00 pm and on Sunday at 7:00 am – 4:00 pm";
+
   return (
     <div style={{ width: '100%', background: 'white', color: '#014c91', display: 'flex' }}>
       <Sidebar />
       <div style={{ padding: '20px' }}>
+        {/* Notification */}
+        <Alert
+          variant="info"
+          className="mb-3"
+          style={{
+            backgroundColor: '#665651',
+            color: 'white',
+            fontSize: '16px',
+            marginLeft: "35px",
+            borderColor: '#665651',
+            maxWidth: "1590px",
+            display: 'flex',
+          }}
+        >
+          {notificationInfo}
+        </Alert>
+
         {/* Dropdown Filter */}
         <div className="mb-2 input-group" style={{ maxWidth: "300px", display: "flex" }}>
           <div style={{ marginLeft: "10px", width: "30px", height: "100%" }}>
@@ -246,6 +305,9 @@ const Restaurant = () => {
             <option value="">All</option>
             <option value="All-Day Breakfast">All-Day Breakfast</option>
             <option value="Filipino Breakfast">Filipino Breakfast</option>
+            <option value="Chips">Chips</option>
+            <option value="Special Menu">Special Menu</option>
+            <option value="Beverages">Beverages</option>
             {/* Add more options as needed */}
           </select>
         </div>
