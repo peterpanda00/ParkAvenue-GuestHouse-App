@@ -4,21 +4,55 @@ import { FaFilter, FaSort, FaSearch, FaSave, FaEye, FaEyeSlash, FaTrash } from '
 import { Row, Col, Form, CardBody, Card, Table, InputGroup } from 'react-bootstrap';
 import BookingForm from "./BookingForm"
 import '../index.css';
+import supabase from '../config/supabaseClient';
 
-const RestaurantFoodList = ({ foodList, onOfferSubmission }) => {
+const RestaurantFoodList = ({ onOfferSubmission }) => {
     const [hasItems, setHasItems] = useState(false);
     const [isFullView, setIsFullView] = useState(true);
     const [validated, setValidated] = useState(false);
+    const [fetchError,setFetchError] = useState(null)
+    const [foodList,setFoodList] = useState([])
+    const [filteredFoodList,setFilteredFoodList] = useState([])
+
+    const [foodCount, setFoodCount] = useState(0);
+    const [filterValue, setFilterValue] = useState("");
+    const [loading, setLoading] = useState(true); 
+  
+
 
     //Rendering Transition Logic for Alternating Views
     const [shouldRender, setShouldRender] = useState(false);
     useEffect(() => {
-        const timeout = setTimeout(() => {
-            setShouldRender(true);
-        }, 250); // 0.03 seconds in milliseconds
-
-        return () => clearTimeout(timeout);
-    }, [isFullView]);
+        console.log(supabase)
+    
+        const fetchFood = async () => {
+          try {
+            const { data, error } = await supabase
+              .from('food_items')
+              .select();
+      
+            if (error) {
+              setFetchError('Could not fetch food');
+              setFoodList([]);
+              setFoodCount(0);
+            }
+      
+            if (data) {
+              setFoodList(data);
+              setFetchError(null);
+              setFoodCount(data.length);
+            }
+          } catch (error) {
+            console.error(error);
+          } finally {
+            setLoading(false); // Set loading to false when done fetching
+          }
+        };
+      
+          fetchFood()
+          console.log(foodList)
+          console.log(filteredFoodList)
+      }, []);
 
     const handleSubmit = (event) => {
         const form = event.currentTarget;
@@ -111,15 +145,15 @@ const RestaurantFoodList = ({ foodList, onOfferSubmission }) => {
                 {itemList.length == 0 ? (
                     <Col lg="11" style={{ marginLeft: "40px", marginRight: "10px" }}>
                         <Row>
-                            {foodList.map((room, index) => (
+                            {foodList.map((food, index) => (
                                 <Col className="mt-3" lg="2" key={index} style={{ marginBottom: '20px' }}>
-                                <Card style={{ position: 'relative', height: '250px', width: '200px', cursor: 'pointer', padding: '10px', background: '#665651', color: 'white' }} onClick={() => handleAddToItemList(room)}>
+                                <Card style={{ position: 'relative', height: '250px', width: '200px', cursor: 'pointer', padding: '10px', background: '#665651', color: 'white' }} onClick={() => handleAddToItemList(food)}>
                                     <div style={{ position: 'relative', width: '100%', height: '100%', zIndex: 1 }}>
                                         <Card.Title style={{ textAlign: 'center', marginBottom: '10px', position: 'relative', zIndex: 2 }}></Card.Title>
                                         <Card.Text style={{ textAlign: 'center', position: 'relative', zIndex: 2 }}></Card.Text>
                                     </div>
-                                    <img src={room.imageUrl} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 }} alt={room.name} />
-                                    <div style={{ backgroundColor: '#665651', color: 'white', marginBottom: '110px', textAlign: 'center', position: 'absolute', bottom: '-100px', left: '50%', transform: 'translateX(-50%)', width: '80%', padding: '5px', borderRadius: '5px',fontSize:'15px' }}>{room.name}</div>
+                                    <img src={food.imageUrl} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 }} alt={food.ItemName} />
+                                    <div style={{ backgroundColor: '#665651', color: 'white', marginBottom: '110px', textAlign: 'center', position: 'absolute', bottom: '-100px', left: '50%', transform: 'translateX(-50%)', width: '80%', padding: '5px', borderRadius: '5px',fontSize:'15px' }}>{food.ItemName}</div>
                                 </Card>
                             </Col>
                             

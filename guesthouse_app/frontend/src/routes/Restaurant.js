@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { FaFilter, FaSort, FaSearch, FaSave } from 'react-icons/fa';
 import { Row, Col, Form, CardBody, Card, Table } from 'react-bootstrap';
 import '../index.css';
-import RoomSelection from '../components/RestaurantFoodList';
+import RestaurantFoodList from '../components/RestaurantFoodList';
 import '../App.css';
 import Sidebar from '../components/Sidebar';
 import { Alert } from 'react-bootstrap';
@@ -40,6 +40,7 @@ const Restaurant = () => {
   const [validated, setValidated] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState(''); // State for the selected filter
   const [filteredFoodList, setFilteredFoodList] = useState([]); // State for the filtered food list
+  const [foodList,setFoodList] = useState([])
 
   /*useEffect(() => {
     console.log(supabase)
@@ -93,167 +94,7 @@ const Restaurant = () => {
     setSelectionType('client');
   };
 
-  // Sample data for different products and services
-  const foodList = [
-    {
-      name: 'Classic Pancakes',
-      type: 'All-Day Breakfast',
-      price: 120,
-      imageUrl: classicPancakes
-    },
-    {
-      name: 'Classic Pancakes with Fruits',
-      type: 'All-Day Breakfast',
-      price: 220,
-      imageUrl: classicPancakesWdFruits
-    },
-    {
-      name: 'Pancakes with Chocolate',
-      type: 'All-Day Breakfast',
-      price: 185,
-      imageUrl: pancakesWdChoco
-    },
-    {
-      name: 'Burger Pancake with Egg',
-      type: 'All-Day Breakfast',
-      price: 220,
-      imageUrl: burgerPancakeWdEgg
-
-    },
-    {
-      name: 'Cheesy Bacon Burger Pancake',
-      type: 'All-Day Breakfast',
-      price: 240,
-      imageUrl: cheesyBaconBurgerPancake
-    },
-    {
-      name: 'Ham, Egg, & Cheese Burrito',
-      type: 'All-Day Breakfast',
-      price: 220,
-      imageUrl: hamEggCheeseBurrito
-    },
-    {
-      name: 'Ham & Cheese Omelet',
-      type: 'All-Day Breakfast',
-      price: 195,
-      imageUrl: hamCheeseOme
-    },
-    {
-      name: 'Chicken Fillet Sandwhich',
-      type: 'All-Day Breakfast',
-      price: 230,
-      imageUrl: chickenFillSandwich
-    },
-    {
-      name: 'Bacon, Egg, Sausage & Toasts',
-      type: 'All-Day Breakfast',
-      price: 240,
-      imageUrl: baconEggSausageToast
-    },
-    {
-      name: 'Bacsilog',
-      type: 'Filipino Breakfast',
-      price: 165,
-      imageUrl: bacSilog
-    },
-    {
-      name: 'Chix-silog',
-      type: 'Filipino Breakfast',
-      price: 220,
-      imageUrl: chixSilog
-    },
-    {
-      name: 'Cornsilog',
-      type: 'Filipino Breakfast',
-      price: 220,
-      imageUrl: cornSilog
-    },
-    {
-      name: 'Bangsilog',
-      type: 'Filipino Breakfast',
-      price: 220,
-      imageUrl: bangSilog
-    },
-    {
-      name: 'Burgersilog',
-      type: 'Filipino Breakfast',
-      price: 250,
-      imageUrl: burgerSilog
-    },
-    {
-      name: 'Danggitsilog',
-      type: 'Filipino Breakfast',
-      price: 220,
-      imageUrl: danggitSilog
-    },
-    {
-      name: 'Longsilog',
-      type: 'Filipino Breakfast',
-      price: 220,
-      imageUrl: longSilog
-    },
-    {
-      name: 'Lumpiasilog',
-      type: 'Filipino Breakfast',
-      price: 220,
-      imageUrl: lumpiaSilog
-    },
-    {
-      name: 'Sisigsilog',
-      type: 'Filipino Breakfast',
-      price: 220,
-      imageUrl: sisigSilog
-    },
-    {
-      name: 'Tapsilog',
-      type: 'Filipino Breakfast',
-      price: 250,
-      imageUrl: tapSilog
-    },
-    {
-      name: 'Tocilog',
-      type: 'Filipino Breakfast',
-      price: 220,
-      imageUrl: toCilog
-    },
-    {
-      name: 'Doritos',
-      type: 'Chips',
-      price: 85,
-      imageUrl: doritos
-    },
-    {
-      name: 'Pringles',
-      type: 'Chips',
-      price: 100,
-      imageUrl: pringles
-    },
-    {
-      name: 'TonkariCorn',
-      type: 'Chips',
-      price: 100,
-      imageUrl: tonkariCorn
-    },
-    {
-      name: 'Okonomiyaki',
-      type: 'Special Menu',
-      price: 165,
-      imageUrl: okonomiyaki
-    },
-    {
-      name: 'Iced Tea',
-      type: 'Beverages',
-      price: 65,
-      imageUrl: icedTea
-    },
-    {
-      name: 'Coffee',
-      type: 'Beverages',
-      price: 85,
-      imageUrl: coffee
-    },
-  ];
-
+  
   const handleFilterChange = (event) => {
     const { value } = event.target;
     setSelectedFilter(value);
@@ -313,7 +154,7 @@ const Restaurant = () => {
         </div>
 
         {/* RestaurantFoodList Component with filtered food list */}
-        <RoomSelection foodList={filteredFoodList.length > 0 ? filteredFoodList : foodList} />
+        <RestaurantFoodList/>
       </div>
     </div>
   );
