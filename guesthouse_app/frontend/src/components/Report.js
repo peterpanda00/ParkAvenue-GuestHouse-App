@@ -78,7 +78,19 @@ const Report = () => {
             {selectedReport === 'Guest Trend Report' && (
                 <Card style={{ borderRadius: '20px', marginTop: '20px' }}>
                     <Table striped bordered hover>
-                        {/* Insert Guest Trend Report Table here */}
+                        <thead>
+                            <tr>
+                                <th>Room Type</th>
+                                <th>Average Length of Stay</th>
+                                <th>Common Booking Channel</th>
+                                <th>Percentage of Repeat Guests</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {/* Populate the table with guest trend data */}
+                            {/* You need to fetch and map the data from your backend */}
+                            {/* For now, you can leave this part empty or with mock data */}
+                        </tbody>
                     </Table>
                 </Card>
             )}
