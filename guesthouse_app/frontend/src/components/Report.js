@@ -3,7 +3,7 @@ import { Card, Table, Button } from 'react-bootstrap';
 import supabase from "../config/supabaseClient";
 
 const Report = () => {
-    const [selectedReport, setSelectedReport] = useState(null);
+    const [selectedReport, setSelectedReport] = useState('Revenue Report'); // Set initial state to 'Revenue Report'
     const [bookingList, setBookingList] = useState([]);
 
     const handleReportSelection = (reportType) => {
