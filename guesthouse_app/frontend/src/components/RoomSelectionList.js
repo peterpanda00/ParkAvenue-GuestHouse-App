@@ -94,7 +94,7 @@ const RoomSelectionList = ({onOfferSubmission}) => {
     // Implement the logic for check-in based on the selected card or room
     if (selectedCardIndex !== null ) {
       // Access the selected room using roomList[selectedCardIndex]
-      console.log(`Check-in for room: ${roomList[selectedCardIndex]["RoomNumber "]}`);
+      console.log(`Check-in for room: ${roomList[selectedCardIndex].RoomNumber}`);
       setShowBookingForm(true); // Show booking form after check-in
     } else {
       console.log('No room selected for check-in');
@@ -105,7 +105,7 @@ const RoomSelectionList = ({onOfferSubmission}) => {
     // Implement the logic for check-out based on the selected card or room
     if (selectedCardIndex !== null) {
       // Access the selected room using roomList[selectedCardIndex]
-      console.log(`Check-out for room: ${roomList[selectedCardIndex]["RoomNumber "]}`);
+      console.log(`Check-out for room: ${roomList[selectedCardIndex].RoomNumber}`);
     } else {
       console.log('No room selected for check-out');
     }
@@ -165,7 +165,7 @@ const RoomSelectionList = ({onOfferSubmission}) => {
                               <Card style={{ height: '200px', width: '200px', cursor: 'pointer', padding: '10px', 
                                             background: selectedCardIndex === index ? '#9A8D88' : '#665651', 
                                             color: 'white', justifyContent: 'flex-end' }} onClick={() => handleCardClick(index)} >
-                                <Card.Title style={{ textAlign: 'center', color: 'white' }}>{room["RoomNumber "]}</Card.Title>
+                                <Card.Title style={{ textAlign: 'center', color: 'white' }}>{room.RoomNumber}</Card.Title>
                                 <Card.Text style={{ textAlign: 'center' }}>
                                   {room.RoomType}
                                 </Card.Text>

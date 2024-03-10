@@ -26,11 +26,11 @@ const RoomBooking= () => {
     const fetchBookings = async () => {
       try {
         const { data, error } = await supabase
-          .from('bookings')
+          .from('rooms_bookings')
           .select(
             `
-              *,
-              guests:guests("GuestID ", FirstName, LastName)
+            *,
+            bookings: BookingID(CheckIn,CheckOut,Status,guests:GuestID(FirstName,LastName))
             `
           );
         if (error) {
@@ -52,8 +52,11 @@ const RoomBooking= () => {
     };
   
       fetchBookings();
-      console.log(bookingList)
-      console.log(filteredbookingList)
+      console.log(bookingList);
+      console.log(filteredbookingList);
+    
+
+
   }, []);
   
 
@@ -190,23 +193,23 @@ const RoomBooking= () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {bookingList.map((booking, index) => (
-                                <React.Fragment key={booking.BookingID}>
+                            {bookingList.map((room_booking, index) => (
+                                <React.Fragment key={room_booking.RoomBookingID}>
                                     <tr style={{ borderRadius: '20px', padding: '10px' }}>
-                                        <td style={{color: '#665651'}}>{booking.BookingID}</td>
+                                        <td style={{color: '#665651'}}>{room_booking.RoomBookingID}</td>
                                         <td style={{ color: '#665651' }}>
-                                        {booking.guests
-                                          ? `${booking.guests.FirstName} ${booking.guests.LastName}`
+                                        {room_booking.bookings.guests
+                                          ? `${room_booking.bookings.guests.FirstName} ${room_booking.bookings.guests.LastName}`
                                           : 'N/A'}
                                       </td>
-                                        <td style={{color: '#665651'}}>{booking.RoomNumber}</td>
+                                        <td style={{color: '#665651'}}>{room_booking.RoomNumber}</td>
                                         <td style={{ color: '#665651' }}>
-                                          {booking.CheckIn ? new Date(booking.CheckIn).toLocaleDateString() : 'N/A'}
+                                          {room_booking.bookings.CheckIn ? new Date(room_booking.bookings.CheckIn).toLocaleDateString() : 'N/A'}
                                         </td>
                                         <td style={{ color: '#665651' }}>
-                                          {booking.CheckOut ? new Date(booking.CheckOut).toLocaleDateString() : 'N/A'}
+                                          {room_booking.bookings.CheckOut ? new Date(room_booking.bookings.CheckOut).toLocaleDateString() : 'N/A'}
                                         </td>
-                                        <td style={{color: '#665651'}}>{booking.Status}</td>
+                                        <td style={{color: '#665651'}}>{room_booking.bookings.Status}</td>
                                         <td style={{ color: '#665651' }}>
                                         <div style={{ position: 'relative' }}>
                         <div style={{cursor: 'pointer'}} onClick={() => handleEllipsisClick(index)}>

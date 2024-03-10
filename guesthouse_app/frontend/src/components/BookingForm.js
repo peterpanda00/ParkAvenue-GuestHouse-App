@@ -1,11 +1,13 @@
 import  React, { useEffect,useState } from 'react';
-import { Col, Row, Form, Button, Card,Table,CardBody,InputGroup,FormControl  } from 'react-bootstrap';
+import { Col, Row, Form, Button, Card,Table,CardBody,InputGroup,FormControl,Modal} from 'react-bootstrap';
 import { FaEllipsisH, FaSave, FaEye, FaEyeSlash, FaTrash, FaCheck} from 'react-icons/fa';
 import supabase from "../config/supabaseClient";
 
 
 const BookingForm = () => {
   const [selectedRooms, setSelectedRooms] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
   const [hasItems, setHasItems] = useState(true);
   const [validated, setValidated] = useState(false);
   const [showBookingForm, setShowBookingForm] = useState(false);
@@ -82,11 +84,87 @@ const BookingForm = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = (e) => {
+  
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Perform form submission or validation logic here
-    console.log('Form submitted:', formData);
+  
+    // Insert guest data
+    const { data: guestData, error: guestError } = await supabase
+      .from('guests')
+      .insert([
+        {
+          FirstName: formData.FirstName,
+          LastName: formData.LastName,
+          Email: formData.email,
+          Phone: formData.mobileNumber,
+        },
+      ])
+      .select();
+      
+    if (guestError) {
+      console.error('Error inserting guest data:', guestError);
+      // Handle error appropriately
+      return;
+    }
+    console.log('Guest data inserted:', guestData);
+
+    const guestID = guestData[0].GuestID
+    console.log(guestID)
+    // Insert booking data
+    const { data: bookingData, error: bookingError } = await supabase
+      .from('bookings')
+      .insert([
+        {
+          CheckIn: formData.checkIn,
+          CheckOut: formData.checkOut,
+          Status: "Pending",
+          GuestID: guestID ,
+          NumGuests: numOfGuests,
+          BookingChannel: formData.bookingChannel,
+        },
+      ])
+      .select();
+  
+    if (bookingError) {
+      console.error('Error inserting booking data:', bookingError);
+      // Handle error appropriately
+      return;
+    }
+
+    console.log('Booking data inserted:', bookingData);
+    const bookingID = bookingData[0].BookingID
+    console.log(bookingID)
+    console.log(selectedRooms)
+  
+    // Insert room_booking data
+
+    selectedRooms.forEach(async (room) => {
+      const { data: roomBookingData, error: roomBookingError } = await supabase
+        .from('rooms_bookings')
+        .insert([
+          {
+            RoomNumber: room.RoomNumber,
+            BookingID: bookingID,
+          },
+        ])
+        .select();
+    
+      // Handle errors or do something with roomBookingData if needed
+      if (roomBookingError) {
+        console.error('Error inserting room booking:', roomBookingError);
+        setModalMessage('Error booking room. Check all fields');
+      } else {
+        console.log('Room booking successfully inserted:', roomBookingData);
+        setModalMessage('Room successfully booked.');
+      }
+      setShowModal(true);
+      setTimeout(() => {
+        window.location.reload();
+      }, 5000); // Refresh after 3 seconds (adjust as needed)
+    });
+    
   };
+  
 
   const handleNumOfGuestsChange = (value) => {
     // Ensure the number of guests is within the range of 1 to 20
@@ -94,6 +172,11 @@ const BookingForm = () => {
     setNumOfGuests(newValue);
   };
 
+  const handleCloseModal = () => {
+    setShowModal(false);
+    // Refresh the page after closing the modal
+    window.location.reload();
+  };
   
       
 
@@ -124,8 +207,8 @@ const BookingForm = () => {
           <Form.Control
             type="text"
             placeholder="Enter guest name"
-            name="guestName"
-            value={formData.guestName}
+            name="FirstName"
+            value={formData.FirstName}
             onChange={handleInputChange}
             required
           />
@@ -137,8 +220,8 @@ const BookingForm = () => {
           <Form.Control
             type="text"
             placeholder="Enter guest name"
-            name="guestName"
-            value={formData.guestName}
+            name="LastName"
+            value={formData.LastName}
             onChange={handleInputChange}
             required
           />
@@ -232,7 +315,7 @@ const BookingForm = () => {
           <tbody>
             {roomList.map((room, index) => (
               <tr key={room.RoomNumber} style={{ borderRadius: '20px', padding: '10px' }}>
-                <td style={{ color: '#665651' }}>{room["RoomNumber "]}</td>
+                <td style={{ color: '#665651' }}>{room.RoomNumber}</td>
                 <td style={{ color: '#665651' }}>{room.RoomType}</td>
                 <td style={{ color: '#665651' }}>{room.GuestCapacity}</td>
                 <td style={{ color: '#665651' }}>{room.Price}</td>
@@ -307,9 +390,27 @@ const BookingForm = () => {
         </button>
       </Col>
     </Row>
-
   </Form>
+
+  <Modal show={showModal} onHide={handleCloseModal}>
+      <Modal.Header closeButton>
+        <Modal.Title>Room Reservation</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <p>{modalMessage}</p>
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onHide={handleCloseModal}>
+          Close
+        </Button>
+      </Modal.Footer>
+    </Modal>
+    
 </div>
+
+
+
+
   );
 };
 
