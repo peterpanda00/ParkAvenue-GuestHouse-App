@@ -1,58 +1,22 @@
-import 'bootstrap/dist/css/bootstrap.min.css';
-import React, { useState } from 'react';
-import { FaFilter, FaSort, FaSearch, FaSave } from 'react-icons/fa';
-import { Row, Col, Form, CardBody, Card, Table } from 'react-bootstrap';
-import '../index.css';
-import RoomSelection from '../components/Report';
-import '../App.css';
+import React from 'react';
+import { Row, Col } from 'react-bootstrap';
 import Sidebar from '../components/Sidebar';
+import Report from '../components/Report';
 
+const Reports = () => {
+    // Sample data for different reports
+    const reportList = [
+        { name: 'Revenue Report' },
+        { name: 'Guest Trend Report' },
+        { name: 'Occupancy Analysis' }
+    ];
 
-const Restaurant = () => {
-  const [hasItems, setHasItems] = useState(true);
-  const [validated, setValidated] = useState(false);
-
-  const handleSubmit = (event) => {
-    const form = event.currentTarget;
-    if (form.checkValidity() === false) {
-      event.preventDefault();
-      event.stopPropagation();
-    }
-
-    setValidated(true);
-  };
-
-  const [selectionType, setSelectionType] = useState('room'); // Default to room selection
-
-  const handleOfferSubmission = () => {
-    setSelectionType('client');
-  };
-
-  // Sample data for different products and services
-  const foodList = [
-    {
-      name: 'Revenue Report',
-    },
-    {
-      name: 'Guest Trend Report',
-    },
-    {
-      name: 'Occupancy',
-    },
-    
-  ];
-
-
-  return (
-
-    <div style={{ width: '100%', background: 'white', color: '#014c91', display: 'flex' }}>
-
-
-      <Sidebar />
-      <RoomSelection foodList={foodList} />
-
-    </div>
-  );
+    return (
+        <div style={{ width: '100%', background: 'white', color: '#014c91', display: 'flex' }}>
+            <Sidebar />
+            <Report reportList={reportList} />
+        </div>
+    );
 };
 
-export default Restaurant;
+export default Reports;
