@@ -11,11 +11,11 @@ const Report = () => {
     };
 
     return (
-        <div>
-            <div style={{ display: 'flex', justifyContent: 'space-around', marginBottom: '20px' }}>
-                <Button variant="primary" style={{ background: '#665651', border: 'none' }} onClick={() => handleReportSelection('Revenue Report')}>Revenue Report</Button>
-                <Button variant="secondary" style={{ background: '#665651', border: 'none' }} onClick={() => handleReportSelection('Guest Trend Report')}>Guest Trend Report</Button>
-                <Button variant="success" style={{ background: '#665651', border: 'none' }} onClick={() => handleReportSelection('Occupancy Analysis')}>Occupancy Analysis</Button>
+        <div style={{ width: '100%', padding: '20px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
+                <Button variant="first" style={{ flex: 1, marginRight: '10px',background: '#665651', color: 'white' }} onClick={() => handleReportSelection('Revenue Report')}>Revenue Report</Button>
+                <Button variant="second" style={{ flex: 1, marginRight: '10px',background: '#665651', color: 'white' }} onClick={() => handleReportSelection('Guest Trend Report')}>Guest Trend Report</Button>
+                <Button variant="third" style={{ flex: 1 ,background: '#665651', color: 'white'}} onClick={() => handleReportSelection('Occupancy Analysis')}>Occupancy Analysis</Button>
             </div>
 
             {selectedReport === 'Revenue Report' && (
