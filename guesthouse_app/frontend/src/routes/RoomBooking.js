@@ -18,50 +18,84 @@ const RoomBooking= () => {
   const [bookingList,setBookingList] = useState([])
   const [bookingCount, setBookingCount] = useState(0);
   const [filterValue, setFilterValue] = useState("");
+  const [searchValue, setSearchValue] = useState('');
+  const [sortOrder, setSortOrder] = useState('asc');
 
 
   useEffect(() => {
     console.log(supabase)
-
-    const fetchBookings = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('bookings')
-          .select(
-            `
-              *,
-              guests:guests("GuestID ", FirstName, LastName)
-            `
-          );
-        if (error) {
-          setFetchError('Could not fetch bookings');
-          setBookingList([]);
-          setBookingCount(0);
-        }
-  
-        if (data) {
-          setBookingList(data);
-          setFetchError(null);
-          setBookingCount(data.length);
-        }
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false); // Set loading to false when done fetching
-      }
-    };
   
       fetchBookings();
-      console.log(bookingList)
-      console.log(filteredbookingList)
+      console.log(bookingList);
+      console.log(filteredbookingList);
+    
+
+
   }, []);
+
+  const fetchBookings = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('rooms_bookings')
+        .select(
+          `
+          *,
+          bookings: BookingID(CheckIn,CheckOut,Status,guests:GuestID(FirstName,LastName),CreatedAt)
+          `
+        );
+      if (error) {
+        setFetchError('Could not fetch bookings');
+        setBookingList([]);
+        setBookingCount(0);
+      }
+
+      if (data) {
+        setBookingList(data);
+        setFetchError(null);
+        setBookingCount(data.length);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false); // Set loading to false when done fetching
+    }
+  };
   
 
 
-  const filteredbookingList = bookingList.filter((booking) => {
-    // Customize this condition based on your filtering criteria
-    return filterValue === "" || booking.GuestID === filterValue;
+  const sortedBookingList = [...bookingList].sort((a, b) => {
+    // Assuming booking.bookings.CreatedAt is a valid date string
+    const dateA = new Date(a.bookings.CreatedAt);
+    const dateB = new Date(b.bookings.CreatedAt);
+
+    return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
   });
+
+  const filteredbookingList = bookingList
+    .filter((booking) => {
+      // Customize this condition based on your filtering criteria
+      return (
+        (filterValue === '' || booking.bookings.Status === filterValue) &&
+        (searchValue === '' ||
+          booking.bookings.guests.FirstName.toLowerCase().includes(searchValue.toLowerCase()) ||
+          booking.bookings.guests.LastName.toLowerCase().includes(searchValue.toLowerCase())
+          // Add other properties you want to search by
+          // For example: booking.RoomNumber.toString().includes(searchValue.toLowerCase())
+        )
+      );
+    })
+    .sort((a, b) => {
+      // Customize this sorting logic based on your requirements
+      const dateA = new Date(a.bookings.CreatedAt);
+      const dateB = new Date(b.bookings.CreatedAt);
+
+      if (sortOrder === 'asc') {
+        return dateA - dateB;
+      } else {
+        return dateB - dateA;
+      }
+    });
+
 
   const handleReserveRoom = () => {
     // Set the state to show the BookingForm when the button is clicked
@@ -87,22 +121,66 @@ const RoomBooking= () => {
 
   const [activeDropdown, setActiveDropdown] = useState(null);
 
-    const handleEllipsisClick = (index) => {
-        setActiveDropdown(index === activeDropdown ? null : index);
-      };
+  const handleEllipsisClick = (index) => {
+    setActiveDropdown(index === activeDropdown ? null : index);
+  };
 
-      const renderDropdown = (index) => {
-        if (index === activeDropdown) {
-          return (
-            <Dropdown.Menu style={{ position: 'absolute', right: '0', left: 'auto', top: '0px' }}>
-              <Dropdown.Item>Confirm Booking</Dropdown.Item>
-              <Dropdown.Item>Cancel Booking</Dropdown.Item>
-            </Dropdown.Menu>
-          );
-        }
-        return null;
-      };
+  const renderDropdown = (index) => {
+    if (index === activeDropdown) {
+      return (
+        <Dropdown.Menu style={{ position: 'absolute', right: '0', left: 'auto', top: '0px' }}>
+          <Dropdown.Item onClick={() => handleDropdownItemClick(index, 'Confirm')}>
+            Confirm Booking
+          </Dropdown.Item>
+          <Dropdown.Item onClick={() => handleDropdownItemClick(index, 'Cancel')}>
+            Cancel Booking
+          </Dropdown.Item>
+        </Dropdown.Menu>
+      );
+    }
+    return null;
+  };
+
+  const handleDropdownItemClick = async (index, action) => {
+    try {
+      // Assuming you have the BookingID available in the room_booking object
+      const bookingID = index;
+  
+      // Update 'room_bookings' based on the selected action
+      if (action === 'Confirm') {
+        await supabase
+          .from('bookings')
+          .update({ 'Status': 'Confirmed' })
+          .eq('BookingID', bookingID);
+      } else if (action === 'Cancel') {
+        await supabase
+          .from('bookings')
+          .update({ 'Status': 'Cancelled' })
+          .eq('BookingID', bookingID);
+      }
+  
+      // Refresh the page after the status update
+      fetchBookings();
+    } catch (error) {
+      console.error('Error updating booking status:', error);
+    }
+  };
       
+
+  // Render different font colors based on the status
+const getStatusColor = (status) => {
+  switch (status) {
+    case 'Pending':
+      return '#FFC300';
+    case 'Confirmed':
+      return '#5F891A';
+    case 'Cancelled':
+      return '#B32F0C';
+    default:
+      return 'black'; // Default color if status is not recognized
+  }
+};
+
 
 
       
@@ -128,7 +206,7 @@ const RoomBooking= () => {
                     <form>
                         <div className="mb-2 mt-3 input-group" style={{ maxWidth: "100%", borderRadius: "10px", 
                                                                         overflow: "hidden"}} >
-                            <input type="search" className="form-control" placeholder="Search"/>
+                            <input type="search" className="form-control" placeholder="Search Guest Name" value={searchValue} onChange={(e) => setSearchValue(e.target.value)}/>
                             <button className="btn me-auto" style={{color: "white", backgroundColor: "#665651"}}>
                                 <div style={{color: 'white'}}>
                                     {React.createElement(FaSearch, { size: 20 })}
@@ -147,9 +225,10 @@ const RoomBooking= () => {
                                 {React.createElement(FaSort, { size: 20 })}
                             </div>
                         </div>
-                        <select className="form-select">
-                            <option value="FirstName">Sort by Name (A-Z)</option>
-                            <option value="FirstName">Sort by Name (Z-A)</option>
+                        <select className="form-select" value={sortOrder}
+                                onChange={(e) => setSortOrder(e.target.value)}>
+                            <option value="asc">Sort by Date Booked (Oldest to Newest)</option>
+                            <option value="desc">Sort by Date Booked (Newest to Oldest)</option>
                         </select>
                     </div>
                 </Col>
@@ -163,7 +242,9 @@ const RoomBooking= () => {
                                 {React.createElement(FaFilter, { size: 20 })}
                             </div>  
                         </div>
-                        <select className="form-select">
+                        <select className="form-select" 
+                                value={filterValue}
+                                onChange={(e) => setFilterValue(e.target.value)}>
                             <option value="">All Bookings</option>
                             <option value="Pending">Pending</option>
                             <option value="Confirmed">Confirmed</option>
@@ -186,37 +267,51 @@ const RoomBooking= () => {
                                 <th style={{color: '#665651'}}>Check-In Date</th>
                                 <th style={{color: '#665651'}}>Check-Out Date</th>
                                 <th style={{color: '#665651'}}>Status</th>
+                                <th style={{color: '#665651'}}>Date Booked</th>
                                 <th style={{color: '#665651'}}></th>
                             </tr>
                         </thead>
                         <tbody>
-                            {bookingList.map((booking, index) => (
-                                <React.Fragment key={booking.BookingID}>
+                            {filteredbookingList.map((room_booking, index) => (
+                                <React.Fragment key={room_booking.RoomBookingID}>
                                     <tr style={{ borderRadius: '20px', padding: '10px' }}>
-                                        <td style={{color: '#665651'}}>{booking.BookingID}</td>
+                                        <td style={{color: '#665651'}}>{room_booking.RoomBookingID}</td>
                                         <td style={{ color: '#665651' }}>
-                                        {booking.guests
-                                          ? `${booking.guests.FirstName} ${booking.guests.LastName}`
+                                        {room_booking.bookings.guests
+                                          ? `${room_booking.bookings.guests.FirstName} ${room_booking.bookings.guests.LastName}`
                                           : 'N/A'}
                                       </td>
-                                        <td style={{color: '#665651'}}>{booking.RoomNumber}</td>
+                                        <td style={{color: '#665651'}}>{room_booking.RoomNumber}</td>
                                         <td style={{ color: '#665651' }}>
-                                          {booking.CheckIn ? new Date(booking.CheckIn).toLocaleDateString() : 'N/A'}
+                                          {room_booking.bookings.CheckIn ? new Date(room_booking.bookings.CheckIn).toLocaleDateString() : 'N/A'}
                                         </td>
                                         <td style={{ color: '#665651' }}>
-                                          {booking.CheckOut ? new Date(booking.CheckOut).toLocaleDateString() : 'N/A'}
+                                          {room_booking.bookings.CheckOut ? new Date(room_booking.bookings.CheckOut).toLocaleDateString() : 'N/A'}
                                         </td>
-                                        <td style={{color: '#665651'}}>{booking.Status}</td>
+                                        <td style={{ color: getStatusColor(room_booking.bookings.Status) }}>
+                                        {room_booking.bookings.Status}
+                                      </td>
+                                        <td style={{ color: '#665651' }}>
+                                          {room_booking.bookings.CreatedAt? new Date(room_booking.bookings.CreatedAt).toLocaleDateString() : 'N/A'}
+                                        </td>
                                         <td style={{ color: '#665651' }}>
                                         <div style={{ position: 'relative' }}>
-                        <div style={{cursor: 'pointer'}} onClick={() => handleEllipsisClick(index)}>
-                          <FaEllipsisH size={20} />
-                        </div>
-                        <Dropdown show={index === activeDropdown} align="start">
-              
-                          {renderDropdown(index)}
-                        </Dropdown>
-                      </div>
+                                        <div style={{ cursor: 'pointer' }} onClick={() => handleEllipsisClick(index)}>
+                                          <FaEllipsisH size={20} />
+                                        </div>
+                                        <Dropdown show={index === activeDropdown} align="start">
+                                          {index === activeDropdown && (
+                                            <Dropdown.Menu style={{ position: 'absolute', right: '0', left: 'auto', top: '0px' }}>
+                                              <Dropdown.Item onClick={() => handleDropdownItemClick(room_booking.BookingID, 'Confirm')}>
+                                                Confirm Booking
+                                              </Dropdown.Item>
+                                              <Dropdown.Item onClick={() => handleDropdownItemClick(room_booking.BookingID, 'Cancel')}>
+                                                Cancel Booking
+                                              </Dropdown.Item>
+                                            </Dropdown.Menu>
+                                          )}
+                                        </Dropdown>
+                                      </div>
                                         </td>
                                     </tr>
                                 </React.Fragment>
@@ -232,7 +327,7 @@ const RoomBooking= () => {
           style={{ color: 'white', backgroundColor: '#665651', marginTop: '20px' }}
           onClick={handleReserveRoom}
         >
-          Reserve Room
+          + Add Booking
         </button>
 
         </div>
@@ -240,14 +335,14 @@ const RoomBooking= () => {
         {showBookingForm && 
         <div className="overlay-container">
           <div className="overlay-content">
-            <div className="overlay-header" style={{ padding: '6px', borderRadius: '10px', background: 'white', color: '#665651', textAlign: 'center', fontSize: '30px' }}>
+            <div className="overlay-header" style={{  display: 'flex',justifyContent: 'space-between',padding: '6px', borderRadius: '10px', background: 'white', color: '#665651', textAlign: 'center', fontSize: '30px' }}>
               <strong>Booking Form</strong>
               <button
               className="btn"
-              style={{ color: 'white', backgroundColor: '#665651', padding: '5px', borderRadius: '5px' }}
+              style={{ color: 'white', backgroundColor: '#665651', padding: '5px', borderRadius: '5px',alignSelf: 'flex-end', }}
               onClick={() => setShowBookingForm(false)} // Close button functionality
             >
-              Close
+              X
         </button>
             </div>
             <div className="overlay-body" style={{ marginTop: '6px', overflowY: 'auto', overflowX: 'hidden', overflowY: 'hidden' }}>

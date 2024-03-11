@@ -1,28 +1,53 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';  // Import useHistory
-import { Row, Form } from 'react-bootstrap';
+import { Row, Form, Modal, Button } from 'react-bootstrap';
 import '../index.css';
 import banner from '../assets/parkavenue_banner.png';
+import supabase from "../config/supabaseClient";
 
 const LoginScreen = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [showModal, setShowModal] = useState(false);
+    const [modalMessage, setModalMessage] = useState('');
+
 
     const navigate = useNavigate();
 
-    const handleLogin = () => {
-        // Perform authentication logic here
-        // For simplicity, let's just log the username and password for now
-        console.log('Username:', username);
-        console.log('Password:', password);
+    const handleCloseModal = () => {
+        setShowModal(false);
+        // Refresh the page after closing the modal
+        window.location.reload();
+      };
+    
 
-        // Check credentials (replace with your authentication logic)
-        if (username === '1' && password === '123') {
-            // Use Link to navigate to /home route
+  
+
+    const handleLogin = async (e) => {
+        e.preventDefault();
+        try {
+          // Sign in using Supabase authentication
+          const { user, error } = await supabase.auth.signInWithPassword({
+            email: username, // Assuming the email is used as a username
+            password,
+          });
+    
+          if (error) {
+            console.error(error.message);
+            setModalMessage(`Error during login: ${error.message}`);
+          } else {
+            console.log('User successfully logged in:', user);
+            setModalMessage('User successfully logged in');
             navigate('/home');
+          }
+        } catch (error) {
+          console.error('Error during login:', error.message);
+          setModalMessage(`Error during login: ${error.message}`);
         }
-    };
+        setShowModal(true);
+      };
+    
 
     return (
         <div style={{ background: '#F2EFEB', color: '#665651', minHeight: '100vh', overflowX: 'hidden' }}>
@@ -62,6 +87,16 @@ const LoginScreen = () => {
                     </Form>
                 </div>
             </div>
+
+            <Modal show={showModal} onHide={handleCloseModal}>
+            <Modal.Header closeButton>
+                <Modal.Title>Login</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <p>{modalMessage}</p>
+            </Modal.Body>
+            </Modal>
+    
         </div>
     );
 };
