@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import {FaBars}from "react-icons/fa";
 import { NavLink,useNavigate } from 'react-router-dom';
 import * as FaIcons from "react-icons/fa";
@@ -13,10 +13,12 @@ import supabase from "../config/supabaseClient";
 
 
 
+
 const Sidebar = ({children}) => {
     const[isOpen ,setIsOpen] = useState(false);
     const toggle = () => setIsOpen (!isOpen);
     const navigate = useNavigate();
+    const [user, setUser] = useState(null);
 
 
     const menuItem=[
@@ -58,6 +60,10 @@ const Sidebar = ({children}) => {
           }
     ]
 
+   
+  
+
+  
     async function signOut() {
       try {
         const { error } = await supabase.auth.signOut();
@@ -84,19 +90,17 @@ const Sidebar = ({children}) => {
                    </div>
                </div>
 
-               {/*
-
-               <button
-                className="btn"
-                style={{ color: 'white', backgroundColor: '#665651', marginTop: '20px', marginLeft:"65px" }}
-                onClick={signOut}
-              >
-                Sign Out
-              </button>
-                
-                
-                */}
                
+
+               {user && (
+                <button
+                  className="btn"
+                  style={{ color: 'white', backgroundColor: '#665651', marginTop: '20px', marginLeft: "65px" }}
+                  onClick={signOut}
+                >
+                  Sign Out
+                </button>
+              )}
 
                
                {
