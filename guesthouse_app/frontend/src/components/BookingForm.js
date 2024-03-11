@@ -399,11 +399,6 @@ const BookingForm = () => {
       <Modal.Body>
         <p>{modalMessage}</p>
       </Modal.Body>
-      <Modal.Footer>
-        <Button variant="secondary" onHide={handleCloseModal}>
-          Close
-        </Button>
-      </Modal.Footer>
     </Modal>
     
 </div>

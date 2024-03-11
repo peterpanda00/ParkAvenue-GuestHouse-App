@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {FaBars}from "react-icons/fa";
-import { NavLink } from 'react-router-dom';
+import { NavLink,useNavigate } from 'react-router-dom';
 import * as FaIcons from "react-icons/fa";
 import * as AiIcons from "react-icons/ai";
 import * as IoIcons from "react-icons/io";
@@ -8,11 +8,17 @@ import { IoRestaurantSharp } from "react-icons/io5";
 import { FaCalendarPlus } from "react-icons/fa6";
 import { BiSolidReport } from "react-icons/bi";
 import logo from "../assets/logo.png"
+import supabase from "../config/supabaseClient";
+
+
 
 
 const Sidebar = ({children}) => {
     const[isOpen ,setIsOpen] = useState(false);
     const toggle = () => setIsOpen (!isOpen);
+    const navigate = useNavigate();
+
+
     const menuItem=[
         {
             name: "Home",
@@ -51,6 +57,22 @@ const Sidebar = ({children}) => {
          
           }
     ]
+
+    async function signOut() {
+      try {
+        const { error } = await supabase.auth.signOut();
+        if (error) {
+          console.error('Error during sign out:', error.message);
+        } else {
+          console.log('User successfully signed out');
+          // Perform any additional actions after sign-out
+          navigate('/');
+        }
+      } catch (error) {
+        console.error('Error during sign out:', error.message);
+      }
+    }
+
     return (
         <div>
            <div style={{width: isOpen ? "250px" : "80px"}} className="sidebar">
@@ -61,6 +83,22 @@ const Sidebar = ({children}) => {
                        <FaBars onClick={toggle}/>
                    </div>
                </div>
+
+               {/*
+
+               <button
+                className="btn"
+                style={{ color: 'white', backgroundColor: '#665651', marginTop: '20px', marginLeft:"65px" }}
+                onClick={signOut}
+              >
+                Sign Out
+              </button>
+                
+                
+                */}
+               
+
+               
                {
                    menuItem.map((item, index)=>(
                        <NavLink to={item.path} key={index} className="link" activeclassName="active">
@@ -70,7 +108,12 @@ const Sidebar = ({children}) => {
                    ))
                }
            </div>
+           
            <main>{children}</main>
+
+           
+
+
         </div>
     );
 };
