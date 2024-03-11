@@ -45,7 +45,10 @@ const CheckInForm = () => {
           if (data) {
             // Filter data for 'Confirmed' status and 'Active' BookingStatus
             const filteredData = data.filter(
-              (booking) => booking.bookings.Status === 'Confirmed' && booking.BookingStatus === 'Active'
+              (booking) => 
+                booking.bookings.Status === 'Confirmed' &&
+                booking.BookingStatus === 'Active' &&
+                isToday(new Date(booking.bookings.CheckIn)) // Function to check if the 'CheckIn' date is today
             );
     
             setBookingList(filteredData);
@@ -60,8 +63,19 @@ const CheckInForm = () => {
       };
     
       fetchBookings();
-      console.log(bookingList);
     }, []);
+
+
+    // Function to check if a date is today
+  function isToday(date) {
+  const today = new Date();
+  return (
+    date.getDate() === today.getDate() &&
+    date.getMonth() === today.getMonth() &&
+    date.getFullYear() === today.getFullYear()
+  );
+}
+    
     
   const [activeDropdown, setActiveDropdown] = useState(null);
 
@@ -138,8 +152,16 @@ const CheckInForm = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {bookingList.map((room_booking, index) => (
-                                <React.Fragment key={room_booking.RoomBookingID}>
+
+                        {bookingList.length === 0 ? (
+                            <tr>
+                              <td colSpan="7" style={{ textAlign: 'center', color: '#665651' }}>
+                                No Bookings Check-in for today
+                              </td>
+                            </tr>
+                          ) : (
+                            bookingList.map((room_booking, index) => (
+                              <React.Fragment key={room_booking.RoomBookingID}>
                                     <tr style={{ borderRadius: '20px', padding: '10px' }}>
                                         <td style={{color: '#665651'}}>{room_booking.RoomBookingID}</td>
                                         <td style={{ color: '#665651' }}>
@@ -172,14 +194,16 @@ const CheckInForm = () => {
                                         </td>
                                     </tr>
                                 </React.Fragment>
-                            ))}
+                            ))
+                          )}
+                            
                         </tbody>
                     </Table>
                 </CardBody>
             </Card>
             <Modal show={showModal} onHide={handleCloseModal}>
       <Modal.Header closeButton>
-        <Modal.Title>Room Reservation</Modal.Title>
+        <Modal.Title>Room Check-in</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <p>{modalMessage}</p>

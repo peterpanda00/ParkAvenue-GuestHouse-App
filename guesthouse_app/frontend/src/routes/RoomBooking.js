@@ -24,34 +24,6 @@ const RoomBooking= () => {
 
   useEffect(() => {
     console.log(supabase)
-
-    const fetchBookings = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('rooms_bookings')
-          .select(
-            `
-            *,
-            bookings: BookingID(CheckIn,CheckOut,Status,guests:GuestID(FirstName,LastName),CreatedAt)
-            `
-          );
-        if (error) {
-          setFetchError('Could not fetch bookings');
-          setBookingList([]);
-          setBookingCount(0);
-        }
-  
-        if (data) {
-          setBookingList(data);
-          setFetchError(null);
-          setBookingCount(data.length);
-        }
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false); // Set loading to false when done fetching
-      }
-    };
   
       fetchBookings();
       console.log(bookingList);
@@ -60,6 +32,34 @@ const RoomBooking= () => {
 
 
   }, []);
+
+  const fetchBookings = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('rooms_bookings')
+        .select(
+          `
+          *,
+          bookings: BookingID(CheckIn,CheckOut,Status,guests:GuestID(FirstName,LastName),CreatedAt)
+          `
+        );
+      if (error) {
+        setFetchError('Could not fetch bookings');
+        setBookingList([]);
+        setBookingCount(0);
+      }
+
+      if (data) {
+        setBookingList(data);
+        setFetchError(null);
+        setBookingCount(data.length);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false); // Set loading to false when done fetching
+    }
+  };
   
 
 
@@ -121,22 +121,66 @@ const RoomBooking= () => {
 
   const [activeDropdown, setActiveDropdown] = useState(null);
 
-    const handleEllipsisClick = (index) => {
-        setActiveDropdown(index === activeDropdown ? null : index);
-      };
+  const handleEllipsisClick = (index) => {
+    setActiveDropdown(index === activeDropdown ? null : index);
+  };
 
-      const renderDropdown = (index) => {
-        if (index === activeDropdown) {
-          return (
-            <Dropdown.Menu style={{ position: 'absolute', right: '0', left: 'auto', top: '0px' }}>
-              <Dropdown.Item>Confirm Booking</Dropdown.Item>
-              <Dropdown.Item>Cancel Booking</Dropdown.Item>
-            </Dropdown.Menu>
-          );
-        }
-        return null;
-      };
+  const renderDropdown = (index) => {
+    if (index === activeDropdown) {
+      return (
+        <Dropdown.Menu style={{ position: 'absolute', right: '0', left: 'auto', top: '0px' }}>
+          <Dropdown.Item onClick={() => handleDropdownItemClick(index, 'Confirm')}>
+            Confirm Booking
+          </Dropdown.Item>
+          <Dropdown.Item onClick={() => handleDropdownItemClick(index, 'Cancel')}>
+            Cancel Booking
+          </Dropdown.Item>
+        </Dropdown.Menu>
+      );
+    }
+    return null;
+  };
+
+  const handleDropdownItemClick = async (index, action) => {
+    try {
+      // Assuming you have the BookingID available in the room_booking object
+      const bookingID = index;
+  
+      // Update 'room_bookings' based on the selected action
+      if (action === 'Confirm') {
+        await supabase
+          .from('bookings')
+          .update({ 'Status': 'Confirmed' })
+          .eq('BookingID', bookingID);
+      } else if (action === 'Cancel') {
+        await supabase
+          .from('bookings')
+          .update({ 'Status': 'Cancelled' })
+          .eq('BookingID', bookingID);
+      }
+  
+      // Refresh the page after the status update
+      fetchBookings();
+    } catch (error) {
+      console.error('Error updating booking status:', error);
+    }
+  };
       
+
+  // Render different font colors based on the status
+const getStatusColor = (status) => {
+  switch (status) {
+    case 'Pending':
+      return '#FFC300';
+    case 'Confirmed':
+      return '#5F891A';
+    case 'Cancelled':
+      return '#B32F0C';
+    default:
+      return 'black'; // Default color if status is not recognized
+  }
+};
+
 
 
       
@@ -244,20 +288,30 @@ const RoomBooking= () => {
                                         <td style={{ color: '#665651' }}>
                                           {room_booking.bookings.CheckOut ? new Date(room_booking.bookings.CheckOut).toLocaleDateString() : 'N/A'}
                                         </td>
-                                        <td style={{color: '#665651'}}>{room_booking.bookings.Status}</td>
+                                        <td style={{ color: getStatusColor(room_booking.bookings.Status) }}>
+                                        {room_booking.bookings.Status}
+                                      </td>
                                         <td style={{ color: '#665651' }}>
                                           {room_booking.bookings.CreatedAt? new Date(room_booking.bookings.CreatedAt).toLocaleDateString() : 'N/A'}
                                         </td>
                                         <td style={{ color: '#665651' }}>
                                         <div style={{ position: 'relative' }}>
-                        <div style={{cursor: 'pointer'}} onClick={() => handleEllipsisClick(index)}>
-                          <FaEllipsisH size={20} />
-                        </div>
-                        <Dropdown show={index === activeDropdown} align="start">
-              
-                          {renderDropdown(index)}
-                        </Dropdown>
-                      </div>
+                                        <div style={{ cursor: 'pointer' }} onClick={() => handleEllipsisClick(index)}>
+                                          <FaEllipsisH size={20} />
+                                        </div>
+                                        <Dropdown show={index === activeDropdown} align="start">
+                                          {index === activeDropdown && (
+                                            <Dropdown.Menu style={{ position: 'absolute', right: '0', left: 'auto', top: '0px' }}>
+                                              <Dropdown.Item onClick={() => handleDropdownItemClick(room_booking.BookingID, 'Confirm')}>
+                                                Confirm Booking
+                                              </Dropdown.Item>
+                                              <Dropdown.Item onClick={() => handleDropdownItemClick(room_booking.BookingID, 'Cancel')}>
+                                                Cancel Booking
+                                              </Dropdown.Item>
+                                            </Dropdown.Menu>
+                                          )}
+                                        </Dropdown>
+                                      </div>
                                         </td>
                                     </tr>
                                 </React.Fragment>
