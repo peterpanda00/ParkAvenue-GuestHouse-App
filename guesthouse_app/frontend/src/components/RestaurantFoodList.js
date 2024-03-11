@@ -12,10 +12,9 @@ const RestaurantFoodList = ({ onOfferSubmission }) => {
     const [validated, setValidated] = useState(false);
     const [fetchError,setFetchError] = useState(null)
     const [foodList,setFoodList] = useState([])
-    const [filteredFoodList,setFilteredFoodList] = useState([])
-
     const [foodCount, setFoodCount] = useState(0);
     const [filterValue, setFilterValue] = useState("");
+    const [searchValue, setSearchValue] = useState('');
     const [loading, setLoading] = useState(true); 
   
 
@@ -66,8 +65,19 @@ const RestaurantFoodList = ({ onOfferSubmission }) => {
         setValidated(true);
     };
 
-
-
+    const filteredFoodList = foodList
+    .filter((food) => {
+      
+      return (
+        (filterValue === '' || food.MealType === filterValue) &&
+        (searchValue === '' ||
+            food.ItemName.toLowerCase().includes(searchValue.toLowerCase()) ||
+            food.ItemName.toLowerCase().includes(searchValue.toLowerCase())
+          
+        )
+      );
+    })
+    
 
     const [itemList, setItemList] = useState([]);
     const [itemListTotals, setItemListTotals] = useState([]);
@@ -140,12 +150,52 @@ const RestaurantFoodList = ({ onOfferSubmission }) => {
 
     return (
         <>
+        {/*Navigation Forms*/ }
+        <Row>
+                {/*Search Bar*/ }
+                <Col lg="4">
+                    <form>
+                        <div className="mb-2 mt-3 input-group" style={{ maxWidth: "100%", borderRadius: "10px", 
+                                                                        overflow: "hidden"}} >
+                            <input type="search" className="form-control" placeholder="Search Item" value={searchValue} onChange={(e) => setSearchValue(e.target.value)}/>
+                            <button className="btn me-auto" style={{color: "white", backgroundColor: "#665651"}}>
+                                <div style={{color: 'white'}}>
+                                    {React.createElement(FaSearch, { size: 20 })}
+                                </div>
+                            </button>
+                        </div>
+                    </form>
+                </Col>
+                {/*Filtering Mechanism*/ }
+                <Col lg="4">
+                    <div className="mb-2 mt-3 input-group" style={{ maxWidth: "100%", display: "flex",
+                                                                    backgroundColor: "#665651", borderRadius: "10px",
+                                                                    overflow: "hidden"}}>
+                        <div style={{backgroundColor: "#665651", width: "30px", height: "100%"}}>   
+                            <div style={{padding: "5px", color: 'white'}}>
+                                {React.createElement(FaFilter, { size: 20 })}
+                            </div>  
+                        </div>
+                        <select className="form-select" 
+                                value={filterValue}
+                                onChange={(e) => setFilterValue(e.target.value)}>
+                            <option value="">All Food</option>
+                            <option value="All-Day Breakfast">All-Day Breakfast</option>
+                            <option value="Filipino Breakfast">Filipino Breakfast</option>
+                            <option value="Chips">Chips</option>
+                            <option value="Special Menu">Special Menu</option>
+                            <option value="Beverages">Beverages</option>
+                        </select>
+                    </div>
+                </Col>
+            </Row>
             <Row>
+                
                 {/* Initial View Display */}
                 {itemList.length == 0 ? (
                     <Col lg="11" style={{ marginLeft: "40px", marginRight: "10px" }}>
                         <Row>
-                            {foodList.map((food, index) => (
+                            {filteredFoodList.map((food, index) => (
                                 <Col className="mt-3" lg="2" key={index} style={{ marginBottom: '20px' }}>
                                 <Card style={{ position: 'relative', height: '250px', width: '200px', cursor: 'pointer', padding: '10px', background: '#665651', color: 'white' }} onClick={() => handleAddToItemList(food)}>
                                     <div style={{ position: 'relative', width: '100%', height: '100%', zIndex: 1 }}>
@@ -293,7 +343,7 @@ const RestaurantFoodList = ({ onOfferSubmission }) => {
 
                                 <div style={{ maxHeight: '78vh', overflowY: 'auto', overflowX: 'hidden' }}>
                                     <Row>
-                                        {foodList.map((room, index) => (
+                                        {filteredFoodList.map((room, index) => (
                                             <Col className="mt-3" lg="6" key={index}>
                                                 <Card style={{ position: 'relative', height: '250px', width: '200px', cursor: 'pointer', padding: '10px', background: '#665651', color: 'white' }} onClick={() => handleAddToItemList(room)}>
                                                     <div style={{ position: 'relative', width: '100%', height: '100%', zIndex: 1 }}>
