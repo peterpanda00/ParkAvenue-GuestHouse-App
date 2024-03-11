@@ -7,6 +7,9 @@ import { IoNavigateCircleOutline } from 'react-icons/io5';
 import supabase from "../config/supabaseClient";
 import { FadeLoader } from 'react-spinners'
 import { FaAlignCenter } from 'react-icons/fa6';
+import CheckInForm from "./CheckInForm";
+import { IoPerson } from "react-icons/io5";
+
 
 const RoomSelectionList = ({onOfferSubmission}) => {
   const [fetchError,setFetchError] = useState(null)
@@ -92,13 +95,7 @@ const RoomSelectionList = ({onOfferSubmission}) => {
 
   const handleCheckIn = () => {
     // Implement the logic for check-in based on the selected card or room
-    if (selectedCardIndex !== null ) {
-      // Access the selected room using roomList[selectedCardIndex]
-      console.log(`Check-in for room: ${roomList[selectedCardIndex].RoomNumber}`);
-      setShowBookingForm(true); // Show booking form after check-in
-    } else {
-      console.log('No room selected for check-in');
-    }
+    setShowBookingForm(true);
   };
 
   const handleCheckOut = () => {
@@ -113,7 +110,6 @@ const RoomSelectionList = ({onOfferSubmission}) => {
 
   const handleCardClick = (index) => {
     setSelectedCardIndex(index);
-    setShowBookingForm(true);
   };
 
 
@@ -151,54 +147,61 @@ const RoomSelectionList = ({onOfferSubmission}) => {
                     </Row>
 
                     <Col style={{ marginLeft: "40px", marginRight: "10px" }}>
-                      {loading ? (
+                    {loading ? (
                       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-                        <FadeLoader
-                          color="#665651"
-                     
-                        />
+                        <FadeLoader color="#665651" />
                       </div>
-                      ) : (
-                        <Row>
-                          {filteredRoomList.map((room, index) => (
-                            <Col className="mt-3" lg="2" key={index}>
-                              <Card style={{ height: '200px', width: '200px', cursor: 'pointer', padding: '10px', 
-                                            background: selectedCardIndex === index ? '#9A8D88' : '#665651', 
-                                            color: 'white', justifyContent: 'flex-end' }} onClick={() => handleCardClick(index)} >
-                                <Card.Title style={{ textAlign: 'center', color: 'white' }}>{room.RoomNumber}</Card.Title>
-                                <Card.Text style={{ textAlign: 'center' }}>
-                                  {room.RoomType}
-                                </Card.Text>
-                              </Card>
-                            </Col>
-                          ))}
-                        </Row>
-                      )}
-                    </Col>
+                    ) : (
+                      <Row>
+                        {filteredRoomList.map((room, index) => (
+                          <Col className="mt-3" lg="2" key={index}>
+                            <Card
+                              style={{
+                                height: '200px',
+                                width: '200px',
+                                cursor: 'pointer',
+                                padding: '10px',
+                                background: selectedCardIndex === index ? '#9A8D88' : '#665651',
+                                color: 'white',
+                                justifyContent: 'flex-end',
+                                position: 'relative', // Position relative for icon placement
+                              }}
+                              onClick={() => handleCardClick(index)}
+                            >
+                              {room.Availability === false && (
+                                <div style={{ position: 'absolute', top: '40%', left: '50%', transform: 'translate(-50%, -50%)' }}>
+                                
+                                  <IoPerson style={{ color: 'white', fontSize: '80px' }} />
+                                </div>
+                              )}
 
-                    {/* Buttons for Check-in and Check-out */}
-                  <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
-                    <Button variant="success" style={{ marginRight: '10px' }} onClick={handleCheckIn}>
-                      Check-in
-                    </Button>
-                    <Button variant="danger" onClick={handleCheckOut}>
-                      Check-out
-                    </Button>
-                  </div>
+                              <Card.Title style={{ textAlign: 'center', color: 'white' }}>{room.RoomNumber}</Card.Title>
+                              <Card.Text style={{ textAlign: 'center' }}>{room.RoomType}</Card.Text>
+                            </Card>
+                          </Col>
+                        ))}
+                      </Row>
+                    )}
+                  </Col>
+
+                     {/* Buttons for Check-in and Check-out */}
+                     
+                     <Row>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end',marginRight: '60px' }}>
+                      <Button variant="success" style={{ marginRight: '10px', borderRadius: '20%', width: '200px', height: '200px', fontWeight: 'bold', fontSize: '25px' }} onClick={handleCheckIn}>
+                        CHECK-IN
+                      </Button>
+                      <Button variant="danger" style={{ borderRadius: '20%', width: '200px', height: '200px', fontWeight: 'bold', fontSize: '25px' }} onClick={handleCheckOut}>
+                        CHECK-OUT
+                      </Button>
+                    </div>
+                  </Row>
+
         
                  
                 <>
                
-                {/* Form Overlay */}
-        {showBookingForm && (
-          <div className="overlay-container overlay-content">
-              
-            {/* Close button for the overlay */}
-            <button className="close-button" onClick={() => setShowBookingForm(false)}>
-              Close
-            </button>
-          </div>
-        )}
+            
 
 
 
@@ -212,6 +215,32 @@ const RoomSelectionList = ({onOfferSubmission}) => {
 
             
             </Row>
+
+            
+           
+        
+         {showBookingForm && 
+        
+          <div className="overlay-container">
+          <div className="overlay-content">
+            <div className="overlay-header" style={{  display: 'flex',justifyContent: 'space-between',padding: '6px', borderRadius: '10px', background: 'white', color: '#665651', textAlign: 'center', fontSize: '30px' }}>
+              <strong>Check In Form</strong>
+              <button
+              className="btn"
+              style={{ color: 'white', backgroundColor: '#665651', padding: '5px', borderRadius: '5px',alignSelf: 'flex-end', }}
+              onClick={() => setShowBookingForm(false)} // Close button functionality
+            >
+              X
+        </button>
+            </div>
+            <div className="overlay-body" style={{display: 'flex',transform: 'translate(-15%, 0%)',width: '150%', marginTop: '6px', overflowY: 'auto', overflowX: 'hidden', overflowY: 'hidden'}}>
+                    <CheckInForm />
+            </div>
+          </div>
+        </div>
+      
+        
+        }
 
 
 
