@@ -17,41 +17,7 @@ const Restaurant = () => {
   const [filteredFoodList, setFilteredFoodList] = useState([]); // State for the filtered food list
   const [foodList,setFoodList] = useState([])
 
-  /*useEffect(() => {
-    console.log(supabase)
-
-    const fetchOrders = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('orders')
-          .select(
-            `
-              *,
-              guests:guests("GuestID ", FirstName, LastName); // Set loading to false when done fetching
-            `
-          );
-        if (error) {
-          setFetchError('Could not fetch orders');
-          setOrderList([]);
-          setOrderCount(0);
-        }
-
-        if (data) {
-          setOrderList(data);
-          setFetchError(null);
-          setOrderCount(data.length);
-        }
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false); // Set loading to false when done fetching
-      }
-    };
-
-    fetchOrders();
-    console.log(orderList)
-    console.log(filteredorderList)
-  }, []); */
+ 
 
   const handleSubmit = (event) => {
     const form = event.currentTarget;
@@ -106,27 +72,7 @@ const Restaurant = () => {
           {notificationInfo}
         </Alert>
 
-        {/* Dropdown Filter */}
-        <div className="mb-2 input-group" style={{ maxWidth: "300px", display: "flex" }}>
-          <div style={{ marginLeft: "10px", width: "30px", height: "100%" }}>
-            <div style={{ padding: "5px", color: 'white' }}>
-              {React.createElement(FaFilter, { size: 20 })}
-            </div>
-          </div>
-          <select
-            className="form-select"
-            value={selectedFilter}
-            onChange={handleFilterChange}
-          >
-            <option value="">All</option>
-            <option value="All-Day Breakfast">All-Day Breakfast</option>
-            <option value="Filipino Breakfast">Filipino Breakfast</option>
-            <option value="Chips">Chips</option>
-            <option value="Special Menu">Special Menu</option>
-            <option value="Beverages">Beverages</option>
-            {/* Add more options as needed */}
-          </select>
-        </div>
+        
 
         {/* RestaurantFoodList Component with filtered food list */}
         <RestaurantFoodList/>
