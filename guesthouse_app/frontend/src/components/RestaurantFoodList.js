@@ -2,7 +2,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import React, { useState, useEffect } from 'react';
 import { FaFilter, FaSort, FaSearch, FaSave, FaEye, FaEyeSlash, FaTrash } from 'react-icons/fa';
 import { Row, Col, Form, CardBody, Card, Table, InputGroup,Modal } from 'react-bootstrap';
-import BookingForm from "./BookingForm"
+import OrderForm from "./OrderForm"
 import '../index.css';
 import supabase from '../config/supabaseClient';
 
@@ -16,8 +16,8 @@ const RestaurantFoodList = () => {
     const [filterValue, setFilterValue] = useState("");
     const [searchValue, setSearchValue] = useState('');
     const [loading, setLoading] = useState(true); 
-    const [showModal, setShowModal] = useState(false);
-    const [modalMessage, setModalMessage] = useState('');
+
+    const [showOrderForm, setShowOrderForm] = useState(false);
   
 
 
@@ -55,14 +55,11 @@ const RestaurantFoodList = () => {
           console.log(filteredFoodList)
       }, []);
 
-    const handleSubmit = (event) => {
+    const handleSaveOrder = (event) => {
         event.preventDefault();
-        setModalMessage('Ordered Successfully');
-        setShowModal(true);
-        setTimeout(() => {
-            window.location.reload();
-          }, 5000);
-         
+        setShowOrderForm(true);
+        console.log(itemList)
+
     };
 
     const filteredFoodList = foodList
@@ -136,11 +133,6 @@ const RestaurantFoodList = () => {
         });
     };
 
-    const handleCloseModal = () => {
-        setShowModal(false);
-        // Refresh the page after closing the modal
-        window.location.reload();
-      };
 
     // Calculate totals when itemList changes
     useEffect(() => {
@@ -226,7 +218,7 @@ const RestaurantFoodList = () => {
 
                                     <Card style={{ borderRadius: '20px', marginTop: '20px', background: 'white', color: '#014c91' }}>
                                         <CardBody>
-                                            <Form validated={validated} onSubmit={handleSubmit}>
+                                            <Form validated={validated} onSubmit={handleSaveOrder}>
                                                 <Table>
                                                     <thead>
                                                         <tr>
@@ -327,18 +319,38 @@ const RestaurantFoodList = () => {
                                     </Row>
                                 </div>
                             </Col>
+
+                            
                         </>
                     )}
+
+            {showOrderForm && 
+                    <div className="overlay-container">
+                    <div className="overlay-content">
+                        <div className="overlay-header" style={{  display: 'flex',justifyContent: 'space-between',padding: '6px', borderRadius: '10px', background: 'white', color: '#665651', textAlign: 'center', fontSize: '30px' }}>
+                        <strong>Order Form</strong>
+                        <button
+                        className="btn"
+                        style={{ color: 'white', backgroundColor: '#665651', padding: '5px', borderRadius: '5px',alignSelf: 'flex-end', }}
+                        onClick={() => setShowOrderForm(false)} // Close button functionality
+                        >
+                        X
+                    </button>
+                        </div>
+                        <div className="overlay-body" style={{ marginTop: '6px', overflowY: 'auto', overflowX: 'hidden', overflowY: 'hidden' }}>
+                        <Card style={{ borderRadius: '20px', marginTop: '20px', background: 'white', color: '#014c91' }}>
+                            <CardBody>
+                            <div style={{ padding: '10px', borderRadius: '10px', marginTop: '20px', background: '#665651', color: 'white' }}>
+                            <OrderForm itemList={itemList} itemListTotals={itemListTotals} />
+                            </div>
+                            </CardBody>
+                        </Card>
+                        </div>
+                    </div>
+                    </div>
+                }
             </Row>
 
-            <Modal show={showModal} onHide={handleCloseModal}>
-            <Modal.Header closeButton>
-                <Modal.Title>Restaurant Order</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-                <p>{modalMessage}</p>
-            </Modal.Body>
-            </Modal>
         </>
     );
 };
