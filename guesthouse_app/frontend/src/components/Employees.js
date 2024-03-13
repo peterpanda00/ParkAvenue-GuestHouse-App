@@ -3,9 +3,7 @@ import { Card, Table, Button, FormControl, Col } from "react-bootstrap";
 import { FaSearch } from "react-icons/fa";
 import Chart from "chart.js/auto";
 import supabase from "../config/supabaseClient";
-import employee1Image from "/Users/joemomma/Desktop/GitHub/ParkAvenue-GuestHouse-App/guesthouse_app/frontend/src/images/images.jpeg";
-import employee2Image from "/Users/joemomma/Desktop/GitHub/ParkAvenue-GuestHouse-App/guesthouse_app/frontend/src/images/images.jpeg";
-import employee3Image from "/Users/joemomma/Desktop/GitHub/ParkAvenue-GuestHouse-App/guesthouse_app/frontend/src/images/images.jpeg";
+
 
 const Employees = () => {
   const [selectedReport, setSelectedReport] = useState("Employee 1");
@@ -44,11 +42,6 @@ const Employees = () => {
       type: "pie",
       data: chartData
     });
-  };
-  const employeeImages = {
-    "Employee 1": employee1Image,
-    "Employee 2": employee2Image,
-    "Employee 3": employee3Image,
   };
 
   
