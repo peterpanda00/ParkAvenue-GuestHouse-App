@@ -1,15 +1,71 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import Sidebar from "../components/Sidebar";
 import supabase from "../config/supabaseClient";
-import { Row, Col, Card, Table } from 'react-bootstrap';
-import { FaDoorClosed } from "react-icons/fa";
+import { Row, Col, Card, Table,CardBody } from 'react-bootstrap';
+import { FaDoorClosed,FaDoorOpen,FaBed,FaSearch  } from "react-icons/fa";
 import { Bar } from 'react-chartjs-2';
 
 
 function Home() {
-
-
+  const [loading, setLoading] = useState(true); 
+  const [fetchError,setFetchError] = useState(null)
+  const [bookingList,setBookingList] = useState([])
+  const [bookingCount, setBookingCount] = useState(0);
+  const [searchValue, setSearchValue] = useState('');
   const [selectedChart, setSelectedChart] = useState('Revenue');
+
+  useEffect(() => {
+    console.log(supabase)
+  
+      fetchBookings();
+      console.log(bookingList);
+      console.log(filteredbookingList);
+    
+
+
+  }, []);
+
+  const fetchBookings = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('rooms_bookings')
+        .select(
+          `
+          *,
+          bookings: BookingID(CheckIn,CheckOut,Status,guests:GuestID(FirstName,LastName),CreatedAt)
+          `
+        );
+      if (error) {
+        setFetchError('Could not fetch bookings');
+        setBookingList([]);
+        setBookingCount(0);
+      }
+
+      if (data) {
+        setBookingList(data);
+        setFetchError(null);
+        setBookingCount(data.length);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false); // Set loading to false when done fetching
+    }
+  };
+
+
+  const filteredbookingList = bookingList
+    .filter((booking) => {
+      
+      return (
+        (searchValue === '' ||
+          booking.bookings.guests.FirstName.toLowerCase().includes(searchValue.toLowerCase()) ||
+          booking.bookings.guests.LastName.toLowerCase().includes(searchValue.toLowerCase())
+       
+        )
+      );
+    })
+   
  
 
   const handleChartChange = (chartType) => {
@@ -47,6 +103,19 @@ function Home() {
   };
 
   const chartData = selectedChart === 'Revenue' ? revenueData : guestData;
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'Pending':
+        return '#FFC300';
+      case 'Confirmed':
+        return '#5F891A';
+      case 'Cancelled':
+        return '#B32F0C';
+      default:
+        return 'black'; // Default color if status is not recognized
+    }
+  };
 
 
   console.log(supabase)
@@ -88,7 +157,7 @@ function Home() {
         </div>
          <Card.Title style={{ marginLeft:'50px',marginTop:'35px',textAlign: 'center', color: '#665651',fontSize:'30px' }}><strong>Arrivals</strong></Card.Title>
        <Card.Text style={{  textAlign: 'right', color: '#665651', fontSize:'64px', margin:'30px'  }}>
-        <strong>12</strong>
+        <strong>5</strong>
         <div
           style={{
             backgroundColor: '#665651',
@@ -121,7 +190,7 @@ function Home() {
           style={{
             position: 'absolute',
             top: '40px', // Adjust the top position as needed
-            left: '40px', // Adjust the left position as needed
+            left: '15px', // Adjust the left position as needed
             backgroundColor: '#665651', // Circle color
             width: '50px',
             height: '50px',
@@ -131,9 +200,9 @@ function Home() {
             justifyContent: 'center',
           }}
         >
-          <FaDoorClosed style={{ color: 'white', width: '30px',height: '30px', }} />
+          <FaDoorOpen style={{ color: 'white', width: '30px',height: '30px', }} />
         </div>
-         <Card.Title style={{ marginLeft:'50px',marginTop:'35px',textAlign: 'center', color: '#665651',fontSize:'30px' }}><strong>Arrivals</strong></Card.Title>
+         <Card.Title style={{ marginLeft:'50px',marginTop:'35px',textAlign: 'center', color: '#665651',fontSize:'30px' }}><strong>Departures</strong></Card.Title>
        <Card.Text style={{  textAlign: 'right', color: '#665651', fontSize:'64px', margin:'30px'  }}>
         <strong>12</strong>
         <div
@@ -168,7 +237,7 @@ function Home() {
           style={{
             position: 'absolute',
             top: '40px', // Adjust the top position as needed
-            left: '40px', // Adjust the left position as needed
+            left: '25px', // Adjust the left position as needed
             backgroundColor: '#665651', // Circle color
             width: '50px',
             height: '50px',
@@ -178,11 +247,11 @@ function Home() {
             justifyContent: 'center',
           }}
         >
-          <FaDoorClosed style={{ color: 'white', width: '30px',height: '30px', }} />
+          <FaBed  style={{ color: 'white', width: '30px',height: '30px', }} />
         </div>
-         <Card.Title style={{ marginLeft:'50px',marginTop:'35px',textAlign: 'center', color: '#665651',fontSize:'30px' }}><strong>Arrivals</strong></Card.Title>
+         <Card.Title style={{ marginLeft:'50px',marginTop:'35px',textAlign: 'center', color: '#665651',fontSize:'30px' }}><strong>Occupied</strong></Card.Title>
        <Card.Text style={{  textAlign: 'right', color: '#665651', fontSize:'64px', margin:'30px'  }}>
-        <strong>12</strong>
+        <strong>3</strong>
         <div
           style={{
             backgroundColor: '#665651',
@@ -352,9 +421,82 @@ function Home() {
        
       </Card>
       </Col>
+      {/*
+
+<Row>
+<Col lg="4">
+              <form>
+                  <div className="mb-2 mt-3 input-group" style={{ maxWidth: "100%", borderRadius: "10px", 
+                                                                  overflow: "hidden"}} >
+                      <input type="search" className="form-control" placeholder="Search Guest Name" value={searchValue} onChange={(e) => setSearchValue(e.target.value)}/>
+                      <button className="btn me-auto" style={{color: "white", backgroundColor: "#665651"}}>
+                          <div style={{color: 'white'}}>
+                              {React.createElement(FaSearch, { size: 20 })}
+                          </div>
+                      </button>
+                  </div>
+              </form>
+          </Col>
+
+</Row>
+
+<Row style={{width:'1000px',height:'600px'}}>
+
+<Card style={{ borderRadius: '20px'}}>
+          <CardBody>
+              <Table style={{width:'900px',height:'400px'}}>
+                   <thead>
+                      <tr>
+                          <th style={{color: '#665651'}}>Booking #</th>
+                          <th style={{color: '#665651'}}>Client Name</th>
+                          <th style={{color: '#665651'}}>Room Number</th>
+                          <th style={{color: '#665651'}}>Check-In Date</th>
+                          <th style={{color: '#665651'}}>Status</th>
+                          <th style={{color: '#665651'}}></th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      {filteredbookingList.map((room_booking, index) => (
+                          <React.Fragment key={room_booking.RoomBookingID}>
+                              <tr style={{ borderRadius: '20px', padding: '10px' }}>
+                                  <td style={{color: '#665651'}}>{room_booking.RoomBookingID}</td>
+                                  <td style={{ color: '#665651' }}>
+                                  {room_booking.bookings.guests
+                                    ? `${room_booking.bookings.guests.FirstName} ${room_booking.bookings.guests.LastName}`
+                                    : 'N/A'}
+                                </td>
+                                  <td style={{color: '#665651'}}>{room_booking.RoomNumber}</td>
+                                  <td style={{ color: '#665651' }}>
+                                    {room_booking.bookings.CheckIn ? new Date(room_booking.bookings.CheckIn).toLocaleDateString() : 'N/A'}
+                                  </td>
+                                  <td style={{ color: getStatusColor(room_booking.bookings.Status) }}>
+                                  {room_booking.bookings.Status}
+                                </td>
+                              </tr>
+                          </React.Fragment>
+                      ))}
+                  </tbody>
+              </Table>
+          </CardBody>
+      </Card>
+
+
+</Row>
+
+
+                                  */}
+      
       
 
       </Row>
+
+      
+      
+
+      
+
+        
+
       </div>
       
     </div>
