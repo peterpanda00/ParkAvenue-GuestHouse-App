@@ -297,7 +297,7 @@ function Home() {
             marginLeft:'20px'
           }}
         >
-          <strong>12</strong>
+          <strong>6</strong>
         </div>
         </Col>
 
@@ -314,7 +314,7 @@ function Home() {
             marginLeft:'60px'
           }}
         >
-          <strong>12</strong>
+          <strong>8</strong>
         </div>
 
         

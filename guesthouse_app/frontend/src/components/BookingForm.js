@@ -27,36 +27,67 @@ const BookingForm = () => {
     bookingChannel: '',
   });
 
-  useEffect(() => {
-    console.log(supabase)
 
-    const fetchRooms = async () => {
+  useEffect(() => {
+    const fetchAvailableRooms = async () => {
       try {
-        const { data, error } = await supabase
+        const { data: overlappingRoomBookings, error: roomBookingError } = await supabase
+          .from('rooms_bookings')
+          .select('*,bookings(*)')
+          .eq('BookingStatus', 'Active')
+          .gte('bookings.CheckOut', formData.checkOut) // Check if existing formData.checkOut is before or equal to bookings' CheckOut date
+          .lte('bookings.CheckIn', formData.checkIn); // Check if existing formData.checkIn is after or equal to bookings' CheckIn date
+  
+        if (roomBookingError) {
+          setFetchError('Could not fetch room bookings');
+          setRoomList([]);
+          setRoomCount(0);
+          return;
+        }
+  
+        const { data: allRooms, error: roomError } = await supabase
           .from('rooms')
-          .select();
-        if (error) {
+          .select('*');
+  
+        if (roomError) {
           setFetchError('Could not fetch rooms');
           setRoomList([]);
           setRoomCount(0);
+          return;
         }
+
+        console.log(overlappingRoomBookings)
   
-        if (data) {
-          setRoomList(data);
-          setFetchError(null);
-          setRoomCount(data.length);
-        }
+        const bookedRoomNumbers = overlappingRoomBookings
+          .filter(roomBooking => roomBooking.bookings !== null) // Filter out bookings where bookings is not null
+          .map(roomBooking => roomBooking.RoomNumber);
+        console.log(bookedRoomNumbers)
+  
+        // Filter out rooms that are not booked during the selected dates
+        const availableRooms = allRooms.filter(room => !bookedRoomNumbers.includes(room.RoomNumber));
+  
+        setRoomList(availableRooms);
+        setFetchError(null);
+        setRoomCount(availableRooms.length);
       } catch (error) {
         console.error(error);
       } finally {
-        setLoading(false); // Set loading to false when done fetching
+        setLoading(false);
       }
     };
   
-      fetchRooms();
-      console.log(roomList)
-      console.log(filteredroomList)
-  }, []);
+    if (formData.checkIn && formData.checkOut) {
+      fetchAvailableRooms();
+    }
+  }, [formData.checkIn, formData.checkOut]);
+  
+  
+  // Log roomList whenever it changes
+  useEffect(() => {
+    console.log(roomList);
+  }, [roomList]);
+  
+  
 
  
 
