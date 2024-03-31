@@ -20,20 +20,28 @@ const RoomBooking= () => {
   const [filterValue, setFilterValue] = useState("");
   const [searchValue, setSearchValue] = useState('');
   const [sortOrder, setSortOrder] = useState('asc');
+  const [currentPage, setCurrentPage] = useState(1);
+  const bookingsPerPage = 10;
+
+  const indexOfLastBooking = currentPage * bookingsPerPage;
+  const indexOfFirstBooking = indexOfLastBooking - bookingsPerPage;
+
+  
 
 
   useEffect(() => {
     console.log(supabase)
   
-      fetchBookings();
+    fetchBookings(currentPage);
       console.log(bookingList);
       console.log(filteredbookingList);
+
+    }, [currentPage]);
+
+  const fetchBookings = async (pageNumber) => {
+    const startIndex = (pageNumber - 1) * bookingsPerPage;
+    const endIndex = pageNumber * bookingsPerPage - 1;
     
-
-
-  }, []);
-
-  const fetchBookings = async () => {
     try {
       const { data, error } = await supabase
         .from('rooms_bookings')
@@ -42,13 +50,15 @@ const RoomBooking= () => {
           *,
           bookings: BookingID(CheckIn,CheckOut,Status,guests:GuestID(FirstName,LastName),CreatedAt)
           `
-        );
+        )
+        .range(startIndex, endIndex);
+  
       if (error) {
         setFetchError('Could not fetch bookings');
         setBookingList([]);
         setBookingCount(0);
       }
-
+  
       if (data) {
         setBookingList(data);
         setFetchError(null);
@@ -165,6 +175,19 @@ const RoomBooking= () => {
       console.error('Error updating booking status:', error);
     }
   };
+
+  const handleDeleteBooking = async (bookingID) => {
+    console.log("Deleting booking with ID:", bookingID);
+    try {
+      // Delete the booking from the database based on the bookingID
+      await supabase.from('rooms_bookings').delete().eq('RoomBookingID', bookingID);
+      console.log('Deleted', bookingID);
+      // Refresh the list of bookings after deletion
+      fetchBookings();
+    } catch (error) {
+      console.error('Error deleting booking:', error);
+    }
+  };
       
 
   // Render different font colors based on the status
@@ -181,6 +204,14 @@ const getStatusColor = (status) => {
   }
 };
 
+// Slice the list of bookings to display only the ones for the current page
+const currentBookings = filteredbookingList.slice(indexOfFirstBooking, indexOfLastBooking);
+
+// Calculate total pages
+const totalPages = Math.ceil(filteredbookingList.length / bookingsPerPage);
+
+// Change page
+const paginate = pageNumber => setCurrentPage(pageNumber);
 
 
       
@@ -313,11 +344,32 @@ const getStatusColor = (status) => {
                                         </Dropdown>
                                       </div>
                                         </td>
+                                        {/* Trash icon for deleting booking */}
+                                      <td>
+                                        <FaTrash
+                                          style={{ cursor: 'pointer', color: '#665651' }}
+                                          onClick={() => handleDeleteBooking(room_booking.RoomBookingID)}
+                                        />
+                                      </td>
                                     </tr>
                                 </React.Fragment>
                             ))}
                         </tbody>
                     </Table>
+                    <ul className="pagination" style={{justifyContent:'center'}}>
+                    <li className={currentPage === 1 ? 'disabled' : ''}>
+                      <button style={{ color: "#665651", borderRadius: '5px', backgroundColor: "white", borderColor: "transparent" }} onClick={() => setCurrentPage(currentPage - 1)}>&laquo;</button>
+                    </li>
+                    {Array.from({ length: totalPages }).map((_, index) => (
+                      <li key={index} className={currentPage === index + 1 ? 'active' : ''}>
+                        <button style={{ color: "#665651", borderRadius: '5px', backgroundColor: "white", borderColor: "transparent" }} onClick={() => setCurrentPage(index + 1)}>{index + 1}</button>
+                      </li>
+                    ))}
+                    <li className={currentPage === totalPages ? 'disabled' : ''}>
+                      <button style={{ color: "#665651", borderRadius: '5px', backgroundColor: "white", borderColor: "transparent" }} onClick={() => setCurrentPage(currentPage + 1)}>&raquo;</button>
+                    </li>
+                  </ul>
+
                 </CardBody>
             </Card>
 
