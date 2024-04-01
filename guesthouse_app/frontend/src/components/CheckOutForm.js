@@ -1,5 +1,5 @@
 import  React, { useEffect,useState } from 'react';
-import { Col, Row, Form, Button, Card,Table,CardBody,InputGroup,FormControl,Modal} from 'react-bootstrap';
+import { Col, Row, Form, Button, Card,Table,CardBody,InputGroup,FormControl,Modal,Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'react-bootstrap';
 import { FaEllipsisH, FaSave, FaEye, FaEyeSlash, FaTrash, FaCheck} from 'react-icons/fa';
 import { MdOutlineMeetingRoom } from "react-icons/md";
 
@@ -20,6 +20,11 @@ const CheckOutForm = ({ RoomNumber }) => {
   const [itemList, setItemList] = useState([]);
   const [itemListTotals, setItemListTotals] = useState([]);
   const [room_bookings, setBookingInfo] = useState([]);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const toggleDropdown = () => setDropdownOpen(prevState => !prevState);
+  const [selectedMethod, setSelectedMethod] = useState('Select Payment Method');
+
+  const paymentMethods = ['Cash', 'GCash', 'Debit/Credit Card', 'Cheque'];
 
  
 
@@ -29,7 +34,7 @@ const CheckOutForm = ({ RoomNumber }) => {
             // Fetch room charges including guest details
             const { data: roomData, error: roomDataError } = await supabase
                 .from('rooms_bookings')
-                .select('*, bookings(*,guests(*)), rooms(RoomType,Price,AddPrice)')
+                .select('*, bookings(*,guests(*)), rooms(RoomType,Price,AddPrice,GuestCapacity)')
                 .eq('RoomNumber', RoomNumber)
                 .eq('BookingStatus', 'Staying');
 
@@ -56,9 +61,9 @@ const CheckOutForm = ({ RoomNumber }) => {
                         combinedCharges.push({
                             Date: charge.bookings.CreatedAt,
                             Description: charge.rooms.RoomType,
-                            Quantity: 1,
+                            Quantity: charge.bookings.Nights,
                             Price: charge.rooms.Price,
-                            Cost: charge.rooms.Price
+                            Cost: charge.bookings.Nights*charge.rooms.Price
                         });
 
                         const additionalGuests = charge.bookings.NumGuests - charge.rooms.GuestCapacity;
@@ -147,8 +152,13 @@ const calculateTotals = () => {
 
 const totalCost = chargeList.reduce((total, charge) => total + charge.Cost, 0);
 
+const handleMethodSelect = (method) => {
+    setSelectedMethod(method);
+    setDropdownOpen(false); // Close the dropdown after selection
+  }
+
   
-  const handleCheckOutRoom = async (roomNumber, RoomBookingID) => {
+const handleCheckOutRoom = async (roomNumber, RoomBookingID) => {
     try {
       // Update the 'Availability' column to 'FALSE' in the rooms table
       const roomUpdateResult = await supabase
@@ -165,10 +175,10 @@ const totalCost = chargeList.reduce((total, charge) => total + charge.Cost, 0);
   
       console.log('Room availability updated successfully');
   
-      // Update the 'BookingStatus' column to 'Staying' in the room_bookings table
+      // Update the 'BookingStatus' column to 'Completed' in the room_bookings table
       const bookingUpdateResult = await supabase
         .from('rooms_bookings')
-        .update({ BookingStatus: 'Inactive' })
+        .update({ BookingStatus: 'Completed' })
         .eq('RoomBookingID', RoomBookingID);
   
       if (bookingUpdateResult.error) {
@@ -268,21 +278,55 @@ const totalCost = chargeList.reduce((total, charge) => total + charge.Cost, 0);
         }}
       ></div>
       <Row className="mb-2">
-        
         <Col lg="6"><strong>Room Number</strong></Col>
         <Col lg="6">{room_bookings.length > 0 && room_bookings[0].RoomNumber}</Col></Row>
-      <Row className="mb-2"></Row>
+
+      <Row className="mb-2"><Col lg="6"><strong>Room Type</strong></Col>
+        <Col lg="6">{room_bookings.length > 0 && room_bookings[0].rooms.RoomType}</Col></Row>
+      
       <Row className="mb-2">
-        
         <Col lg="6"><strong>Check-In</strong></Col>
         <Col lg="6">{room_bookings.length > 0 && room_bookings[0].bookings.CheckIn}</Col></Row>
       <Row className="mb-2">
         <Col lg="6"><strong>Check-Out</strong></Col>
         <Col lg="6">{room_bookings.length > 0 && room_bookings[0].bookings.CheckOut}</Col>
       </Row>
+      <Row className="mb-2">
+        <Col lg="6"><strong>Number of Guests</strong></Col>
+        <Col lg="6">{room_bookings.length > 0 && room_bookings[0].bookings.NumGuests}</Col>
+      </Row>
+      <Row className="mb-2">
+        <Col lg="6"><strong>Additional Guests</strong></Col>
+        <Col lg="6">
+            {room_bookings.length > 0 && 
+            (room_bookings[0].bookings.NumGuests - room_bookings[0].rooms.GuestCapacity < 0
+                ? 0
+                : room_bookings[0].bookings.NumGuests - room_bookings[0].rooms.GuestCapacity)
+            }
+        </Col>
+        </Row>
+      <Row className="mb-2">
+        <Col lg="6"><strong>Nights</strong></Col>
+        <Col lg="6">{room_bookings.length > 0 && room_bookings[0].bookings.Nights}</Col>
+      </Row>
+      <Row className="mb-2">
+        <Col lg="6"><strong>Payment Method</strong></Col>
+        <Col lg="6">
+          <Dropdown isOpen={dropdownOpen} toggle={toggleDropdown} >
+            <DropdownToggle caret style={{ color: "#665651", backgroundColor: "white", borderColor: "white"}}>
+              {selectedMethod}
+            </DropdownToggle>
+            <DropdownMenu style={{ color: "#665651", backgroundColor: "white" }}>
+              {paymentMethods.map((method, index) => (
+                <DropdownItem key={index} onClick={() => handleMethodSelect(method)}>{method}</DropdownItem>
+              ))}
+            </DropdownMenu>
+          </Dropdown>
+        </Col>
+      </Row>
       </div>
       <Row>
-        <Col lg="6"><strong></strong></Col>
+   
   
         
         <Card style={{ borderRadius: '20px', marginTop: '20px', maxHeight: '400px', overflowY: 'auto'}}>
@@ -321,6 +365,7 @@ const totalCost = chargeList.reduce((total, charge) => total + charge.Cost, 0);
                 </Col>
               
             </Row>
+       
       </CardBody>
     </Card>
               
@@ -345,7 +390,16 @@ const totalCost = chargeList.reduce((total, charge) => total + charge.Cost, 0);
                 </PDFDownloadLink>
             ) : null}
         </Col>
+        {selectedMethod!='Select Payment Method' && (
+          <Col lg="5" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '30px' }}>
+            <button className="btn" style={{ color: "#665651", backgroundColor: "white" }} onClick={() => handleCheckOutRoom(room_bookings[0].RoomNumber, room_bookings[0].RoomBookingID)}>
+              <MdOutlineMeetingRoom size={18} style={{ marginRight: '5px' }} /> Continue Check-out
+            </button>
+          </Col>
+       
+      )}
     </Row>
+
 
   <Modal show={showModal} onHide={handleCloseModal}>
       <Modal.Header closeButton>

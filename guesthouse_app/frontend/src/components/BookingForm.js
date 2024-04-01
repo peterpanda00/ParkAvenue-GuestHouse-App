@@ -142,6 +142,10 @@ const BookingForm = () => {
     const guestID = guestData[0].GuestID
     console.log(guestID)
     // Insert booking data
+    const checkInDate = new Date(formData.checkIn);
+    const checkOutDate = new Date(formData.checkOut);
+    const nightDifference = Math.ceil((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 3600 * 24)); // Calculate the difference in days
+
     const { data: bookingData, error: bookingError } = await supabase
       .from('bookings')
       .insert([
@@ -149,9 +153,10 @@ const BookingForm = () => {
           CheckIn: formData.checkIn,
           CheckOut: formData.checkOut,
           Status: "Pending",
-          GuestID: guestID ,
+          GuestID: guestID,
           NumGuests: numOfGuests,
           BookingChannel: formData.bookingChannel,
+          Nights: nightDifference, // Use the calculated night difference
         },
       ])
       .select();
