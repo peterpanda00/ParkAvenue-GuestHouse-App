@@ -16,6 +16,7 @@ import Reports from "./routes/Reports";
 import Management from "./routes/Management";
 import Sidebar from "./components/Sidebar";
 import Login from './routes/Login';
+import Register from './routes/Login';
 import "./App.css";
 
 const AppLayout = () => (
@@ -28,6 +29,7 @@ const AppLayout = () => (
    createRoutesFromElements(
      <Route element={<AppLayout />}>
       <Route path="/" element={<Login/>} />
+      <Route path="/register" element={<Register/>} />
       <Route path="/home" element={<Home />} />
       <Route path="/room_check_in" element={<RoomCheckIn />} />
       <Route path="/room_booking" element={<RoomBooking />} />
