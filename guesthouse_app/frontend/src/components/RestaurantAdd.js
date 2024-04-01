@@ -1,5 +1,5 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Row, Col, Form, CardBody, Card, Table, Modal, Button } from 'react-bootstrap';
 import { FaSave } from 'react-icons/fa';
 
@@ -17,7 +17,7 @@ const Restaurant = () => {
 
     // Function to handle adding the new item to the food list
     const handleAddItem = () => {
-        if (newItem.name && newItem.price && newItem.description) {
+        if (newItem.name && newItem.price && newItem.description && newItem.imageUrl) {
             setFoodList([...foodList, newItem]);
             setNewItem({}); // Clear the new item state
             handleCloseModal(); // Close the modal after adding the item
@@ -48,7 +48,7 @@ const Restaurant = () => {
             {/* Modal for adding new item */}
             <Modal show={showModal} onHide={handleCloseModal}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Add New Item</Modal.Title>
+                    <Modal.Title>Add New Food Item</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Form>
@@ -56,7 +56,7 @@ const Restaurant = () => {
                             <Form.Label>Name</Form.Label>
                             <Form.Control
                                 type="text"
-                                placeholder="Enter item name"
+                                placeholder="Enter food item name"
                                 name="name"
                                 value={newItem.name || ''}
                                 onChange={handleInputChange}
@@ -66,20 +66,35 @@ const Restaurant = () => {
                             <Form.Label>Price</Form.Label>
                             <Form.Control
                                 type="number"
-                                placeholder="Enter item price"
+                                placeholder="Enter food item price"
                                 name="price"
                                 value={newItem.price || ''}
                                 onChange={handleInputChange}
                             />
                         </Form.Group>
-                        <Form.Group controlId="itemDescription">
-                            <Form.Label>Description</Form.Label>
+                        <Form.Group controlId="itemCategory">
+                            <Form.Label>Category</Form.Label>
                             <Form.Control
-                                as="textarea"
-                                rows={3}
-                                placeholder="Enter item description"
-                                name="description"
-                                value={newItem.description || ''}
+                                as="select"
+                                name="category"
+                                value={newItem.category || ''}
+                                onChange={handleInputChange}
+                            >
+                                <option value="">Select category...</option>
+                                <option value="Appetizer">All-Day Breakfast</option>
+                                <option value="Main Course">Filipino Breakfast</option>
+                                <option value="Dessert">Chips</option>
+                                <option value="Dessert">Special Menu</option>
+                                <option value="Dessert">Beverages</option>
+                            </Form.Control>
+                        </Form.Group>
+                        <Form.Group controlId="itemImageUrl">
+                            <Form.Label>Image URL</Form.Label>
+                            <Form.Control
+                                type="text"
+                                placeholder="Enter food image URL"
+                                name="imageUrl"
+                                value={newItem.imageUrl || ''}
                                 onChange={handleInputChange}
                             />
                         </Form.Group>
@@ -104,6 +119,8 @@ const Restaurant = () => {
                                 <tr>
                                     <th>Name</th>
                                     <th>Price</th>
+                                    <th>Category</th>
+                                    <th>Image URL</th>
                                     <th>Description</th>
                                 </tr>
                             </thead>
@@ -112,6 +129,8 @@ const Restaurant = () => {
                                     <tr key={index}>
                                         <td>{item.name}</td>
                                         <td>{item.price}</td>
+                                        <td>{item.category}</td>
+                                        <td>{item.imageUrl}</td>
                                         <td>{item.description}</td>
                                     </tr>
                                 ))}

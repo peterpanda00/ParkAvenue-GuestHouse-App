@@ -16,10 +16,10 @@ const Restaurant = () => {
   const [validated, setValidated] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState(''); // State for the selected filter
   const [filteredFoodList, setFilteredFoodList] = useState([]); // State for the filtered food list
-  const [foodList,setFoodList] = useState([])
+  const [foodList, setFoodList] = useState([])
   const [showRestaurantAdd, setShowRestaurantAdd] = useState(false);
 
- 
+
 
   const handleSubmit = (event) => {
     const form = event.currentTarget;
@@ -37,7 +37,7 @@ const Restaurant = () => {
     setSelectionType('client');
   };
 
-  
+
   const handleFilterChange = (event) => {
     const { value } = event.target;
     setSelectedFilter(value);
@@ -79,44 +79,44 @@ const Restaurant = () => {
           {notificationInfo}
         </Alert>
 
-     {/* Button */}
-     <div className="d-flex justify-content-end mb-3">
-        <button
-          className="btn"
-          style={{ color: 'white', backgroundColor: '#665651' }}
-          onClick={handleAddRestaurantItem} // You can add your onClick handler here
-        >
-          Add
-        </button>
-      </div>
-      {showRestaurantAdd && 
-        <div className="overlay-container">
-          <div className="overlay-content">
-            <div className="overlay-header" style={{  display: 'flex',justifyContent: 'space-between',padding: '6px', borderRadius: '10px', background: 'white', color: '#665651', textAlign: 'center', fontSize: '30px' }}>
-              <strong>Add an Item to the Menu</strong>
-              <button
-              className="btn"
-              style={{ color: 'white', backgroundColor: '#665651', padding: '5px', borderRadius: '5px',alignSelf: 'flex-end', }}
-              onClick={() => setShowRestaurantAdd(false)} // Close button functionality
-            >
-              X
-        </button>
-            </div>
-            <div className="overlay-body" style={{ marginTop: '6px', overflowY: 'auto', overflowX: 'hidden', overflowY: 'hidden' }}>
-              <Card style={{ borderRadius: '20px', marginTop: '20px', background: 'white', color: '#014c91' }}>
-                <CardBody>
-                  <div style={{ padding: '10px', borderRadius: '10px', marginTop: '20px', background: '#665651', color: 'white' }}>
-                    <RestaurantAdd />
-                  </div>
-                </CardBody>
-              </Card>
+        {/* RestaurantFoodList Component with filtered food list */}
+        <RestaurantFoodList />
+
+        {/* Button */}
+        <div className="d-flex justify-content-end mb-3">
+          <button
+            className="btn"
+            style={{ color: 'white', backgroundColor: '#665651', marginTop: '40px', marginRight: '120px' }}
+            onClick={handleAddRestaurantItem} // You can add your onClick handler here
+          >
+            + Add Food Item
+          </button>
+        </div>
+        {showRestaurantAdd &&
+          <div className="overlay-container">
+            <div className="overlay-content">
+              <div className="overlay-header" style={{ display: 'flex', justifyContent: 'space-between', padding: '6px', borderRadius: '10px', background: 'white', color: '#665651', textAlign: 'center', fontSize: '30px' }}>
+                <strong>Add an Item to the Menu</strong>
+                <button
+                  className="btn"
+                  style={{ color: 'white', backgroundColor: '#665651', padding: '5px', borderRadius: '5px', alignSelf: 'flex-end', }}
+                  onClick={() => setShowRestaurantAdd(false)} // Close button functionality
+                >
+                  X
+                </button>
+              </div>
+              <div className="overlay-body" style={{ marginTop: '6px', overflowY: 'auto', overflowX: 'hidden', overflowY: 'hidden' }}>
+                <Card style={{ borderRadius: '20px', marginTop: '20px', background: 'white', color: '#014c91' }}>
+                  <CardBody>
+                    <div style={{ padding: '10px', borderRadius: '10px', marginTop: '20px', background: '#665651', color: 'white' }}>
+                      <RestaurantAdd />
+                    </div>
+                  </CardBody>
+                </Card>
+              </div>
             </div>
           </div>
-        </div>
-      }
-
-        {/* RestaurantFoodList Component with filtered food list */}
-        <RestaurantFoodList/>
+        }
       </div>
     </div>
   );
