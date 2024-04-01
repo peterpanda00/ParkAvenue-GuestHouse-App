@@ -3,6 +3,10 @@ import { Col, Row, Form, Button, Card,Table,CardBody,InputGroup,FormControl,Moda
 import { FaEllipsisH, FaSave, FaEye, FaEyeSlash, FaTrash, FaCheck} from 'react-icons/fa';
 import { MdOutlineMeetingRoom } from "react-icons/md";
 
+import ReactDOM from 'react-dom';
+import  FinalBilling  from './FinalBilling'; 
+import { PDFDownloadLink } from '@react-pdf/renderer';
+
 import supabase from "../config/supabaseClient";
 
 
@@ -16,6 +20,7 @@ const CheckOutForm = ({ RoomNumber }) => {
   const [itemList, setItemList] = useState([]);
   const [itemListTotals, setItemListTotals] = useState([]);
   const [room_bookings, setBookingInfo] = useState([]);
+
  
 
   useEffect(() => {
@@ -41,6 +46,8 @@ const CheckOutForm = ({ RoomNumber }) => {
                 if (orderData) {
                     console.log(orderData);
 
+                    
+
                     // Combine room charges and orders into chargeList
                     const combinedCharges = [];
 
@@ -50,6 +57,7 @@ const CheckOutForm = ({ RoomNumber }) => {
                             Date: charge.bookings.CreatedAt,
                             Description: charge.rooms.RoomType,
                             Quantity: 1,
+                            Price: charge.rooms.Price,
                             Cost: charge.rooms.Price
                         });
 
@@ -59,6 +67,7 @@ const CheckOutForm = ({ RoomNumber }) => {
                                 Date: charge.bookings.CreatedAt,
                                 Description: 'Additional Guests',
                                 Quantity: additionalGuests,
+                                Price: charge.rooms.AddPrice,
                                 Cost: charge.rooms.AddPrice * additionalGuests
                             });
                         }
@@ -70,7 +79,8 @@ const CheckOutForm = ({ RoomNumber }) => {
                             Date: charge.orders.OrderDate,
                             Description: charge.food_items.ItemName, // Assuming ItemName represents the description of the ordered item
                             Quantity: charge.Quantity,
-                            Cost: charge.food_items.ItemPrice * charge.Quantity // Calculate the total cost for the ordered item
+                            Price: charge.food_items.ItemPrice,
+                            Cost: (charge.food_items.ItemPrice * charge.Quantity) // Calculate the total cost for the ordered item
                         });
                     });
 
@@ -102,9 +112,6 @@ useEffect(() => {
 
   
 
-
-
-  
   
   // Log roomList whenever it changes
   useEffect(() => {
@@ -140,7 +147,6 @@ const calculateTotals = () => {
 
 const totalCost = chargeList.reduce((total, charge) => total + charge.Cost, 0);
 
- 
   
   const handleCheckOutRoom = async (roomNumber, RoomBookingID) => {
     try {
@@ -192,7 +198,22 @@ const totalCost = chargeList.reduce((total, charge) => total + charge.Cost, 0);
     // Refresh the page after closing the modal
     window.location.reload();
   };
-  
+
+  const invoiceInfo = room_bookings.length > 0 ? {
+    id: "5df3180a09ea16dc4b95f910",
+    invoice_no: room_bookings[0].RoomBookingID,
+    company: room_bookings[0].bookings.guests.FirstName + ' ' + room_bookings[0].bookings.guests.LastName,
+    email: room_bookings[0].bookings.guests.Email,
+    phone: room_bookings[0].bookings.guests.Phone,
+    trans_date: room_bookings[0].bookings.CheckOut,
+    items: chargeList.map((charge, index) => ({
+        sno: index + 1,
+        desc: charge.Description,
+        qty: charge.Quantity,
+        rate: charge.Price,
+    })),
+} : null;
+
       
 
   return (
@@ -272,7 +293,8 @@ const totalCost = chargeList.reduce((total, charge) => total + charge.Cost, 0);
               <th style={{ color: '#665651' }}>Date</th>
               <th style={{ color: '#665651' }}>Description</th>
               <th style={{ color: '#665651' }}>Quantity</th>
-              <th style={{ color: '#665651' }}>Cost</th>
+              <th style={{ color: '#665651' }}>Price Per Qty</th>
+              <th style={{ color: '#665651' }}>Total Cost</th>
             </tr>
           </thead>
           <tbody>
@@ -281,6 +303,7 @@ const totalCost = chargeList.reduce((total, charge) => total + charge.Cost, 0);
                 <td style={{ color: '#665651' }}>{new Date(charge.Date).toLocaleDateString()}</td>
                 <td style={{ color: '#665651' }}>{charge.Description}</td>
                 <td style={{ color: '#665651' }}>{charge.Quantity}</td>
+                <td style={{ color: '#665651' }}>₱ {formatNumber(charge.Price)}</td>
                 <td style={{ color: '#665651' }}>₱ {formatNumber(charge.Cost)}</td>
               </tr>
             ))}
@@ -308,13 +331,21 @@ const totalCost = chargeList.reduce((total, charge) => total + charge.Cost, 0);
 
     {/* Check-out Button */}
     <Row className="mt-4" style={{ display: 'flex', justifyContent: 'center'}}>
-      <Col lg="5" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center',marginTop: '30px' }}>
-        <button className="btn" style={{ color: "#665651", backgroundColor: "white" }}>
-          {React.createElement(MdOutlineMeetingRoom, { size: 18, style: { marginRight: '5px' } })} Check-out Guest
-        </button>
-      </Col>
+        <Col lg="5" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center',marginTop: '30px' }}>
+            {invoiceInfo ? (
+                <PDFDownloadLink document={<FinalBilling invoice={invoiceInfo}/>} fileName={`FinalBilling_${room_bookings[0].RoomBookingID}`} >
+                    {({loading}) => (
+                        loading ? 'Loading' : 
+                        <button className="btn"
+                            style={{ borderRadius:'10px',color: '#665651', backgroundColor: 'white', marginTop: '10px' }}>
+                            {React.createElement(FaSave, { size: 18, style: { marginRight: '5px' } })} 
+                            Generate Final Billing 
+                        </button>
+                    )} 
+                </PDFDownloadLink>
+            ) : null}
+        </Col>
     </Row>
- 
 
   <Modal show={showModal} onHide={handleCloseModal}>
       <Modal.Header closeButton>

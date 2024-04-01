@@ -252,7 +252,7 @@ const RoomSelectionList = ({onOfferSubmission}) => {
             <button
             className="btn"
             style={{ color: 'white', backgroundColor: '#665651', padding: '5px', borderRadius: '5px',alignSelf: 'flex-end', }}
-            onClick={() => setShowBookingForm(false)} // Close button functionality
+            onClick={() => setShowCheckOutForm(false)} // Close button functionality
           >
             X
       </button>
