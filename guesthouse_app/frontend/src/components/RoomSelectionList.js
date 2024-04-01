@@ -8,6 +8,7 @@ import supabase from "../config/supabaseClient";
 import { FadeLoader } from 'react-spinners'
 import { FaAlignCenter } from 'react-icons/fa6';
 import CheckInForm from "./CheckInForm";
+import CheckOutForm from "./CheckOutForm";
 import { IoPerson } from "react-icons/io5";
 
 
@@ -23,6 +24,7 @@ const RoomSelectionList = ({onOfferSubmission}) => {
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [selectedCardIndex, setSelectedCardIndex] = useState(null);
   const [showBookingForm, setShowBookingForm] = useState(false);
+  const [showCheckOutForm, setShowCheckOutForm] = useState(false);
 
 
   //Rendering Transition Logic for Alternating Views
@@ -103,6 +105,7 @@ const RoomSelectionList = ({onOfferSubmission}) => {
     if (selectedCardIndex !== null) {
       // Access the selected room using roomList[selectedCardIndex]
       console.log(`Check-out for room: ${roomList[selectedCardIndex].RoomNumber}`);
+      setShowCheckOutForm(true);
     } else {
       console.log('No room selected for check-out');
     }
@@ -238,9 +241,29 @@ const RoomSelectionList = ({onOfferSubmission}) => {
             </div>
           </div>
         </div>
-      
-        
         }
+
+      {showCheckOutForm && 
+        
+        <div className="overlay-container">
+        <div className="overlay-content">
+          <div className="overlay-header" style={{  display: 'flex',justifyContent: 'space-between',padding: '6px', borderRadius: '10px', background: 'white', color: '#665651', textAlign: 'center', fontSize: '30px' }}>
+            <strong>Check Out Form</strong>
+            <button
+            className="btn"
+            style={{ color: 'white', backgroundColor: '#665651', padding: '5px', borderRadius: '5px',alignSelf: 'flex-end', }}
+            onClick={() => setShowBookingForm(false)} // Close button functionality
+          >
+            X
+      </button>
+          </div>
+          <div className="overlay-body" style={{display: 'flex',transform: 'translate(-15%, 0%)',width: '170%', marginTop: '6px', overflowY: 'auto', overflowX: 'hidden', overflowY: 'hidden'}}>
+                  <CheckOutForm RoomNumber={roomList[selectedCardIndex].RoomNumber} />
+          </div>
+        </div>
+      </div>
+      }
+
 
 
 
