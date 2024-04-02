@@ -1,6 +1,7 @@
 import  React, { useEffect,useState } from 'react';
 import { Col, Row, Form, Button, Card,Table,CardBody,InputGroup,FormControl,Modal} from 'react-bootstrap';
 import { FaEllipsisH, FaSave, FaEye, FaEyeSlash, FaTrash, FaCheck} from 'react-icons/fa';
+
 import supabase from "../config/supabaseClient";
 
 
@@ -17,6 +18,9 @@ const BookingForm = () => {
   const [roomCount, setRoomCount] = useState(0);
   const [filterValue, setFilterValue] = useState("");
   const [numOfGuests, setNumOfGuests] = useState(1);
+  const [guestSearch, setGuestSearch] = useState('');
+  const [guestOptions, setGuestOptions] = useState([]);
+  const [guestSelected, setGuestSelected] = useState(false);
 
   const [formData, setFormData] = useState({
     guestName: '',
@@ -213,11 +217,85 @@ const BookingForm = () => {
     // Refresh the page after closing the modal
     window.location.reload();
   };
+
+  useEffect(() => {
+    // Fetch guest options based on search input
+    const fetchGuestOptions = async () => {
+      try {
+        const { data: guests, error } = await supabase
+          .from('guests')
+          .select('*')
+          .or(`FirstName.ilike.%${guestSearch}%, LastName.ilike.%${guestSearch}%`);
+        
+        if (error) {
+          console.error('Error fetching guests:', error);
+          return;
+        }
+
+        setGuestOptions(guests);
+        console.log(guests)
+      } catch (error) {
+        console.error('Error fetching guests:', error);
+      }
+    };
+
+    fetchGuestOptions();
+  }, [guestSearch]);
+  console.log(guestSearch)
+  console.log(guestOptions)
+  // Update the handleGuestSelect function to set the guestSelected state and update the formData
+const handleGuestSelect = (selectedGuest) => {
+  // Populate guest information fields with selected guest data
+  setFormData({
+    ...formData,
+    FirstName: selectedGuest.FirstName,
+    LastName: selectedGuest.LastName,
+    mobileNumber: selectedGuest.Phone,
+    email: selectedGuest.Email,
+  });
+  // Set guestSelected to true
+  setGuestSelected(true);
+  setGuestSearch('')
+};
+
   
       
 
   return (
     <div style={{ width: '100%',maxHeight: '750px', padding: '10px', borderRadius: '10px', marginTop: '20px', background: '#665651', color: 'white', display: 'flex', flexDirection: 'column', overflowY: 'auto'  }}>
+  {/* Add search input field */}
+  <Form.Group>
+        <Form.Control
+          type="text"
+          placeholder="Search for guest..."
+          value={guestSearch}
+          onChange={(e) => setGuestSearch(e.target.value)}
+        />
+      </Form.Group>
+
+    {/* Display guest options only when there is a search query */}
+    {guestSearch && (
+      <div style={{ borderRadius: '10px', backgroundColor:"white", padding: '10px' }}>
+        {guestOptions.map((guest) => (
+          <div 
+            style={{
+              textAlign:'right',
+              color: '#665651',
+              cursor: 'pointer', 
+              transition: 'color 0.3s', 
+              borderRadius: '10px'
+            }}
+            key={guest.GuestID} 
+            onClick={() => handleGuestSelect(guest)}
+            onMouseEnter={(e) => e.target.style.backgroundColor= '#ECECEC'} // Change text color on hover
+            onMouseLeave={(e) => e.target.style.backgroundColor = 'white'} // Restore text color when not hovered
+          >
+            {guest.FirstName} {guest.LastName}
+          </div>
+        ))}
+      </div>
+    )}
+        
   <Form onSubmit={handleSubmit}>
 
     {/* Guest Information */}
@@ -237,58 +315,62 @@ const BookingForm = () => {
           margin: '10px 0', // Adjust the margin as needed
         }}
       ></div>
-      <Row className="mb-2">
-        <Col lg=""><strong>First Name</strong></Col>
-        <Col lg="6">
-          <Form.Control
-            type="text"
-            placeholder="Enter guest name"
-            name="FirstName"
-            value={formData.FirstName}
-            onChange={handleInputChange}
-            required
-          />
-        </Col>
-      </Row>
-      <Row className="mb-2">
-        <Col lg=""><strong>Last Name</strong></Col>
-        <Col lg="6">
-          <Form.Control
-            type="text"
-            placeholder="Enter guest name"
-            name="LastName"
-            value={formData.LastName}
-            onChange={handleInputChange}
-            required
-          />
-        </Col>
-      </Row>
-      <Row className="mb-2">
-        <Col lg="6"><strong>Mobile Number</strong></Col>
-        <Col lg="6">
-          <Form.Control
-            type="tel"
-            placeholder="Enter mobile number"
-            name="mobileNumber"
-            value={formData.mobileNumber}
-            onChange={handleInputChange}
-            required
-          />
-        </Col>
-      </Row>
-      <Row className="mb-2">
-        <Col lg="6"><strong>Email</strong></Col>
-        <Col lg="6">
-          <Form.Control
-            type="email"
-            placeholder="Enter email"
-            name="email"
-            value={formData.email}
-            onChange={handleInputChange}
-            required
-          />
-        </Col>
-      </Row>
+     <Row className="mb-2">
+      <Col lg=""><strong>First Name</strong></Col>
+      <Col lg="6">
+        <Form.Control
+          type="text"
+          placeholder={guestSelected ? `${formData.FirstName}` : "Enter guest name"}
+          name="FirstName"
+          value={formData.FirstName}
+          onChange={handleInputChange}
+          disabled={guestSelected} // Disable the input field if a guest is selected
+          required
+        />
+      </Col>
+    </Row>
+    <Row className="mb-2">
+      <Col lg=""><strong>Last Name</strong></Col>
+      <Col lg="6">
+        <Form.Control
+          type="text"
+          placeholder={guestSelected ? `${formData.LastName}` : "Enter guest name"}
+          name="LastName"
+          value={formData.LastName}
+          onChange={handleInputChange}
+          disabled={guestSelected} // Disable the input field if a guest is selected
+          required
+        />
+      </Col>
+    </Row>
+    <Row className="mb-2">
+      <Col lg="6"><strong>Mobile Number</strong></Col>
+      <Col lg="6">
+        <Form.Control
+          type="tel"
+          placeholder={guestSelected ? `${formData.mobileNumber}` : "Enter mobile number"}
+          name="mobileNumber"
+          value={formData.mobileNumber}
+          onChange={handleInputChange}
+          disabled={guestSelected} // Disable the input field if a guest is selected
+          required
+        />
+      </Col>
+    </Row>
+    <Row className="mb-2">
+      <Col lg="6"><strong>Email</strong></Col>
+      <Col lg="6">
+        <Form.Control
+          type="email"
+          placeholder={guestSelected ? `${formData.email}` : "Enter email"}
+          name="email"
+          value={formData.email}
+          onChange={handleInputChange}
+          disabled={guestSelected} // Disable the input field if a guest is selected
+          required
+        />
+      </Col>
+</Row>
     </div>
 
     {/* Booking Information */}
