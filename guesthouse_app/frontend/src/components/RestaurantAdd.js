@@ -83,7 +83,7 @@ const RestaurantAdd = ({ onSubmit, onClose }) => {
         <>
             {/* Form for adding new item */}
             <Form ></Form>
-            <Card>
+            <Card style={{ backgroundColor: '#665651', color: 'white', marginBottom: '20px', borderColor: '#665651', marginBottom: '10px' }}>
                 <CardBody>
                     <Form onSubmit={handleFormSubmit}>
                         <Form.Group controlId="itemName">
@@ -122,7 +122,7 @@ const RestaurantAdd = ({ onSubmit, onClose }) => {
                                 <option value="Dessert">Beverages</option>
                             </Form.Control>
                         </Form.Group>
-                        <Form.Group controlId="itemImageUrl">
+                        <Form.Group controlId="itemImageUrl" style={{ marginBottom: '25px' }}>
                             <Form.Label>Image URL</Form.Label>
                             <Form.Control
                                 type="text"
