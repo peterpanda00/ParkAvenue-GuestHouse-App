@@ -58,13 +58,13 @@ const Restaurant = () => {
 
   // Inside Restaurant component
 
-const handleFormSubmit = (formData) => {
-  // Process the form data here, e.g., insert into database
-  console.log('Form submitted with data:', formData);
-};
+  const handleFormSubmit = (formData) => {
+    // Process the form data here, e.g., insert into database
+    console.log('Form submitted with data:', formData);
+  };
 
-// Inside return statement
-<RestaurantAdd onSubmit={handleFormSubmit} />
+  // Inside return statement
+  <RestaurantAdd onSubmit={handleFormSubmit} />
 
 
   const notificationInfo = "Bed and Breakfast (BnB) Menu is open from Monday - Saturday at 7:00 am – 7:00 pm and on Sunday at 7:00 am – 4:00 pm";
@@ -97,37 +97,37 @@ const handleFormSubmit = (formData) => {
         <div className="d-flex justify-content-end mb-3">
           <button
             className="btn"
-            style={{ color: 'white', backgroundColor: '#665651', marginTop: '40px', marginRight: '120px' }}
+            style={{ color: 'white', backgroundColor: '#665651', marginTop: '40px', marginRight: '1405px' }}
             onClick={handleAddRestaurantItem} // You can add your onClick handler here
           >
             + Add Food Item
           </button>
         </div>
         {showRestaurantAdd &&
-  <div className="overlay-container">
-    <div className="overlay-content">
-      <div className="overlay-header" style={{ display: 'flex', justifyContent: 'space-between', padding: '6px', borderRadius: '10px', background: 'white', color: '#665651', textAlign: 'center', fontSize: '30px' }}>
-        <strong>Add an Item to the Menu</strong>
-        <button
-          className="btn"
-          style={{ color: 'white', backgroundColor: '#665651', padding: '5px', borderRadius: '5px', alignSelf: 'flex-end', }}
-          onClick={() => setShowRestaurantAdd(false)} // Close button functionality
-        >
-          X
-        </button>
-      </div>
-      <div className="overlay-body" style={{ marginTop: '6px', overflowY: 'auto', overflowX: 'hidden', overflowY: 'hidden' }}>
-        <Card style={{ borderRadius: '20px', marginTop: '20px', background: 'white', color: '#014c91' }}>
-          <CardBody>
-            <div style={{ padding: '10px', borderRadius: '10px', marginTop: '20px', background: '#665651', color: 'white' }}>
-              <RestaurantAdd onSubmit={handleFormSubmit} /> {/* Render RestaurantAdd here with onSubmit prop */}
+          <div className="overlay-container">
+            <div className="overlay-content">
+              <div className="overlay-header" style={{ display: 'flex', justifyContent: 'space-between', padding: '6px', borderRadius: '10px', background: 'white', color: '#665651', textAlign: 'center', fontSize: '30px' }}>
+                <strong>Add an Item to the Menu</strong>
+                <button
+                  className="btn"
+                  style={{ color: 'white', backgroundColor: '#665651', padding: '5px', borderRadius: '5px', alignSelf: 'flex-end', }}
+                  onClick={() => setShowRestaurantAdd(false)} // Close button functionality
+                >
+                  X
+                </button>
+              </div>
+              <div className="overlay-body" style={{ marginTop: '6px', overflowY: 'auto', overflowX: 'hidden', overflowY: 'hidden' }}>
+                <Card style={{ borderRadius: '20px', marginTop: '20px', background: 'white', color: '#014c91' }}>
+                  <CardBody>
+                    <div style={{ padding: '10px', borderRadius: '10px', marginTop: '20px', background: '#665651', color: 'white' }}>
+                      <RestaurantAdd onSubmit={handleFormSubmit} /> {/* Render RestaurantAdd here with onSubmit prop */}
+                    </div>
+                  </CardBody>
+                </Card>
+              </div>
             </div>
-          </CardBody>
-        </Card>
-      </div>
-    </div>
-  </div>
-}
+          </div>
+        }
       </div>
     </div>
   );
