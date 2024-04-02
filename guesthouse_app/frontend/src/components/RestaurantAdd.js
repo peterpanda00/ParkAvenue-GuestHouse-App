@@ -11,10 +11,10 @@ const RestaurantAdd = ({ onSubmit, onClose }) => {
     const [showRestaurantAdd, setShowRestaurantAdd] = useState(false);
 
     const [formData, setFormData] = useState({
-            ItemName: '',
-            ItemPrice: '',
-            MealType: '',
-            imgURL: '',
+            ItemName: 'ItemName',
+            ItemPrice: 'ItemPrice',
+            MealType: 'MealType',
+            imgURL: 'imgURL',
         });
         
         // Function to handle input change for the new item
@@ -31,48 +31,47 @@ const RestaurantAdd = ({ onSubmit, onClose }) => {
             }
         };
     
-        const handleSubmit = async (e) => {
+        const handleFormSubmit = async (e) => {
             e.preventDefault();
-
+          
             try {
-                // Insert restaurant item data
-                const { data: restaurantItemData, error: restaurantItemError } = await supabase
-                    .from('food_items')
-                    .insert([
-                        {
-                            Name: formData.ItemName,
-                            Price: formData.ItemPrice,
-                            Category: formData.MealType,
-                            ImageURL: formData.imgURL,
-                        },
-                    ])
-                    .select();
-        
-                    if (restaurantItemError) {
-                        console.error('Error inserting restaurant item data:', restaurantItemError);
-                        // Handle error appropriately
-                        return;
-                    }
-            
-                    console.log('Restaurant item data inserted:', restaurantItemData);
-                    // Clear the form data after successful insertion
-                    setFormData({
-                        ItemName: '',
-                        ItemPrice: '',
-                        MealType: '',
-                        imgURL: '',
-                    });
-            
-                    // Optional: If you need to do something after successful insertion, you can add it here
-             // Call onSubmit function passed from props
-             onSubmit(formData);
-             // Call onClose function passed from props to close the form
-             onClose();
-                } catch (error) {
-                    console.error('Error inserting restaurant item:', error);
-                    // Handle error appropriately
-                }
-        };
+              // Insert restaurant item data
+              const { data: restaurantItemData, error: restaurantItemError } = await supabase
+                .from('food_items')
+                .insert([
+                  {
+                    Name: formData.ItemName,
+                    Price: formData.ItemPrice,
+                    Category: formData.MealType,
+                    ImageURL: formData.imgURL,
+                  },
+                ])
+                .select();
+          
+              if (restaurantItemError) {
+                console.error('Error inserting restaurant item data:', restaurantItemError);
+                // Handle error appropriately
+                return;
+              }
+          
+              console.log('Restaurant item data inserted:', restaurantItemData);
+          
+              // Clear the form data after successful insertion
+              setFormData({
+                ItemName: '',
+                ItemPrice: '',
+                MealType: '',
+                imgURL: '',
+              });
+          
+              // Optional: If you need to do something after successful insertion, you can add it here
+          
+            } catch (error) {
+              console.error('Error inserting restaurant item:', error);
+              // Handle error appropriately
+            }
+          };
+          
 
         return (
             <>
@@ -126,9 +125,9 @@ const RestaurantAdd = ({ onSubmit, onClose }) => {
                              onChange={handleInputChange}
                                 />
                             </Form.Group>
-                            <Button variant="primary" onClick={handleAddItem} style={{ marginBottom: '10px' }}>
-                                Add Item
-                            </Button>
+                            <button className="btn" style={{ color: "#665651", backgroundColor: "white" }}>
+                                 {React.createElement(FaSave, { size: 18, style: { marginRight: '5px' } })} Submit Item
+                             </button>
                         </Form>
                     </CardBody>
                 </Card>
