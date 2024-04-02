@@ -1,18 +1,41 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
+import supabase from "../config/supabaseClient";
 
-const RegistrationForm = ({
-    firstName, setFirstName,
-    lastName, setLastName,
-    birthday, setBirthday,
-    address, setAddress,
-    contactNumber, setContactNumber,
-    email, setEmail,
-    username, setUsername,
-    password, setPassword,
-    confirmPassword, setConfirmPassword,
-    handleClose, handleRegister
-}) => {
+const RegistrationForm = () => {
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const [showModal, setShowModal] = useState(false);
+    const [modalMessage, setModalMessage] = useState('');
+    const navigate = useNavigate();
+
+
+
+    const handleRegister = async (e) => {
+        e.preventDefault();
+        try {
+            // Sign in using Supabase authentication
+            const { user, error } = await supabase.auth.signUp({
+                email: username,
+                password: password,
+            })
+
+            if (error) {
+                console.error(error.message);
+                setModalMessage(`Error during registration: ${error.message}`);
+            } else {
+                console.log('User successfully registered:', user);
+                setModalMessage('User successfully registered');
+                navigate('/');
+            }
+        } catch (error) {
+            console.error('Error during registration:', error.message);
+            setModalMessage(`Error during registration: ${error.message}`);
+        }
+        setShowModal(true);
+    };
+
+
     
     return (
         <Modal show={true} onHide={handleClose}>
@@ -21,60 +44,7 @@ const RegistrationForm = ({
             </Modal.Header>
             <Modal.Body>
                 <Form>
-                    <Form.Group controlId="formBasicFirstName">
-                        <Form.Label>First Name</Form.Label>
-                        <Form.Control
-                            type="text"
-                            placeholder="Enter first name"
-                            value={firstName}
-                            onChange={(e) => setFirstName(e.target.value)}
-                        />
-                    </Form.Group>
-                    <Form.Group controlId="formBasicLastName">
-                        <Form.Label>Last Name</Form.Label>
-                        <Form.Control
-                            type="text"
-                            placeholder="Enter last name"
-                            value={lastName}
-                            onChange={(e) => setLastName(e.target.value)}
-                        />
-                    </Form.Group>
-                    <Form.Group controlId="formBasicBirthday">
-                        <Form.Label>Birthday</Form.Label>
-                        <Form.Control
-                            type="date"
-                            value={birthday}
-                            onChange={(e) => setBirthday(e.target.value)}
-                        />
-                    </Form.Group>
-                    <Form.Group controlId="formBasicAddress">
-                        <Form.Label>Address</Form.Label>
-                        <Form.Control
-                            type="text"
-                            placeholder="Enter address"
-                            value={address}
-                            onChange={(e) => setAddress(e.target.value)}
-                        />
-                    </Form.Group>
-                    <Form.Group controlId="formBasicContactNumber">
-                        <Form.Label>Contact Number</Form.Label>
-                        <Form.Control
-                            type="tel"
-                            placeholder="Enter contact number"
-                            value={contactNumber}
-                            onChange={(e) => setContactNumber(e.target.value)}
-                        />
-                    </Form.Group>
-                    <Form.Group controlId="formBasicEmail">
-                        <Form.Label>Email address</Form.Label>
-                        <Form.Control
-                            type="email"
-                            placeholder="Enter email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                        />
-                    </Form.Group>
-                    <Form.Group controlId="formBasicUsername">
+                    <Form.Group controlId="formUsername">
                         <Form.Label>Username</Form.Label>
                         <Form.Control
                             type="text"
@@ -83,22 +53,13 @@ const RegistrationForm = ({
                             onChange={(e) => setUsername(e.target.value)}
                         />
                     </Form.Group>
-                    <Form.Group controlId="formBasicPassword">
-                        <Form.Label>Password</Form.Label>
+                    <Form.Group controlId="formPassword">
+                        <Form.Label>Last Name</Form.Label>
                         <Form.Control
                             type="password"
-                            placeholder="Enter password"
+                            placeholder="Enter your password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                        />
-                    </Form.Group>
-                    <Form.Group controlId="formBasicConfirmPassword">
-                        <Form.Label>Confirm Password</Form.Label>
-                        <Form.Control
-                            type="password"
-                            placeholder="Confirm password"
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
                         />
                     </Form.Group>
                 </Form>
