@@ -97,7 +97,7 @@ const Restaurant = () => {
         <div className="d-flex justify-content-end mb-3">
           <button
             className="btn"
-            style={{ color: 'white', backgroundColor: '#665651', marginTop: '40px', marginRight: '1405px' }}
+            style={{ color: 'white', backgroundColor: '#665651', marginTop: '40px', marginRight: '65px' }}
             onClick={handleAddRestaurantItem} // You can add your onClick handler here
           >
             + Add Food Item

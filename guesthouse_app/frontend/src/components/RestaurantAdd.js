@@ -45,7 +45,16 @@ const RestaurantAdd = ({ onSubmit, onClose }) => {
     const handleFormSubmit = async (e) => {
         e.preventDefault();
 
-        const restaurantData = { ItemName: name, ItemPrice: price, MealType: meal, imgURL: image }
+         // Regular expression to match URL format
+    const urlRegex = /^(ftp|http|https):\/\/[^ "]+$/;
+
+    // If imgURL is not empty and does not match the URL format, assign a default URL
+    let imageUrlToUse = image.trim();
+    if (!urlRegex.test(imageUrlToUse)) {
+        imageUrlToUse = 'https://scontent.fmnl4-1.fna.fbcdn.net/v/t1.6435-9/186591364_158613132938830_571077991002649223_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=5f2048&_nc_ohc=UzZsd28Rhb8AX8d79FI&_nc_ht=scontent.fmnl4-1.fna&oh=00_AfABp7VFz_BpKGGdM8Vqu8po9LNBzXbrF_y11YGFH6XfQg&oe=6633BC09';
+    }
+
+        const restaurantData = { ItemName: name, ItemPrice: price, MealType: meal, imgURL: imageUrlToUse }
         try {
             const { data: count, error: countError } = await supabase.from('food_items').select('ProductID', { count: "exact" })
             console.log(count)
@@ -147,7 +156,6 @@ const RestaurantAdd = ({ onSubmit, onClose }) => {
                                 name="imgURL"
                                 value={image}
                                 onChange={(e) => setImage(e.target.value)}
-                                required
                             />
                         </Form.Group>
                         <button className="btn" style={{ color: "#665651", backgroundColor: "white" }}>
