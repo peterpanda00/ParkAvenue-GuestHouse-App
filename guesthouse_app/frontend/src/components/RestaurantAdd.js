@@ -8,6 +8,7 @@ const RestaurantAdd = ({ onSubmit, onClose }) => {
     const [foodList, setFoodList] = useState([]); // State for the food list
     const [newItem, setNewItem] = useState({}); // State for the new item being added
     const [showModal, setShowModal] = useState(false); // State for showing/hiding modal
+    const [modalMessage, setModalMessage] = useState('');
     const [showRestaurantAdd, setShowRestaurantAdd] = useState(false);
 
     const [name, setName] = useState("")
@@ -42,6 +43,12 @@ const RestaurantAdd = ({ onSubmit, onClose }) => {
 
     const handleFormSubmit = async (e) => {
         e.preventDefault();
+
+        if (!name || !price || !meal || !image) {
+            alert('Please fill in all required fields.');
+            return;
+        }
+
         const restaurantData = { ItemName: name, ItemPrice: price, MealType: meal, imgURL: image }
         try {
             const { data: count, error: countError } = await supabase.from('food_items').select('ProductID', { count: "exact" })
@@ -70,6 +77,9 @@ const RestaurantAdd = ({ onSubmit, onClose }) => {
                 imgURL: '',
             });
 
+            setModalMessage('Ordered Successfully');
+            setShowModal(true);
+
             // Optional: If you need to do something after successful insertion, you can add it here
 
         } catch (error) {
@@ -81,6 +91,15 @@ const RestaurantAdd = ({ onSubmit, onClose }) => {
 
     return (
         <>
+            {/* Modal for successful order */}
+            <Modal show={showModal} onHide={() => setShowModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Food Menu Item</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <p>Added Food Menu Item Successfully</p>
+                </Modal.Body>
+            </Modal>
             {/* Form for adding new item */}
             <Form ></Form>
             <Card style={{ backgroundColor: '#665651', color: 'white', marginBottom: '20px', borderColor: '#665651', marginBottom: '10px' }}>
