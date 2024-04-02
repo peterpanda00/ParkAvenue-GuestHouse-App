@@ -4,6 +4,7 @@ import { Row, Col, Form, CardBody, Card, Table, Modal, Button } from 'react-boot
 import { FaSave } from 'react-icons/fa';
 import supabase from "../config/supabaseClient";
 
+
 const RestaurantAdd = ({ onSubmit, onClose }) => {
     const [foodList, setFoodList] = useState([]); // State for the food list
     const [newItem, setNewItem] = useState({}); // State for the new item being added
@@ -44,11 +45,6 @@ const RestaurantAdd = ({ onSubmit, onClose }) => {
     const handleFormSubmit = async (e) => {
         e.preventDefault();
 
-        if (!name || !price || !meal || !image) {
-            alert('Please fill in all required fields.');
-            return;
-        }
-
         const restaurantData = { ItemName: name, ItemPrice: price, MealType: meal, imgURL: image }
         try {
             const { data: count, error: countError } = await supabase.from('food_items').select('ProductID', { count: "exact" })
@@ -88,7 +84,6 @@ const RestaurantAdd = ({ onSubmit, onClose }) => {
         }
     };
 
-
     return (
         <>
             {/* Modal for successful order */}
@@ -113,6 +108,7 @@ const RestaurantAdd = ({ onSubmit, onClose }) => {
                                 name="ItemName"
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
+                                required
                             />
                         </Form.Group>
                         <Form.Group controlId="itemPrice">
@@ -123,6 +119,7 @@ const RestaurantAdd = ({ onSubmit, onClose }) => {
                                 name="ItemPrice"
                                 value={price}
                                 onChange={(e) => setPrice(e.target.value)}
+                                required
                             />
                         </Form.Group>
                         <Form.Group controlId="itemCategory">
@@ -132,6 +129,7 @@ const RestaurantAdd = ({ onSubmit, onClose }) => {
                                 name="MealType"
                                 value={meal}
                                 onChange={(e) => setMeal(e.target.value)}
+                                required
                             >
                                 <option value="">Select category...</option>
                                 <option value="Appetizer">All-Day Breakfast</option>
@@ -149,6 +147,7 @@ const RestaurantAdd = ({ onSubmit, onClose }) => {
                                 name="imgURL"
                                 value={image}
                                 onChange={(e) => setImage(e.target.value)}
+                                required
                             />
                         </Form.Group>
                         <button className="btn" style={{ color: "#665651", backgroundColor: "white" }}>
