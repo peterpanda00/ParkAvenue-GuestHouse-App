@@ -1,25 +1,213 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, Table, Button, Row, Col, Form, InputGroup, Dropdown } from 'react-bootstrap';
 import { FaFilter } from 'react-icons/fa';
+import supabase from "../config/supabaseClient";
 
 const Report = () => {
     const [selectedReport, setSelectedReport] = useState('Revenue Report');
     const [selectedFilter, setSelectedFilter] = useState('');
-    const [bookingList, setBookingList] = useState([]);
 
-    // Hardcoded data for testing purposes
-    const revenueData = [
-        { bookingNumber: 1, date: '2024-03-04', clientName: 'Jiliana Tan', roomCharges: 1000, additionalServices: 200, otherIncomeStreams: 100, totalRevenue: 1300 },
-        { bookingNumber: 2, date: '2024-01-12', clientName: 'Jilliane Elloso', roomCharges: 1200, additionalServices: 300, otherIncomeStreams: 150, totalRevenue: 1650 },
-        { bookingNumber: 3,  date: '2024-02-13', clientName: 'Taylor Swift', roomCharges: 1500, additionalServices: 250, otherIncomeStreams: 120, totalRevenue: 1870 },
-    ];
+    const [fetchError,setFetchError] = useState(null)
+    const [bookingList,setBookingList] = useState([])
+    const [bookingCount, setBookingCount] = useState(0);
+    const [paymentList,setPaymentList] = useState([]);
+    const [itemList, setItemList] = useState([]);
+    const [itemListTotals, setItemListTotals] = useState([]);
+    const [room_bookings, setBookingInfo] = useState([]);
+    const [payments, setPayments] = useState([]);
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+    const toggleDropdown = () => setDropdownOpen(prevState => !prevState);
+    const [totalAmountPaid, setTotalAmountPaid] = useState('');
+    const [selectedMethod, setSelectedMethod] = useState('Select Payment Method');
+    const [chargeList,setChargeList] = useState([]);
 
-    const guestTrendData = [
-        { roomType: 'Single', averageLengthOfStay: 3, percentageOfRepeatGuests: 30 },
-        { roomType: 'Double', averageLengthOfStay: 2.5, percentageOfRepeatGuests: 25 },
-        { roomType: 'Suite', averageLengthOfStay: 4, percentageOfRepeatGuests: 40 },
-    ];
+    const [revenueData,setRevenueData] = useState([]);
+    const [guestTrendData, setGuestTrendData] = useState([]);
 
+    const formatNumber = (number) => {
+        return number.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    };
+    
+
+
+    
+    const fetchCharges = async (RoomBookingID) => {
+        try {
+            // Fetch room charges including guest details
+            const { data: roomData, error: roomDataError } = await supabase
+                .from('rooms_bookings')
+                .select('*, bookings(*,guests(*)), rooms(RoomType,Price,AddPrice,GuestCapacity)')
+                .eq('RoomBookingID', RoomBookingID);
+    
+            if (roomData) {
+                // Fetch orders associated with the room booking
+                const { data: orderData, error: orderDataError } = await supabase
+                    .from('order_products')
+                    .select('*, orders(OrderDate),food_items(*)')
+                    .eq('RoomBookingID', roomData[0]?.RoomBookingID);
+    
+                if (orderData) {
+                    // Combine room charges and orders into chargeList
+                    const combinedCharges = [];
+    
+                    const charge = roomData[0];
+                    if (charge && charge.bookings && charge.rooms) {
+                        combinedCharges.push({
+                            Date: charge.bookings.CreatedAt,
+                            Description: charge.rooms.RoomType,
+                            Quantity: charge.bookings.Nights,
+                            Price: charge.rooms.Price,
+                            Cost: charge.bookings.Nights * charge.rooms.Price
+                        });
+    
+                        const additionalGuests = charge.bookings.NumGuests - charge.rooms.GuestCapacity;
+                        if (additionalGuests > 0) {
+                            combinedCharges.push({
+                                Date: charge.bookings.CreatedAt,
+                                Description: 'Additional Guests',
+                                Quantity: additionalGuests,
+                                Price: charge.rooms.AddPrice,
+                                Cost: charge.rooms.AddPrice * additionalGuests
+                            });
+                        }
+                    }
+    
+                    // Add order charges
+                    orderData.forEach(charge => {
+                        combinedCharges.push({
+                            Date: charge.orders.OrderDate,
+                            Description: charge.food_items.ItemName,
+                            Quantity: charge.Quantity,
+                            Price: charge.food_items.ItemPrice,
+                            Cost: charge.food_items.ItemPrice * charge.Quantity
+                        });
+                    });
+    
+                    // Compute total room charges
+                    const totalRoomCharges = combinedCharges
+                        .filter(current => (current.Description === charge.rooms.RoomType) || (current.Description === 'Additional Guests'))
+                        .reduce((total, current) => total + current.Cost, 0);
+    
+                    // Compute total food charges
+                    const totalFoodCharges = combinedCharges
+                        .filter(current => current.Description !== charge.rooms.RoomType)
+                        .reduce((total, current) => total + current.Cost, 0);
+    
+                    // Compute total revenue
+                    const totalRevenue = totalRoomCharges + totalFoodCharges;
+    
+                    // Create revenue data object for this RoomBookingID
+                    const revenueItem = {
+                        bookingNumber: roomData[0]?.BookingID,
+                        date: roomData[0]?.bookings.CreatedAt,
+                        clientName: `${roomData[0]?.bookings?.guests?.FirstName} ${roomData[0]?.bookings?.guests?.LastName}`,
+                        roomCharges: totalRoomCharges,
+                        foodCharges: totalFoodCharges,
+                        totalRevenue: totalRevenue
+                    };
+    
+                    // Append revenue data for this RoomBookingID to the state
+                    setRevenueData(prevData => [...prevData, revenueItem]);
+                }
+    
+                if (orderDataError) {
+                    console.error('Error fetching order data:', orderDataError);
+                }
+            }
+    
+            if (roomDataError) {
+                console.error('Error fetching room charges:', roomDataError);
+                return;
+            }
+    
+        } catch (error) {
+            console.error('Error fetching charges:', error);
+        }
+    };
+
+    useEffect(() => {
+        const fetchGuestTrendData = async () => {
+            try {
+                // Fetch room bookings data
+                const { data: roomBookings, error: roomBookingsError } = await supabase
+                    .from('rooms_bookings')
+                    .select('*, bookings(*,guests(*)), rooms(RoomType,Price,AddPrice,GuestCapacity)')
+                    .eq('BookingStatus', 'Completed');
+
+                if (roomBookings) {
+                    // Aggregate data to calculate average length of stay and repeat guests for each room type
+                    const roomTypeStats = roomBookings.reduce((acc, booking) => {
+                        if (!acc[booking.rooms.RoomType]) {
+                            acc[booking.rooms.RoomType] = {
+                                totalNights: 0,
+                                numBookings: 0,
+                                uniqueGuestNames: new Set(), // Keep track of unique guest names
+                                repeatGuests: 0, // Counter for repeat guests
+                            };
+                        }
+                        acc[booking.rooms.RoomType].totalNights += booking.bookings.Nights;
+                        acc[booking.rooms.RoomType].numBookings++;
+                        acc[booking.rooms.RoomType].uniqueGuestNames.add(`${booking.bookings.guests.FirstName} ${booking.bookings.guests.LastName}`); // Add guest name to set
+                        return acc;
+                    }, {});
+
+                    // Calculate average length of stay and percentage of repeat guests for each room type
+                    const guestTrendData = Object.keys(roomTypeStats).map(roomType => {
+                        const { totalNights, numBookings, uniqueGuestNames } = roomTypeStats[roomType];
+                        const averageLengthOfStay = totalNights / numBookings;
+                        const repeatGuests = numBookings - uniqueGuestNames.size; // Calculate repeat guests
+                        const percentageOfRepeatGuests = (repeatGuests / numBookings) * 100;
+                        return {
+                            roomType,
+                            averageLengthOfStay,
+                            percentageOfRepeatGuests,
+                        };
+                    });
+
+                    setGuestTrendData(guestTrendData);
+                }
+
+                if (roomBookingsError) {
+                    console.error('Error fetching room bookings:', roomBookingsError);
+                }
+            } catch (error) {
+                console.error('Error fetching guest trend data:', error);
+            }
+        };
+
+        fetchGuestTrendData();
+    }, []);
+
+    useEffect(() => {
+        const fetchRevenueData = async () => {
+            try {
+                // Fetch all completed bookings
+                const { data, error } = await supabase
+                    .from('rooms_bookings')
+                    .select('RoomBookingID')
+                    .eq('BookingStatus', 'Completed');
+
+                if (data) {
+                    for (const booking of data) {
+                        await fetchCharges(booking.RoomBookingID);
+                    }
+                }
+
+                if (error) {
+                    console.error('Error fetching completed bookings:', error);
+                }
+            } catch (error) {
+                console.error('Error fetching revenue data:', error);
+            }
+        };
+
+        fetchRevenueData();
+    }, []);
+
+    
+
+
+    
     const occupancyAnalysisData = [
         { month: 'March', occupancyRate: '75%', peakPeriod: 'Yes', roomTypeOccupancy: '80%', cancellationRate: '10%', revenuePerRoom: '₱15000' },
         { month: 'April', occupancyRate: '55%', peakPeriod: 'No', roomTypeOccupancy: '45%', cancellationRate: '15%', revenuePerRoom: '₱9000' },
@@ -29,18 +217,16 @@ const Report = () => {
     // Function to compute totals for revenue data
     const computeRevenueTotals = () => {
         let totalRoomCharges = 0;
-        let totalAdditionalServices = 0;
-        let totalOtherIncomeStreams = 0;
+        let totalFoodCharges = 0;
         let totalRevenue = 0;
 
         revenueData.forEach(data => {
             totalRoomCharges += data.roomCharges;
-            totalAdditionalServices += data.additionalServices;
-            totalOtherIncomeStreams += data.otherIncomeStreams;
+            totalFoodCharges += data.foodCharges
             totalRevenue += data.totalRevenue;
         });
 
-        return { totalRoomCharges, totalAdditionalServices, totalOtherIncomeStreams, totalRevenue };
+        return { totalRoomCharges, totalFoodCharges,totalRevenue };
     };
 
     // Render the totals row for Revenue Report
@@ -49,10 +235,9 @@ const Report = () => {
         return (
             <tr>
                 <td colSpan={3}><b>Total:</b></td>
-                <td colSpan={1}><b>₱{totals.totalRoomCharges}</b></td>
-                <td><b>₱{totals.totalAdditionalServices}</b></td>
-                <td><b>₱{totals.totalOtherIncomeStreams}</b></td>
-                <td><b>₱{totals.totalRevenue}</b></td>
+                <td colSpan={1}><b>₱{formatNumber(totals.totalRoomCharges)}</b></td>
+                <td><b>₱ {formatNumber(totals.totalFoodCharges)}</b></td>
+                <td><b>₱ {formatNumber(totals.totalRevenue)}</b></td>
             </tr>
         );
     };
@@ -158,21 +343,19 @@ const Report = () => {
                                 <th>Date</th>
                                 <th>Client Name</th>
                                 <th>Room Charges</th>
-                                <th>Additional Services</th>
-                                <th>Other Income Streams</th>
-                                <th>Total Revenue</th>
+                                <th>Food Charges</th>
+                                <th>Total Sales</th>
                             </tr>
                         </thead>
                         <tbody>
                             {filteredRevenueData().map((data, index) => (
                                 <tr key={index}>
                                     <td>{data.bookingNumber}</td>
-                                    <td>{data.date}</td>
+                                    <td>{new Date(data.date ).toLocaleDateString()}</td>
                                     <td>{data.clientName}</td>
-                                    <td>₱{data.roomCharges}</td>
-                                    <td>₱{data.additionalServices}</td>
-                                    <td>₱{data.otherIncomeStreams}</td>
-                                    <td>₱{data.totalRevenue}</td>
+                                    <td>₱ {formatNumber(data.roomCharges)}</td>
+                                    <td>₱ {formatNumber(data.foodCharges)}</td>
+                                    <td>₱ {formatNumber(data.totalRevenue)}</td>
                                 </tr>
                             ))}
                             {renderRevenueTotalsRow()}
@@ -195,8 +378,8 @@ const Report = () => {
                             {guestTrendData.map((data, index) => (
                                 <tr key={index}>
                                     <td>{data.roomType}</td>
-                                    <td>{data.averageLengthOfStay}</td>
-                                    <td>{data.percentageOfRepeatGuests}%</td>
+                                    <td>{data.averageLengthOfStay.toFixed(0)} days</td>
+                                    <td>{data.percentageOfRepeatGuests.toFixed(2)}%</td>
                                 </tr>
                             ))}
                         </tbody>

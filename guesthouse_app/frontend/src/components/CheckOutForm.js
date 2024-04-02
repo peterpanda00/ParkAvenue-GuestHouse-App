@@ -95,6 +95,7 @@ const CheckOutForm = ({ RoomNumber }) => {
                 });
 
                 setChargeList(combinedCharges);
+                fetchPayments(roomData[0]?.RoomBookingID);
             }
 
             if (orderDataError) {
@@ -113,45 +114,32 @@ const CheckOutForm = ({ RoomNumber }) => {
 };
 
 
-  useEffect(() => {
-  
-    fetchCharges(RoomNumber);
-}, [RoomNumber]);
-
 useEffect(() => {
-  const fetchPayments = async () => {
-      try {
-          // Fetch room charges including guest details
-          const { data: paymentData, error: paymentDataError } = await supabase
-              .from('payments')
-              .select('*,rooms_bookings(*)')
-              .eq('rooms_bookings.RoomNumber', RoomNumber)
-              .eq('rooms_bookings.BookingStatus', 'Staying');
-
-          if (paymentData) {
-            setPayments(paymentData);
-            const combinedPayments = [];
-            paymentData.map((payment) => ( 
-              combinedPayments.push({
-                  Amount: payment.AmountPaid,
-              })));
-              setPaymentList(combinedPayments);
-              
-
-          }
-
-          if (paymentDataError) {
-            console.error('Error fetching payments:', paymentDataError);
-            return;
-        }
-
-      } catch (error) {
-          console.error('Error fetching payments:', error);
-      }
-  };
   fetchCharges(RoomNumber);
-  fetchPayments();
 }, [RoomNumber]);
+
+const fetchPayments = async (RoomBookingID) => {
+  try {
+      // Fetch payments associated with the room booking
+      const { data: paymentData, error: paymentDataError } = await supabase
+          .from('payments')
+          .select('*, rooms_bookings(*)')
+          .eq('RoomBookingID', RoomBookingID);
+
+      if (paymentData) {
+          // Process payment data
+          // Example: setPayments(paymentData);
+
+          console.log(paymentData);
+      }
+
+      if (paymentDataError) {
+          console.error('Error fetching payments:', paymentDataError);
+      }
+  } catch (error) {
+      console.error('Error fetching payments:', error);
+  }
+};
 
 
 useEffect(() => {
@@ -441,7 +429,7 @@ const handleCheckOutRoom = async (roomNumber, RoomBookingID) => {
                 <strong>Total Expenses </strong>
                 </Col>
                 <Col lg="3">
-                    <strong>₱ {totalCost.toFixed(2)}</strong>
+                    <strong>₱ {formatNumber(totalCost)}</strong>
                 </Col>
               
             </Row>
@@ -450,7 +438,7 @@ const handleCheckOutRoom = async (roomNumber, RoomBookingID) => {
                 <strong>Balance</strong>
             </Col>
             <Col lg="3">
-              <strong>{totalBalance ? `₱${totalBalance.toFixed(2)}` : 'Fully Paid'}</strong>
+              <strong>{totalBalance ? `₱${formatNumber(totalBalance)}` : 'Fully Paid'}</strong>
             </Col>
         </Row>
        
@@ -478,7 +466,7 @@ const handleCheckOutRoom = async (roomNumber, RoomBookingID) => {
                 </PDFDownloadLink>
             ) : null}
         </Col>
-        {totalBalance==0 && (
+        {totalBalance<=0 && (
           
           <Col lg="5" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '30px' }}>
             <button className="btn" style={{ color: "#665651", backgroundColor: "white" }} onClick={() => handleCheckOutRoom(room_bookings[0].RoomNumber, room_bookings[0].RoomBookingID)}>

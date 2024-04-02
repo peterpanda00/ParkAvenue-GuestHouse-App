@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useNavigate } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import supabase from "../config/supabaseClient";
 
@@ -35,7 +35,13 @@ const RegistrationForm = () => {
         setShowModal(true);
     };
 
-
+    const handleClose = () => {
+        setShowModal(false);
+        // Refresh the page after closing the modal
+        window.location.reload();
+      };
+    
+      
     
     return (
         <Modal show={true} onHide={handleClose}>
