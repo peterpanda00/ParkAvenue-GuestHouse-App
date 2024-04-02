@@ -2,6 +2,8 @@ import  React, { useEffect,useState } from 'react';
 import { Col, Row, Form, Button, Card,Table,CardBody,InputGroup,FormControl,Modal,Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'react-bootstrap';
 import { FaEllipsisH, FaSave, FaEye, FaEyeSlash, FaTrash, FaCheck} from 'react-icons/fa';
 import { MdOutlineMeetingRoom } from "react-icons/md";
+import { BsCashStack } from "react-icons/bs";
+
 
 import ReactDOM from 'react-dom';
 import  FinalBilling  from './FinalBilling'; 
@@ -13,101 +15,142 @@ import supabase from "../config/supabaseClient";
 const CheckOutForm = ({ RoomNumber }) => {
  
   const [showModal, setShowModal] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [modalConfirmMessage, setConfirmModalMessage] = useState('');
   const [modalMessage, setModalMessage] = useState('');
   const [loading, setLoading] = useState(true); 
   const [fetchError,setFetchError] = useState(null)
-  const [chargeList,setChargeList] = useState([])
+  const [chargeList,setChargeList] = useState([]);
+  const [paymentList,setPaymentList] = useState([]);
   const [itemList, setItemList] = useState([]);
   const [itemListTotals, setItemListTotals] = useState([]);
   const [room_bookings, setBookingInfo] = useState([]);
+  const [payments, setPayments] = useState([]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const toggleDropdown = () => setDropdownOpen(prevState => !prevState);
+  const [totalAmountPaid, setTotalAmountPaid] = useState('');
   const [selectedMethod, setSelectedMethod] = useState('Select Payment Method');
 
   const paymentMethods = ['Cash', 'GCash', 'Debit/Credit Card', 'Cheque'];
 
- 
+  const fetchCharges = async (RoomNumber) => {
+    try {
+        // Fetch room charges including guest details
+        const { data: roomData, error: roomDataError } = await supabase
+            .from('rooms_bookings')
+            .select('*, bookings(*,guests(*)), rooms(RoomType,Price,AddPrice,GuestCapacity)')
+            .eq('RoomNumber', RoomNumber)
+            .eq('BookingStatus', 'Staying');
 
-  useEffect(() => {
-    const fetchCharges = async () => {
-        try {
-            // Fetch room charges including guest details
-            const { data: roomData, error: roomDataError } = await supabase
-                .from('rooms_bookings')
-                .select('*, bookings(*,guests(*)), rooms(RoomType,Price,AddPrice,GuestCapacity)')
-                .eq('RoomNumber', RoomNumber)
-                .eq('BookingStatus', 'Staying');
+        if (roomData) {
+            console.log(roomData);
+            setBookingInfo(roomData);
 
-            if (roomData) {
-                console.log(roomData);
-                setBookingInfo(roomData);
+            // Fetch orders associated with the room booking
+            const { data: orderData, error: orderDataError } = await supabase
+                .from('order_products')
+                .select('*, orders(OrderDate),food_items(*)')
+                .eq('RoomBookingID', roomData[0]?.RoomBookingID);
 
-                // Fetch orders associated with the room booking
-                const { data: orderData, error: orderDataError } = await supabase
-                    .from('order_products')
-                    .select('*, orders(OrderDate),food_items(*)')
-                    .eq('RoomBookingID', roomData[0]?.RoomBookingID);
+            if (orderData) {
+                console.log(orderData);
 
-                if (orderData) {
-                    console.log(orderData);
+                
 
-                    
+                // Combine room charges and orders into chargeList
+                const combinedCharges = [];
 
-                    // Combine room charges and orders into chargeList
-                    const combinedCharges = [];
-
-                    const charge = roomData[0];
-                    if (charge && charge.bookings && charge.rooms) {
-                        combinedCharges.push({
-                            Date: charge.bookings.CreatedAt,
-                            Description: charge.rooms.RoomType,
-                            Quantity: charge.bookings.Nights,
-                            Price: charge.rooms.Price,
-                            Cost: charge.bookings.Nights*charge.rooms.Price
-                        });
-
-                        const additionalGuests = charge.bookings.NumGuests - charge.rooms.GuestCapacity;
-                        if (additionalGuests > 0) {
-                            combinedCharges.push({
-                                Date: charge.bookings.CreatedAt,
-                                Description: 'Additional Guests',
-                                Quantity: additionalGuests,
-                                Price: charge.rooms.AddPrice,
-                                Cost: charge.rooms.AddPrice * additionalGuests
-                            });
-                        }
-                    }
-
-                    // Add order charges
-                    orderData.forEach(charge => {
-                        combinedCharges.push({
-                            Date: charge.orders.OrderDate,
-                            Description: charge.food_items.ItemName, // Assuming ItemName represents the description of the ordered item
-                            Quantity: charge.Quantity,
-                            Price: charge.food_items.ItemPrice,
-                            Cost: (charge.food_items.ItemPrice * charge.Quantity) // Calculate the total cost for the ordered item
-                        });
+                const charge = roomData[0];
+                if (charge && charge.bookings && charge.rooms) {
+                    combinedCharges.push({
+                        Date: charge.bookings.CreatedAt,
+                        Description: charge.rooms.RoomType,
+                        Quantity: charge.bookings.Nights,
+                        Price: charge.rooms.Price,
+                        Cost: charge.bookings.Nights*charge.rooms.Price
                     });
 
-                    setChargeList(combinedCharges);
+                    const additionalGuests = charge.bookings.NumGuests - charge.rooms.GuestCapacity;
+                    if (additionalGuests > 0) {
+                        combinedCharges.push({
+                            Date: charge.bookings.CreatedAt,
+                            Description: 'Additional Guests',
+                            Quantity: additionalGuests,
+                            Price: charge.rooms.AddPrice,
+                            Cost: charge.rooms.AddPrice * additionalGuests
+                        });
+                    }
                 }
 
-                if (orderDataError) {
-                    console.error('Error fetching order data:', orderDataError);
-                }
+                // Add order charges
+                orderData.forEach(charge => {
+                    combinedCharges.push({
+                        Date: charge.orders.OrderDate,
+                        Description: charge.food_items.ItemName, // Assuming ItemName represents the description of the ordered item
+                        Quantity: charge.Quantity,
+                        Price: charge.food_items.ItemPrice,
+                        Cost: (charge.food_items.ItemPrice * charge.Quantity) // Calculate the total cost for the ordered item
+                    });
+                });
+
+                setChargeList(combinedCharges);
             }
 
-            if (roomDataError) {
-                console.error('Error fetching room charges:', roomDataError);
-                return;
+            if (orderDataError) {
+                console.error('Error fetching order data:', orderDataError);
             }
-
-        } catch (error) {
-            console.error('Error fetching charges:', error);
         }
-    };
 
-    fetchCharges();
+        if (roomDataError) {
+            console.error('Error fetching room charges:', roomDataError);
+            return;
+        }
+
+    } catch (error) {
+        console.error('Error fetching charges:', error);
+    }
+};
+
+
+  useEffect(() => {
+  
+    fetchCharges(RoomNumber);
+}, [RoomNumber]);
+
+useEffect(() => {
+  const fetchPayments = async () => {
+      try {
+          // Fetch room charges including guest details
+          const { data: paymentData, error: paymentDataError } = await supabase
+              .from('payments')
+              .select('*,rooms_bookings(*)')
+              .eq('rooms_bookings.RoomNumber', RoomNumber)
+              .eq('rooms_bookings.BookingStatus', 'Staying');
+
+          if (paymentData) {
+            setPayments(paymentData);
+            const combinedPayments = [];
+            paymentData.map((payment) => ( 
+              combinedPayments.push({
+                  Amount: payment.AmountPaid,
+              })));
+              setPaymentList(combinedPayments);
+              
+
+          }
+
+          if (paymentDataError) {
+            console.error('Error fetching payments:', paymentDataError);
+            return;
+        }
+
+      } catch (error) {
+          console.error('Error fetching payments:', error);
+      }
+  };
+  fetchCharges(RoomNumber);
+  fetchPayments();
 }, [RoomNumber]);
 
 
@@ -151,6 +194,8 @@ const calculateTotals = () => {
 };
 
 const totalCost = chargeList.reduce((total, charge) => total + charge.Cost, 0);
+const totalPaid = paymentList.reduce((total, payment) => total + payment.Amount, 0);
+const totalBalance = totalCost - totalPaid 
 
 const handleMethodSelect = (method) => {
     setSelectedMethod(method);
@@ -200,14 +245,54 @@ const handleCheckOutRoom = async (roomNumber, RoomBookingID) => {
     }
   };
   
+  const handlePayment = async (RoomBookingID, totalAmountPaid) => {
+    try {
+      // Insert payment data
+    const { data: paymentData, error: paymentError } = await supabase
+    .from('payments')
+    .insert([
+      {
+        RoomBookingID: RoomBookingID,
+        AmountPaid: totalAmountPaid,
+      },
+    ])
+    .select();
+    
+  if (paymentError) {
+    console.error('Error payment:', paymentError);
+    setConfirmModalMessage('Error payment. Check all fields');
+    setShowConfirmModal(true);
+    // Handle error appropriately
+    return;
+  }
+  console.log('Payment Successful', paymentData);
+  setShowPaymentModal(false);
+  setConfirmModalMessage('Guest successfully paid.');
+  setShowConfirmModal(true);
+      setTimeout(() => {
+        window.location.reload();
+      }, 5000); // Refresh after 3 seconds (adjust as needed)
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
-
+  const handlePaymentModal =  () => {
+    setShowPaymentModal(true);
+    
+  };
 
   const handleCloseModal = () => {
     setShowModal(false);
     // Refresh the page after closing the modal
     window.location.reload();
   };
+
+  const handleClosePayment = () => {
+    setShowPaymentModal(false);
+
+  };
+
 
   const invoiceInfo = room_bookings.length > 0 ? {
     id: "5df3180a09ea16dc4b95f910",
@@ -309,26 +394,22 @@ const handleCheckOutRoom = async (roomNumber, RoomBookingID) => {
         <Col lg="6"><strong>Nights</strong></Col>
         <Col lg="6">{room_bookings.length > 0 && room_bookings[0].bookings.Nights}</Col>
       </Row>
-      <Row className="mb-2">
-        <Col lg="6"><strong>Payment Method</strong></Col>
-        <Col lg="6">
-          <Dropdown isOpen={dropdownOpen} toggle={toggleDropdown} >
-            <DropdownToggle caret style={{ color: "#665651", backgroundColor: "white", borderColor: "white"}}>
-              {selectedMethod}
-            </DropdownToggle>
-            <DropdownMenu style={{ color: "#665651", backgroundColor: "white" }}>
-              {paymentMethods.map((method, index) => (
-                <DropdownItem key={index} onClick={() => handleMethodSelect(method)}>{method}</DropdownItem>
-              ))}
-            </DropdownMenu>
-          </Dropdown>
-        </Col>
-      </Row>
+      
       </div>
+
+      <div style={{ marginBottom: '50px' }}></div>
+
+      <div style={{ margin: '20px' }}>
+      <h3>Billing & Payments</h3>
+      <div
+        style={{
+          height: '2px', // Adjust the height of the horizontal bar
+          backgroundColor: 'white',
+          margin: '10px 0', // Adjust the margin as needed
+        }}></div>
+        </div>
+
       <Row>
-   
-  
-        
         <Card style={{ borderRadius: '20px', marginTop: '20px', maxHeight: '400px', overflowY: 'auto'}}>
       <CardBody>
         <Table>
@@ -353,18 +434,25 @@ const handleCheckOutRoom = async (roomNumber, RoomBookingID) => {
             ))}
           </tbody>
            
-
         </Table>
         {/*Total*/}
         <Row className="mt-2" style={{ justifyContent:'flex-end'}}>
                 <Col lg="2">
-                <strong>Total </strong>
+                <strong>Total Expenses </strong>
                 </Col>
                 <Col lg="3">
                     <strong>₱ {totalCost.toFixed(2)}</strong>
                 </Col>
               
             </Row>
+            <Row className="mt-2" style={{ justifyContent:'flex-end'}}>
+            <Col lg="2">
+                <strong>Balance</strong>
+            </Col>
+            <Col lg="3">
+              <strong>{totalBalance ? `₱${totalBalance.toFixed(2)}` : 'Fully Paid'}</strong>
+            </Col>
+        </Row>
        
       </CardBody>
     </Card>
@@ -390,14 +478,21 @@ const handleCheckOutRoom = async (roomNumber, RoomBookingID) => {
                 </PDFDownloadLink>
             ) : null}
         </Col>
-        {selectedMethod!='Select Payment Method' && (
+        {totalBalance==0 && (
+          
           <Col lg="5" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '30px' }}>
             <button className="btn" style={{ color: "#665651", backgroundColor: "white" }} onClick={() => handleCheckOutRoom(room_bookings[0].RoomNumber, room_bookings[0].RoomBookingID)}>
               <MdOutlineMeetingRoom size={18} style={{ marginRight: '5px' }} /> Continue Check-out
             </button>
           </Col>
-       
       )}
+      {(totalBalance > 0 && totalBalance <= totalCost) && (
+      <Col lg="5" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '30px' }}>
+        <button className="btn" style={{ color: "#665651", backgroundColor: "white" }} onClick={() => handlePaymentModal()}>
+          <BsCashStack size={18} style={{ marginRight: '5px' }} /> Pay Balance
+        </button>
+      </Col>
+    )}
     </Row>
 
 
@@ -409,6 +504,62 @@ const handleCheckOutRoom = async (roomNumber, RoomBookingID) => {
         <p>{modalMessage}</p>
       </Modal.Body>
     </Modal>
+
+    <Modal show={showConfirmModal} onHide={handleCloseModal}>
+      <Modal.Header closeButton>
+        <Modal.Title>Payment Status</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <p>{modalConfirmMessage}</p>
+      </Modal.Body>
+    </Modal>
+
+    <Modal show={showPaymentModal} onHide={handleClosePayment}>
+      <Modal.Header closeButton>
+        <Modal.Title>Payment</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <Row className="mb-2">
+          <Col lg="6"><strong>Payment Method</strong></Col>
+          <Col lg="6">
+            <Dropdown isOpen={dropdownOpen} toggle={toggleDropdown}>
+              <DropdownToggle caret style={{ color: "#665651", backgroundColor: "white", borderColor: "white"}}>
+                {selectedMethod}
+              </DropdownToggle>
+              <DropdownMenu style={{ color: "#665651", backgroundColor: "white" }}>
+                {paymentMethods.map((method, index) => (
+                  <DropdownItem key={index} onClick={() => handleMethodSelect(method)}>{method}</DropdownItem>
+                ))}
+              </DropdownMenu>
+            </Dropdown>
+          </Col>
+        </Row>
+        <Row className="mb-2">
+          <Col lg="6"><strong>Total Amount Paid</strong></Col>
+          <Col lg="6">
+          ₱
+          <input
+            type="number"
+            value={totalAmountPaid}
+            onChange={(e) => {
+              const inputValue = Math.min(parseFloat(e.target.value), totalBalance);
+              setTotalAmountPaid(inputValue);
+            }}
+            placeholder="Enter total amount paid"
+            max={totalBalance}
+          />
+        </Col>
+        </Row>
+        <Row className="mb-2">
+          <Col lg="5" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '30px' }}>
+            <button className="btn" style={{ color: "#665651", backgroundColor: "white" }} onClick={() => handlePayment(room_bookings[0].RoomBookingID, totalAmountPaid)}>
+              <MdOutlineMeetingRoom size={18} style={{ marginRight: '5px' }} /> Pay Now
+            </button>
+          </Col>
+        </Row>
+      </Modal.Body>
+    </Modal>
+    
     
 </div>
 

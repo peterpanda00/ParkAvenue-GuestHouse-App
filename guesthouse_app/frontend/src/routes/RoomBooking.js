@@ -18,6 +18,7 @@ const RoomBooking= () => {
   const [bookingList,setBookingList] = useState([])
   const [bookingCount, setBookingCount] = useState(0);
   const [filterValue, setFilterValue] = useState("");
+  const [bookingFilterValue, setBookingFilterValue] = useState("");
   const [searchValue, setSearchValue] = useState('');
   const [sortOrder, setSortOrder] = useState('asc');
   const [currentPage, setCurrentPage] = useState(1);
@@ -89,8 +90,18 @@ const RoomBooking= () => {
         (searchValue === '' ||
           booking.bookings.guests.FirstName.toLowerCase().includes(searchValue.toLowerCase()) ||
           booking.bookings.guests.LastName.toLowerCase().includes(searchValue.toLowerCase())
-          // Add other properties you want to search by
-          // For example: booking.RoomNumber.toString().includes(searchValue.toLowerCase())
+        
+        )
+      );
+    })
+    .filter((booking) => {
+      // Customize this condition based on your filtering criteria
+      return (
+        (bookingFilterValue === '' || booking.BookingStatus === bookingFilterValue) &&
+        (searchValue === '' ||
+          booking.bookings.guests.FirstName.toLowerCase().includes(searchValue.toLowerCase()) ||
+          booking.bookings.guests.LastName.toLowerCase().includes(searchValue.toLowerCase())
+        
         )
       );
     })
@@ -112,15 +123,6 @@ const RoomBooking= () => {
     setShowBookingForm(true);
   };
 
-  const handleSubmit = (event) => {
-    const form = event.currentTarget;
-    if (form.checkValidity() === false) {
-      event.preventDefault();
-      event.stopPropagation();
-    }
-
-    setValidated(true);
-  };
 
   const [selectionType, setSelectionType] = useState('room'); // Default to room selection
 
@@ -135,21 +137,6 @@ const RoomBooking= () => {
     setActiveDropdown(index === activeDropdown ? null : index);
   };
 
-  const renderDropdown = (index) => {
-    if (index === activeDropdown) {
-      return (
-        <Dropdown.Menu style={{ position: 'absolute', right: '0', left: 'auto', top: '0px' }}>
-          <Dropdown.Item onClick={() => handleDropdownItemClick(index, 'Confirm')}>
-            Confirm Booking
-          </Dropdown.Item>
-          <Dropdown.Item onClick={() => handleDropdownItemClick(index, 'Cancel')}>
-            Cancel Booking
-          </Dropdown.Item>
-        </Dropdown.Menu>
-      );
-    }
-    return null;
-  };
 
   const handleDropdownItemClick = async (index, action) => {
     try {
@@ -166,6 +153,10 @@ const RoomBooking= () => {
         await supabase
           .from('bookings')
           .update({ 'Status': 'Cancelled' })
+          .eq('BookingID', bookingID);
+        await supabase
+          .from('rooms_bookings')
+          .update({ 'BookingStatus': 'Inactive' })
           .eq('BookingID', bookingID);
       }
   
@@ -210,11 +201,35 @@ const currentBookings = filteredbookingList.slice(indexOfFirstBooking, indexOfLa
 // Calculate total pages
 const totalPages = Math.ceil(filteredbookingList.length / bookingsPerPage);
 
-// Change page
-const paginate = pageNumber => setCurrentPage(pageNumber);
+useEffect(() => {
+  const updateBookingStatus = async () => {
+    try {
+      // Get the current date
+      const currentDate = new Date();
+
+      // Iterate through each booking
+      for (const booking of bookingList) {
+        const checkOutDate = new Date(booking.bookings.CheckOut);
+
+        // Compare the check-out date with the current date
+        if ((checkOutDate < currentDate && booking.BookingStatus == 'Active') && (booking.bookings.BookingStatus == 'Confirmed' || booking.bookings.BookingStatus == 'Pending')) {
+          // Update the booking status to "Inactive"
+          await supabase
+            .from('rooms_bookings')
+            .update({ 'BookingStatus': 'Inactive' })
+            .eq('RoomBookingID', booking.RoomBookingID);
+        }
+      }
+    } catch (error) {
+      console.error('Error updating booking status:', error);
+    }
+  };
+
+  // Call the function to update booking status
+  updateBookingStatus();
+}, [bookingList]);
 
 
-      
 
 
   return (
@@ -283,6 +298,27 @@ const paginate = pageNumber => setCurrentPage(pageNumber);
                         </select>
                     </div>
                 </Col>
+                {/*Filtering Mechanism*/ }
+                <Col lg="4">
+                    <div className="mb-2 mt-3 input-group" style={{ maxWidth: "100%", display: "flex",
+                                                                    backgroundColor: "#665651", borderRadius: "10px",
+                                                                    overflow: "hidden"}}>
+                        <div style={{backgroundColor: "#665651", width: "30px", height: "100%"}}>   
+                            <div style={{padding: "5px", color: 'white'}}>
+                                {React.createElement(FaFilter, { size: 20 })}
+                            </div>  
+                        </div>
+                        <select className="form-select" 
+                                value={bookingFilterValue}
+                                onChange={(e) => setBookingFilterValue(e.target.value)}>
+                            <option value="">All Bookings</option>
+                            <option value="Active">Active</option>
+                            <option value="Staying">Staying</option>
+                            <option value="Completed">Completed</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+                </Col>
             </Row>
 
         
@@ -297,8 +333,9 @@ const paginate = pageNumber => setCurrentPage(pageNumber);
                                 <th style={{color: '#665651'}}>Room Number</th>
                                 <th style={{color: '#665651'}}>Check-In Date</th>
                                 <th style={{color: '#665651'}}>Check-Out Date</th>
-                                <th style={{color: '#665651'}}>Status</th>
+                                <th style={{color: '#665651'}}>Reservation Status</th>
                                 <th style={{color: '#665651'}}>Date Booked</th>
+                                <th style={{color: '#665651'}}>Booking Status</th>
                                 <th style={{color: '#665651'}}></th>
                             </tr>
                         </thead>
@@ -325,6 +362,9 @@ const paginate = pageNumber => setCurrentPage(pageNumber);
                                         <td style={{ color: '#665651' }}>
                                           {room_booking.bookings.CreatedAt? new Date(room_booking.bookings.CreatedAt).toLocaleDateString() : 'N/A'}
                                         </td>
+                                        <td style={{color: '#665651'}}>
+                                        {room_booking.BookingStatus}
+                                      </td>
                                         <td style={{ color: '#665651' }}>
                                         <div style={{ position: 'relative' }}>
                                         <div style={{ cursor: 'pointer' }} onClick={() => handleEllipsisClick(index)}>
