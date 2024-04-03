@@ -9,8 +9,11 @@ import { Bar } from 'react-chartjs-2';
 function Home() {
   const [loading, setLoading] = useState(true); 
   const [fetchError,setFetchError] = useState(null)
+  const [allfetchError,setAllFetchError] = useState(null)
   const [bookingList,setBookingList] = useState([])
+  const [allBookingList,setAllBookingList] = useState([])
   const [dataList,setDataList] = useState([])
+  const [allbookingCount, setAllBookingCount] = useState(0);
   const [bookingCount, setBookingCount] = useState(0);
   const [searchValue, setSearchValue] = useState('');
   const [selectedChart, setSelectedChart] = useState('Revenue');
@@ -19,6 +22,7 @@ function Home() {
     console.log(supabase)
   
       fetchBookings();
+      fetchAllBookings();
       fetchData();
       console.log(bookingList);
       console.log(dataList);
@@ -44,6 +48,29 @@ function Home() {
         setBookingList(data);
         setFetchError(null);
         setBookingCount(data.length);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false); // Set loading to false when done fetching
+    }
+  };
+
+  const fetchAllBookings = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('rooms_bookings')
+        .select('*, bookings(*,guests(*)), rooms(*)');
+      if (error) {
+        setFetchError('Could not fetch bookings');
+        setAllBookingList([]);
+        setAllBookingCount(0);
+      }
+
+      if (data) {
+        setAllBookingList(data);
+        setAllFetchError(null);
+        setAllBookingCount(data.length);
       }
     } catch (error) {
       console.error(error);
@@ -93,23 +120,23 @@ function Home() {
       }
     };
     
-    const arrivalsCount = filteredbookingList.filter(booking => booking.bookings.Status === "Confirmed").length;
-    const departuresCount = filteredbookingList.filter(booking => booking.BookingStatus === "Completed").length;
-    const occupiedRoomsCount = filteredbookingList.filter(booking => booking.BookingStatus  === "Staying").length;
-    const guestStayingCount = filteredbookingList.reduce((total, booking) => {
+    const arrivalsCount = allBookingList.filter(booking => booking.bookings.Status === "Confirmed").length;
+    const departuresCount = allBookingList.filter(booking => booking.BookingStatus === "Completed").length;
+    const occupiedRoomsCount = allBookingList.filter(booking => booking.BookingStatus  === "Staying").length;
+    const guestStayingCount = allBookingList.reduce((total, booking) => {
       if (booking.BookingStatus === "Staying") {
           return total + booking.bookings.NumGuests;
       }
       return total;
   }, 0);
-    const reservationCount = filteredbookingList.filter(booking => booking.BookingStatus  === "Active").length;
+    const reservationCount = allBookingList.filter(booking => booking.BookingStatus  === "Active").length;
 
   const handleChartChange = (chartType) => {
     setSelectedChart(chartType);
   };
 
   const revenueData = {
-    labels: ['January', 'February', 'March', 'April', 'May'],
+    labels: ['March', 'April'],
     datasets: [
       {
         label: 'Revenue Chart',
@@ -118,7 +145,7 @@ function Home() {
         borderWidth: 1,
         hoverBackgroundColor: '#665651',
         hoverBorderColor: '#665651',
-        data: [100, 200, 150, 250, 180],
+        data: [100, 200],
       },
     ],
   };
