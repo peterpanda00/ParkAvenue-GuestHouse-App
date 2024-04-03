@@ -127,9 +127,8 @@ const fetchPayments = async (RoomBookingID) => {
           .eq('RoomBookingID', RoomBookingID);
 
       if (paymentData) {
-          // Process payment data
-          // Example: setPayments(paymentData);
 
+          setPaymentList(paymentData)
           console.log(paymentData);
       }
 
@@ -182,9 +181,11 @@ const calculateTotals = () => {
 };
 
 const totalCost = chargeList.reduce((total, charge) => total + charge.Cost, 0);
-const totalPaid = paymentList.reduce((total, payment) => total + payment.Amount, 0);
+const totalPaid = paymentList.reduce((total, payment) => total + payment.AmountPaid, 0);
 const totalBalance = totalCost - totalPaid 
 
+console.log(totalPaid)
+console.log(totalBalance)
 const handleMethodSelect = (method) => {
     setSelectedMethod(method);
     setDropdownOpen(false); // Close the dropdown after selection
@@ -438,8 +439,12 @@ const handleCheckOutRoom = async (roomNumber, RoomBookingID) => {
                 <strong>Balance</strong>
             </Col>
             <Col lg="3">
-              <strong>{totalBalance ? `₱${formatNumber(totalBalance)}` : 'Fully Paid'}</strong>
-            </Col>
+            <strong>
+              {totalBalance ? 
+                totalBalance >= 0 ? `₱${formatNumber(totalBalance)}` : 'Fully Paid'
+                : 'Fully Paid'}
+            </strong>
+          </Col>
         </Row>
        
       </CardBody>
