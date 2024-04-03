@@ -353,6 +353,7 @@ const Report = () => {
         <div style={{ width: '100%', padding: '20px' }}>
             <Row>
                 <Col lg="8" className="text-end">
+                    {/*
                     <div className="mb-2 mt-3 input-group" style={{ maxWidth: "50%", display: "flex",
                                                                         backgroundColor: "#665651", borderRadius: "10px",
                                                                         overflow: "hidden"}}>
@@ -369,6 +370,8 @@ const Report = () => {
                             <option value="Yearly">Yearly</option>
                         </select>
                     </div>
+                 */}
+                    
                 </Col>
             </Row>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
