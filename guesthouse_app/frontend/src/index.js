@@ -35,7 +35,6 @@ const AppLayout = () => (
       <Route path="/room_booking" element={<RoomBooking />} />
       <Route path="/restaurant" element={<Restaurant />} />
       <Route path="/reports" element={<Reports />} />
-      <Route path="/management" element={<Management />} />
      </Route>
    )
  );

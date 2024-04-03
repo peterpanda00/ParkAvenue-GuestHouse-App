@@ -46,38 +46,38 @@ const Sidebar = ({ children }) => {
       }
   }
 
-  const menuItem = [
-      {
-          name: "Home",
-          path: "/home",
-          icon: <AiFillHome />,
-
+  const menuItem=[
+    {
+        name: "Home",
+        path: "/home",
+        icon: <AiIcons.AiFillHome />,
+       
       },
       {
-          name: "Room Check-In",
-          path: "/room_check_in",
-          icon: <FaCalendarPlus />,
-
+        name: "Room Check-In",
+        path: "/room_check_in",
+        icon: <FaIcons.FaBell/>,
+     
       },
       {
-          name: "Room Booking",
-          path: "/room_booking",
-          icon: <IoRestaurantSharp />
-
+        name: "Room Booking",
+        path: "/room_booking",
+        icon: <FaCalendarPlus />
+     
       },
       {
-          name: "Reports",
-          path: "/reports",
-          icon: <BiSolidReport />,
-
+        name: "Restaurant",
+        path: "/restaurant",
+        icon: <IoRestaurantSharp />,
+        
       },
       {
-          name: "Management",
-          path: "/management",
-          icon: <IoMdPeople />,
-
+        name: "Reports",
+        path: "/reports",
+        icon: <BiSolidReport />,
+        
       }
-  ]
+]
 
   return (
       <div>
