@@ -21,6 +21,8 @@ const BookingForm = () => {
   const [guestSearch, setGuestSearch] = useState('');
   const [guestOptions, setGuestOptions] = useState([]);
   const [guestSelected, setGuestSelected] = useState(false);
+  const [dateError, setDateError] = useState('');
+
 
   const [formData, setFormData] = useState({
     guestName: '',
@@ -116,14 +118,50 @@ const BookingForm = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    
+    // Update formData state
+    const updatedFormData = { ...formData, [name]: value };
+    setFormData(updatedFormData);
+  
+    // Date validation
+    if (name === 'checkIn' || name === 'checkOut') {
+      validateDates(updatedFormData.checkIn, updatedFormData.checkOut);
+    }
   };
+  
+  const validateDates = (checkIn, checkOut) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Remove time part
+    const checkInDate = new Date(checkIn);
+    const checkOutDate = new Date(checkOut);
+  
+    if (checkInDate < today) {
+      setDateError('Check-in date cannot be in the past.');
+    } else if (checkOutDate <= checkInDate) {
+      setDateError('Check-out date must be after the check-in date.');
+    } else {
+      setDateError(''); // Clear error if validation passes
+    }
+  };
+  
 
   
   const handleSubmit = async (e) => {
     e.preventDefault();
   
-    // Insert guest data
+    validateDates(formData.checkIn, formData.checkOut);
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Remove time part
+    
+    if (formData.checkIn < today) {
+      alert('Check-in date cannot be in the past.'); 
+      return;
+    } else if (formData.checkOut <= formData.checkIn) {
+      alert('Check-out date must be after the check-in date.'); 
+      return;
+    }
+    
     const { data: guestData, error: guestError } = await supabase
       .from('guests')
       .insert([
@@ -391,6 +429,7 @@ const handleGuestSelect = (selectedGuest) => {
         }}
       ></div>
       <Row className="mb-2">
+      
         <Col lg="6"><strong>Check-In</strong></Col>
         <Col lg="6">
           <Form.Control
@@ -413,7 +452,9 @@ const handleGuestSelect = (selectedGuest) => {
             required
           />
         </Col>
+        
       </Row>
+      {dateError && <div style={{ color: 'red' }}>{dateError}</div>}
       <Row>
         <Col lg="6"><strong>Select Available Rooms</strong></Col>
         
