@@ -45,14 +45,14 @@ const RestaurantAdd = ({ onSubmit, onClose }) => {
     const handleFormSubmit = async (e) => {
         e.preventDefault();
 
-         // Regular expression to match URL format
-    const urlRegex = /^(ftp|http|https):\/\/[^ "]+$/;
+        // Regular expression to match URL format
+        const urlRegex = /^(ftp|http|https):\/\/[^ "]+$/;
 
-    // If imgURL is not empty and does not match the URL format, assign a default URL
-    let imageUrlToUse = image.trim();
-    if (!urlRegex.test(imageUrlToUse)) {
-        imageUrlToUse = 'https://scontent.fmnl4-1.fna.fbcdn.net/v/t1.6435-9/186591364_158613132938830_571077991002649223_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=5f2048&_nc_ohc=UzZsd28Rhb8AX8d79FI&_nc_ht=scontent.fmnl4-1.fna&oh=00_AfABp7VFz_BpKGGdM8Vqu8po9LNBzXbrF_y11YGFH6XfQg&oe=6633BC09';
-    }
+        // If imgURL is not empty and does not match the URL format, assign a default URL
+        let imageUrlToUse = image.trim();
+        if (!urlRegex.test(imageUrlToUse)) {
+            imageUrlToUse = 'https://scontent.fmnl4-1.fna.fbcdn.net/v/t1.6435-9/186591364_158613132938830_571077991002649223_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=5f2048&_nc_ohc=UzZsd28Rhb8AX8d79FI&_nc_ht=scontent.fmnl4-1.fna&oh=00_AfABp7VFz_BpKGGdM8Vqu8po9LNBzXbrF_y11YGFH6XfQg&oe=6633BC09';
+        }
 
         const restaurantData = { ItemName: name, ItemPrice: price, MealType: meal, imgURL: imageUrlToUse }
         try {
@@ -141,11 +141,11 @@ const RestaurantAdd = ({ onSubmit, onClose }) => {
                                 required
                             >
                                 <option value="">Select category...</option>
-                                <option value="Appetizer">All-Day Breakfast</option>
-                                <option value="Main Course">Filipino Breakfast</option>
-                                <option value="Dessert">Chips</option>
-                                <option value="Dessert">Special Menu</option>
-                                <option value="Dessert">Beverages</option>
+                                <option value="All-Day Breakfast">All-Day Breakfast</option>
+                                <option value="Filipino Breakfast">Filipino Breakfast</option>
+                                <option value="Chips">Chips</option>
+                                <option value="Special Menu">Special Menu</option>
+                                <option value="Beverages">Beverages</option>
                             </Form.Control>
                         </Form.Group>
                         <Form.Group controlId="itemImageUrl" style={{ marginBottom: '25px' }}>
