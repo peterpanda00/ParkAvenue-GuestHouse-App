@@ -17,44 +17,90 @@ function Home() {
   const [bookingCount, setBookingCount] = useState(0);
   const [searchValue, setSearchValue] = useState('');
   const [selectedChart, setSelectedChart] = useState('Revenue');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [paymentList,setPaymentList] = useState([]);
+  const bookingsPerPage = 5;
+  let totalRevenue = 0; 
+
+  const indexOfLastBooking = currentPage * bookingsPerPage;
+  const indexOfFirstBooking = indexOfLastBooking - bookingsPerPage;
+
 
   useEffect(() => {
     console.log(supabase)
   
-      fetchBookings();
+      fetchBookings(currentPage);
+      fetchPayments();
       fetchAllBookings();
       fetchData();
       console.log(bookingList);
       console.log(dataList);
+      console.log(paymentList);
       console.log(filteredbookingList);
     
 
 
   }, []);
 
-  const fetchBookings = async () => {
+
+
+  const fetchPayments = async () => {
     try {
+        const today = new Date();
+        const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+        const { data: paymentData, error: paymentDataError } = await supabase
+            .from('payments')
+            .select('AmountPaid, PaymentDate') 
+            .gte('PaymentDate', startOfMonth.toISOString())
+            .lte('PaymentDate', endOfMonth.toISOString());
+
+        if (paymentData) {
+            // Calculate total revenue for this month
+            totalRevenue = paymentData.reduce((acc, payment) => acc + payment.AmountPaid, 0);
+            
+            setPaymentList(paymentData);
+            console.log(paymentData);
+        }
+
+        if (paymentDataError) {
+            console.error('Error fetching payments:', paymentDataError);
+        }
+    } catch (error) {
+        console.error('Error fetching payments:', error);
+    }
+};
+
+  
+
+const fetchBookings = async (pageNumber) => {
+  try {
+    const today = new Date(); // Get today's date
+    const formattedToday = today.toISOString();
       const { data, error } = await supabase
-        .from('rooms_bookings')
-        .select('*, bookings(*,guests(*)), rooms(*)')
-        .range(0,5);
+          .from('rooms_bookings')
+          .select('*, bookings(*,guests(*)), rooms(*)')
+          .range(0, 5); // Limit the results to the first 5
+
       if (error) {
-        setFetchError('Could not fetch bookings');
-        setBookingList([]);
-        setBookingCount(0);
+          setFetchError('Could not fetch bookings');
+          setBookingList([]);
+          setBookingCount(0);
       }
 
       if (data) {
-        setBookingList(data);
-        setFetchError(null);
-        setBookingCount(data.length);
+          setBookingList(data);
+          setFetchError(null);
+          setBookingCount(data.length);
       }
-    } catch (error) {
+  } catch (error) {
       console.error(error);
-    } finally {
+  } finally {
       setLoading(false); // Set loading to false when done fetching
-    }
-  };
+  }
+};
+
 
   const fetchAllBookings = async () => {
     try {
@@ -179,7 +225,10 @@ function Home() {
         return 'black'; // Default color if status is not recognized
     }
   };
+  const totalPages = Math.ceil(filteredbookingList.length / bookingsPerPage);
+  // Slice the list of bookings to display only the ones for the current page
 
+  const currentBookings = filteredbookingList.slice(indexOfFirstBooking, indexOfLastBooking);
 
   console.log(supabase)
   return (
@@ -431,7 +480,7 @@ function Home() {
       
           }}
         >
-          <strong>₱ 12,370.28</strong>
+          <strong>₱ 20,456</strong>
         </div>
         <div
           style={{
@@ -527,12 +576,12 @@ function Home() {
                       </tr>
                   </thead>
                   <tbody>
-                    {filteredbookingList.length === 0 ? (
+                    {currentBookings.length === 0 ? (
                       <tr>
                         <td colSpan="5" style={{ textAlign: 'center' }}>No Bookings</td>
                       </tr>
                     ) : (
-                      filteredbookingList.map((room_booking, index) => (
+                      currentBookings.map((room_booking, index) => (
                         <React.Fragment key={room_booking.RoomBookingID}>
                           <tr style={{ borderRadius: '20px', padding: '10px' }}>
                             <td style={{color: '#665651'}}>{room_booking.RoomBookingID}</td>
@@ -554,8 +603,22 @@ function Home() {
                     )}
                   </tbody>
               </Table>
+              <ul className="pagination" style={{justifyContent:'center'}}>
+                    <li className={currentPage === 1 ? 'disabled' : ''}>
+                      <button style={{ color: "#665651", borderRadius: '5px', backgroundColor: "white", borderColor: "transparent" }} onClick={() => setCurrentPage(currentPage - 1)}>&laquo;</button>
+                    </li>
+                    {Array.from({ length: totalPages }).map((_, index) => (
+                      <li key={index} className={currentPage === index + 1 ? 'active' : ''}>
+                        <button style={{ color: "#665651", borderRadius: '5px', backgroundColor: "white", borderColor: "transparent" }} onClick={() => setCurrentPage(index + 1)}>{index + 1}</button>
+                      </li>
+                    ))}
+                    <li className={currentPage === totalPages ? 'disabled' : ''}>
+                      <button style={{ color: "#665651", borderRadius: '5px', backgroundColor: "white", borderColor: "transparent" }} onClick={() => setCurrentPage(currentPage + 1)}>&raquo;</button>
+                    </li>
+                  </ul>
           </CardBody>
       </Card>
+     
 
 
 </Row>
