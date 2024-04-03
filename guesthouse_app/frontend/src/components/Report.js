@@ -220,9 +220,8 @@ const Report = () => {
             const { data: roomBookings, error: roomBookingsError } = await supabase
                 .from('rooms_bookings')
                 .select('*, bookings(*,guests(*)), rooms(RoomType,Price,AddPrice,GuestCapacity)')
-                .or('BookingStatus.eq."Completed"','bookings.Status.eq."Cancelled"');
-
-
+                .or('BookingStatus.eq.Completed,BookingStatus.eq.Inactive');
+                
             if (roomBookings) {
                 // Aggregate data to calculate occupancy analysis metrics
                 console.log(roomBookings)
@@ -247,11 +246,11 @@ const Report = () => {
                     occupancyAnalysis[month].GuestCapacity = booking.rooms.GuestCapacity;
     
 
-                    if (booking.bookings.Status === 'Cancelled') {
+                    if (booking.bookings.Status === "Cancelled") {
                         occupancyAnalysis[month].cancellations++;
                     }
                     
-                    if (booking.BookingStatus === 'Completed'){
+                    if (booking.BookingStatus === "Completed"){
                         occupancyAnalysis[month].occupiedRooms++;
                     }
 
