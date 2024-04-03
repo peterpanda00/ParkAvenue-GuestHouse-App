@@ -262,13 +262,19 @@ const Report = () => {
                     const data = occupancyAnalysis[month];
                     const occupancyRate = (data.occupiedRooms / data.totalRooms) * 100;
                     const cancellationRate = (data.cancellations / data.totalRooms) * 100;
-
+                
+                    let peakPeriod = 'No'; // Default value
+                
+                    // Check if occupancy rate is higher than or equal to 50%
+                    if (occupancyRate >= 50) {
+                        peakPeriod = 'Yes';
+                    }
+                
                     occupancyAnalysisData.push({
                         month,
                         occupancyRate: occupancyRate.toFixed(2) + '%',
-                        peakPeriod: '', // You can implement logic to identify peak periods
+                        peakPeriod,
                         cancellationRate: cancellationRate.toFixed(2) + '%',
-           
                     });
                 });
 
