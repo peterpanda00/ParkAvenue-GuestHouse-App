@@ -40,9 +40,7 @@ const RoomBooking= () => {
     }, [currentPage]);
 
   const fetchBookings = async (pageNumber) => {
-    const startIndex = (pageNumber - 1) * bookingsPerPage;
-    const endIndex = pageNumber * bookingsPerPage - 1;
-    
+
     try {
       const { data, error } = await supabase
         .from('rooms_bookings')
@@ -51,8 +49,7 @@ const RoomBooking= () => {
           *,
           bookings: BookingID(CheckIn,CheckOut,Status,guests:GuestID(FirstName,LastName),CreatedAt)
           `
-        )
-        .range(startIndex, endIndex);
+        );
   
       if (error) {
         setFetchError('Could not fetch bookings');

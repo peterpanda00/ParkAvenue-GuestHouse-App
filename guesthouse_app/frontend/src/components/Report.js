@@ -427,7 +427,7 @@ const Report = () => {
                                 <th>Client Name</th>
                                 <th>Room Charges</th>
                                 <th>Food Charges</th>
-                                <th>Total Sales</th>
+                                <th>Total Revenue</th>
                             </tr>
                         </thead>
                         <tbody>
