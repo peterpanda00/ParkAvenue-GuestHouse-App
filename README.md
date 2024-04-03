@@ -61,7 +61,7 @@ Team Members
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/your_username/Park-Avenue-GuestHouse-App.git
+git clone https://github.com/peterpanda00/ParkAvenue-GuestHouse-App.git
 ```
 
 2. Install dependencies:
