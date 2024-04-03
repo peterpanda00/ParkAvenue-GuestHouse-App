@@ -10,6 +10,7 @@ function Home() {
   const [loading, setLoading] = useState(true); 
   const [fetchError,setFetchError] = useState(null)
   const [bookingList,setBookingList] = useState([])
+  const [dataList,setDataList] = useState([])
   const [bookingCount, setBookingCount] = useState(0);
   const [searchValue, setSearchValue] = useState('');
   const [selectedChart, setSelectedChart] = useState('Revenue');
@@ -18,7 +19,9 @@ function Home() {
     console.log(supabase)
   
       fetchBookings();
+      fetchData();
       console.log(bookingList);
+      console.log(dataList);
       console.log(filteredbookingList);
     
 
@@ -61,8 +64,45 @@ function Home() {
         )
       );
     })
-   
- 
+
+    const fetchData= async () => {
+      const today = new Date();
+      const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+      const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+    
+      try {
+        const { data, error } = await supabase
+          .from('rooms_bookings')
+          .select('*, bookings(*,guests(*)), rooms(*)')
+          .gte('bookings.CheckIn', firstDayOfMonth.toISOString()) 
+          .lte('bookings.CheckOut', lastDayOfMonth.toISOString());
+    
+        if (error) {
+          setFetchError('Could not fetch data');
+          setDataList([]);
+        }
+    
+        if (data) {
+          setDataList(data);
+          setFetchError(null);
+        }
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    const arrivalsCount = filteredbookingList.filter(booking => booking.bookings.Status === "Confirmed").length;
+    const departuresCount = filteredbookingList.filter(booking => booking.BookingStatus === "Completed").length;
+    const occupiedRoomsCount = filteredbookingList.filter(booking => booking.BookingStatus  === "Staying").length;
+    const guestStayingCount = filteredbookingList.reduce((total, booking) => {
+      if (booking.BookingStatus === "Staying") {
+          return total + booking.bookings.NumGuests;
+      }
+      return total;
+  }, 0);
+    const reservationCount = filteredbookingList.filter(booking => booking.BookingStatus  === "Active").length;
 
   const handleChartChange = (chartType) => {
     setSelectedChart(chartType);
@@ -155,7 +195,7 @@ function Home() {
         </div>
          <Card.Title style={{ marginLeft:'50px',marginTop:'35px',textAlign: 'center', color: '#665651',fontSize:'30px' }}><strong>Arrivals</strong></Card.Title>
        <Card.Text style={{  textAlign: 'right', color: '#665651', fontSize:'64px', margin:'30px'  }}>
-        <strong>5</strong>
+        <strong>{arrivalsCount}</strong>
         <div
           style={{
             backgroundColor: '#665651',
@@ -202,7 +242,7 @@ function Home() {
         </div>
          <Card.Title style={{ marginLeft:'50px',marginTop:'35px',textAlign: 'center', color: '#665651',fontSize:'30px' }}><strong>Departures</strong></Card.Title>
        <Card.Text style={{  textAlign: 'right', color: '#665651', fontSize:'64px', margin:'30px'  }}>
-        <strong>12</strong>
+        <strong>{departuresCount}</strong>
         <div
           style={{
             backgroundColor: '#665651',
@@ -250,7 +290,7 @@ function Home() {
         </div>
          <Card.Title style={{ marginLeft:'50px',marginTop:'35px',textAlign: 'center', color: '#665651',fontSize:'30px' }}><strong>Occupied</strong></Card.Title>
        <Card.Text style={{  textAlign: 'right', color: '#665651', fontSize:'64px', margin:'30px'  }}>
-        <strong>3</strong>
+        <strong>{occupiedRoomsCount}</strong>
         <div
           style={{
             backgroundColor: '#665651',
@@ -296,7 +336,7 @@ function Home() {
             marginLeft:'20px'
           }}
         >
-          <strong>6</strong>
+          <strong>{reservationCount}</strong>
         </div>
         </Col>
 
@@ -313,7 +353,7 @@ function Home() {
             marginLeft:'60px'
           }}
         >
-          <strong>8</strong>
+          <strong>{guestStayingCount}</strong>
         </div>
 
         
