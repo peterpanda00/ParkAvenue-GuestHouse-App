@@ -40,7 +40,7 @@ const BookingForm = () => {
         const { data: overlappingRoomBookings, error: roomBookingError } = await supabase
           .from('rooms_bookings')
           .select('*,bookings(*)')
-          .eq('BookingStatus', 'Active')
+          .or('BookingStatus.eq.Active,BookingStatus.eq.Staying')
           .gte('bookings.CheckOut', formData.checkOut) // Check if existing formData.checkOut is before or equal to bookings' CheckOut date
           .lte('bookings.CheckIn', formData.checkIn); // Check if existing formData.checkIn is after or equal to bookings' CheckIn date
   
