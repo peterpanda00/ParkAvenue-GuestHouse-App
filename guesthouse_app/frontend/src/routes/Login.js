@@ -83,21 +83,11 @@ const LoginScreen = () => {
                                     <button style={{ width: '300px', padding: '4px', borderRadius: '10px', background: '#665651', color: 'white' }} onClick={handleLogin}>
                                         Sign In
                                     </button>
-                                    <button style={{ width: '300px', padding: '4px', borderRadius: '10px', background: '#665651', color: 'white', marginTop: '10px' }} onClick={handleShowRegisterForm}>
-                                        Create an Account
-                                    </button>
                                 </div>
                             </Form>
                         </>
                     ) : (
-                        <RegistrationForm
-                            username={username}
-                            setUsername={setUsername}
-                            password={password}
-                            setPassword={setPassword}
-                            handleClose={handleCloseModal}
-                            handleRegister={() => {}} // You can handle registration logic here
-                        />
+                        <RegistrationForm/>
                     )}
                 </div>
             </div>

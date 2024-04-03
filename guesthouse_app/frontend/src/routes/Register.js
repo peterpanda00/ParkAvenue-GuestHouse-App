@@ -1,4 +1,5 @@
-import React, { useState,useNavigate } from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; 
 import { Modal, Button, Form } from 'react-bootstrap';
 import supabase from "../config/supabaseClient";
 
@@ -60,14 +61,14 @@ const RegistrationForm = () => {
                         />
                     </Form.Group>
                     <Form.Group controlId="formPassword">
-                        <Form.Label>Last Name</Form.Label>
-                        <Form.Control
-                            type="password"
-                            placeholder="Enter your password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                        />
-                    </Form.Group>
+                    <Form.Label>Password</Form.Label>
+                    <Form.Control
+                        type="password"
+                        placeholder="Enter your password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                    />
+                </Form.Group>
                 </Form>
                 </Modal.Body>
             <Modal.Footer>

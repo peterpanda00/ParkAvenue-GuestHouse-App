@@ -23,6 +23,7 @@ const Report = () => {
 
     const [revenueData,setRevenueData] = useState([]);
     const [guestTrendData, setGuestTrendData] = useState([]);
+    const [occupancyAnalysisData, setOccupancyAnalysisData] = useState([]);
 
     const formatNumber = (number) => {
         return number.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -133,7 +134,8 @@ const Report = () => {
                     .from('rooms_bookings')
                     .select('*, bookings(*,guests(*)), rooms(RoomType,Price,AddPrice,GuestCapacity)')
                     .eq('BookingStatus', 'Completed');
-
+                    
+    
                 if (roomBookings) {
                     // Aggregate data to calculate average length of stay and repeat guests for each room type
                     const roomTypeStats = roomBookings.reduce((acc, booking) => {
@@ -142,31 +144,38 @@ const Report = () => {
                                 totalNights: 0,
                                 numBookings: 0,
                                 uniqueGuestNames: new Set(), // Keep track of unique guest names
-                                repeatGuests: 0, // Counter for repeat guests
+                                repeatGuests: 0,
+                                totalCapacity:0,
+                                totalGuests:0, // Counter for repeat guests
                             };
                         }
                         acc[booking.rooms.RoomType].totalNights += booking.bookings.Nights;
                         acc[booking.rooms.RoomType].numBookings++;
                         acc[booking.rooms.RoomType].uniqueGuestNames.add(`${booking.bookings.guests.FirstName} ${booking.bookings.guests.LastName}`); // Add guest name to set
+                        acc[booking.rooms.RoomType].totalCapacity += booking.rooms.GuestCapacity; // Add room capacity to total
+                        acc[booking.rooms.RoomType].totalGuests += booking.bookings.NumGuests; // Add number of guests to total
                         return acc;
                     }, {});
-
+    
                     // Calculate average length of stay and percentage of repeat guests for each room type
                     const guestTrendData = Object.keys(roomTypeStats).map(roomType => {
-                        const { totalNights, numBookings, uniqueGuestNames } = roomTypeStats[roomType];
+                        const { totalNights, numBookings, uniqueGuestNames,totalGuests,totalCapacity} = roomTypeStats[roomType];
                         const averageLengthOfStay = totalNights / numBookings;
                         const repeatGuests = numBookings - uniqueGuestNames.size; // Calculate repeat guests
                         const percentageOfRepeatGuests = (repeatGuests / numBookings) * 100;
+                        const roomTypeOccupancy = ((totalGuests / totalCapacity)/13) * 100; // Calculate room occupancy rate
+               
                         return {
                             roomType,
                             averageLengthOfStay,
                             percentageOfRepeatGuests,
+                            roomTypeOccupancy
                         };
                     });
-
+    
                     setGuestTrendData(guestTrendData);
                 }
-
+    
                 if (roomBookingsError) {
                     console.error('Error fetching room bookings:', roomBookingsError);
                 }
@@ -174,9 +183,10 @@ const Report = () => {
                 console.error('Error fetching guest trend data:', error);
             }
         };
-
+    
         fetchGuestTrendData();
     }, []);
+    
 
     useEffect(() => {
         const fetchRevenueData = async () => {
@@ -204,15 +214,90 @@ const Report = () => {
         fetchRevenueData();
     }, []);
 
+    const fetchOccupancyAnalysisData = async () => {
+        try {
+            // Fetch room bookings data
+            const { data: roomBookings, error: roomBookingsError } = await supabase
+                .from('rooms_bookings')
+                .select('*, bookings(*,guests(*)), rooms(RoomType,Price,AddPrice,GuestCapacity)')
+                .or('BookingStatus.eq.Completed,bookings.Status.eq.Cancelled');
+
+            if (roomBookings) {
+                // Aggregate data to calculate occupancy analysis metrics
+                const occupancyAnalysis = {};
+
+                roomBookings.forEach(booking => {
+                    const { CreatedAt, NumGuests, RoomType, Nights } = booking.bookings;
+                    const month = new Date(CreatedAt).toLocaleString('default', { month: 'long' });
+
+                    if (!occupancyAnalysis[month]) {
+                        occupancyAnalysis[month] = {
+                            totalRooms: 0,
+                            occupiedRooms: 0,
+                            totalGuests: 0,
+                            cancellations: 0,
+                            revenue: 0,
+                        };
+                    }
+
+                    occupancyAnalysis[month].totalRooms=13;
+                    occupancyAnalysis[month].totalGuests += NumGuests;
+                    occupancyAnalysis[month].GuestCapacity = booking.rooms.GuestCapacity;
     
 
+                    if (booking.bookings.Status === 'Cancelled') {
+                        occupancyAnalysis[month].cancellations++;
+                    }
+                    
+                    if (booking.BookingStatus === 'Completed'){
+                        occupancyAnalysis[month].occupiedRooms++;
+                    }
+
+                    
+                });
+
+                // Calculate occupancy rate, room occupancy rate, cancellation rate
+                Object.keys(occupancyAnalysis).forEach(month => {
+                    const data = occupancyAnalysis[month];
+                    const occupancyRate = (data.occupiedRooms / data.totalRooms) * 100;
+                    const cancellationRate = (data.cancellations / data.totalRooms) * 100;
+
+                    occupancyAnalysisData.push({
+                        month,
+                        occupancyRate: occupancyRate.toFixed(2) + '%',
+                        peakPeriod: '', // You can implement logic to identify peak periods
+                        cancellationRate: cancellationRate.toFixed(2) + '%',
+           
+                    });
+                });
+
+                setOccupancyAnalysisData(occupancyAnalysisData);
+            }
+
+            if (roomBookingsError) {
+                console.error('Error fetching room bookings:', roomBookingsError);
+            }
+        } catch (error) {
+            console.error('Error fetching occupancy analysis data:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchOccupancyAnalysisData();
+    }, []);
+
+    // Function to compute totals for occupancy analysis data
+    const computeOccupancyAnalysisTotals = () => {
+        let totalRevenuePerRoom = 0;
+
+        occupancyAnalysisData.forEach(data => {
+            totalRevenuePerRoom += parseFloat(data.revenue);
+        });
+
+        return { totalRevenuePerRoom };
+    };
 
     
-    const occupancyAnalysisData = [
-        { month: 'March', occupancyRate: '75%', peakPeriod: 'Yes', roomTypeOccupancy: '80%', cancellationRate: '10%', revenuePerRoom: '₱15000' },
-        { month: 'April', occupancyRate: '55%', peakPeriod: 'No', roomTypeOccupancy: '45%', cancellationRate: '15%', revenuePerRoom: '₱9000' },
-        { month: 'May', occupancyRate: '85%', peakPeriod: 'Yes', roomTypeOccupancy: '90%', cancellationRate: '12%', revenuePerRoom: '₱17000' },
-    ];
 
     // Function to compute totals for revenue data
     const computeRevenueTotals = () => {
@@ -242,20 +327,7 @@ const Report = () => {
         );
     };
 
-    // Function to compute totals for occupancy analysis data
-    const computeOccupancyAnalysisTotals = () => {
-        let totalOccupancyRate = 0;
-        let totalRevenuePerRoom = 0;
-
-        occupancyAnalysisData.forEach(data => {
-            // Assuming revenuePerRoom is a string containing the currency symbol and value
-            const revenueValue = Number(data.revenuePerRoom.slice(1)); // Removing currency symbol and converting to number
-            totalOccupancyRate += parseFloat(data.occupancyRate);
-            totalRevenuePerRoom += revenueValue;
-        });
-
-        return { totalOccupancyRate: totalOccupancyRate.toFixed(2), totalRevenuePerRoom };
-    };
+   
 
     const handleReportSelection = (reportType) => {
         setSelectedReport(reportType);
@@ -372,6 +444,7 @@ const Report = () => {
                                 <th>Room Type</th>
                                 <th>Average Length of Stay</th>
                                 <th>Percentage of Repeat Guests</th>
+                                <th>Room Occupancy Rate</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -380,6 +453,7 @@ const Report = () => {
                                     <td>{data.roomType}</td>
                                     <td>{data.averageLengthOfStay.toFixed(0)} days</td>
                                     <td>{data.percentageOfRepeatGuests.toFixed(2)}%</td>
+                                    <td>{data.roomTypeOccupancy.toFixed(2)}%</td>
                                 </tr>
                             ))}
                         </tbody>
@@ -393,30 +467,23 @@ const Report = () => {
                         <thead>
                             <tr>
                                 <th>Month</th>
-                                <th>Occupancy Rate</th>
                                 <th>Peak Period</th>
-                                <th>Room Occupancy Rate</th>
+                                <th>Occupancy Rate</th>
                                 <th>Cancellation Rate</th>
-                                <th>Revenue</th>
+                    
                             </tr>
                         </thead>
                         <tbody>
                             {occupancyAnalysisData.map((data, index) => (
                                 <tr key={index}>
                                     <td>{data.month}</td>
-                                    <td>{data.occupancyRate}</td>
                                     <td>{data.peakPeriod}</td>
-                                    <td>{data.roomTypeOccupancy}</td>
+                                    <td>{data.occupancyRate}</td>
                                     <td>{data.cancellationRate}</td>
-                                    <td>{data.revenuePerRoom}</td>
+            
                                 </tr>
                             ))}
                             {/* Render the total row */}
-                            <tr>
-                                <td colSpan={5}><b>Total Revenue:</b></td>                                
-
-                                <td><b>₱{computeOccupancyAnalysisTotals().totalRevenuePerRoom}</b></td>
-                            </tr>
                         </tbody>
                     </Table>
                 </Card>
