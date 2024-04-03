@@ -1,6 +1,14 @@
 # Park Avenue GuestHouse Application
 
 This repository contains the Park Avenue GuestHouse Application, a comprehensive solution for managing bookings, reservations, and guest services in a guesthouse environment.
+Team Members
+- Johanna Aperin as Scrum Master
+- Jiliana Tan as Product Owner
+- Jilliane Elloso as  Lead Developer
+- Louis Cada as Developer
+- Gabriel Ocampo as Designer
+- Vhonne Cuya as Designer
+- Alroy Reyes as QA
 
 ## Features
 
