@@ -1,7 +1,7 @@
 import React, { useState,useEffect } from 'react';
 import Sidebar from "../components/Sidebar";
 import supabase from "../config/supabaseClient";
-import { Row, Col, Card, Table,CardBody } from 'react-bootstrap';
+import { Row, Col, Card, Table,CardBody, Container } from 'react-bootstrap';
 import { FaDoorClosed,FaDoorOpen,FaBed,FaSearch  } from "react-icons/fa";
 import { Bar } from 'react-chartjs-2';
 
@@ -29,12 +29,8 @@ function Home() {
     try {
       const { data, error } = await supabase
         .from('rooms_bookings')
-        .select(
-          `
-          *,
-          bookings: BookingID(CheckIn,CheckOut,Status,guests:GuestID(FirstName,LastName),CreatedAt)
-          `
-        );
+        .select('*, bookings(*,guests(*)), rooms(*)')
+        .range(0,5);
       if (error) {
         setFetchError('Could not fetch bookings');
         setBookingList([]);
@@ -124,9 +120,11 @@ function Home() {
     <div style={{ width: '100%', background: '#F2EFEB', color: '#665651', display:'flex'}}>
       
       <Sidebar/>
-      <div style={{ width: '100%', background: '#F2EFEB', color: '#665651', display:'flex', padding:"100px"}}>
+      <div style={{ background: '#F2EFEB', color: '#665651', display:'flex', padding:"100px"}}>
+      <Container>
       <Row>
-      <Col lg="3" >
+      <Row style={{ height: '300px' }}>
+      <Col lg="3" style={{ height: '300px' }} >
       <Card
           style={{
           height: '250px',
@@ -173,7 +171,7 @@ function Home() {
       </Card>
       </Col>
 
-      <Col lg="3">
+      <Col lg="3" style={{ height: '300px' }}>
       <Card
           style={{
           height: '250px',
@@ -219,8 +217,9 @@ function Home() {
        
       </Card>
       </Col>
+   
 
-      <Col lg="3">
+      <Col lg="3" style={{ height: '300px' }}>
       <Card
           style={{
           height: '250px',
@@ -270,7 +269,7 @@ function Home() {
       <Col lg="3">
       <Card
           style={{
-          height: '800px',
+          height: '900px',
           width: '500px',
           cursor: 'pointer',
           padding: '10px',
@@ -321,6 +320,7 @@ function Home() {
         </Col>
         
         </Row>
+        
 
         <Row style={{margin:'10px',  alignItems: 'center',justifyContent:'center'}}>
         <Col>
@@ -380,6 +380,7 @@ function Home() {
         </Row>
        </Card.Text>
 
+
        <Card.Title style={{textAlign: 'center', color: '#665651',fontSize:'30px' }}><strong>Statistics</strong></Card.Title>
 
        <Row style={{ display: 'flex', justifyContent: 'center' }}>
@@ -421,30 +422,33 @@ function Home() {
        
       </Card>
       </Col>
-      {/*
 
-<Row>
-<Col lg="4">
-              <form>
-                  <div className="mb-2 mt-3 input-group" style={{ maxWidth: "100%", borderRadius: "10px", 
-                                                                  overflow: "hidden"}} >
-                      <input type="search" className="form-control" placeholder="Search Guest Name" value={searchValue} onChange={(e) => setSearchValue(e.target.value)}/>
-                      <button className="btn me-auto" style={{color: "white", backgroundColor: "#665651"}}>
-                          <div style={{color: 'white'}}>
-                              {React.createElement(FaSearch, { size: 20 })}
-                          </div>
-                      </button>
-                  </div>
-              </form>
-          </Col>
+      </Row>
 
-</Row>
+    
 
-<Row style={{width:'1000px',height:'600px'}}>
+<Row style={{width:'900px',height:'600px'}}>
 
 <Card style={{ borderRadius: '20px'}}>
+
           <CardBody>
-              <Table style={{width:'900px',height:'400px'}}>
+          <Row style={{ width: '300px' }}> 
+            <Col className="mb-3">
+                          <form>
+                              <div className="mb-2 mt-3 input-group" style={{ maxWidth: "100%", borderRadius: "10px", 
+                                                                              overflow: "hidden"}} >
+                                  <input type="search" className="form-control" placeholder="Search Guest Name" value={searchValue} onChange={(e) => setSearchValue(e.target.value)}/>
+                                  <button className="btn me-auto" style={{color: "white", backgroundColor: "#665651"}}>
+                                      <div style={{color: 'white'}}>
+                                          {React.createElement(FaSearch, { size: 20 })}
+                                      </div>
+                                  </button>
+                              </div>
+                          </form>
+                      </Col>
+
+            </Row>
+              <Table style={{width:'800px',height:'400px'}}>
                    <thead>
                       <tr>
                           <th style={{color: '#665651'}}>Booking #</th>
@@ -456,25 +460,31 @@ function Home() {
                       </tr>
                   </thead>
                   <tbody>
-                      {filteredbookingList.map((room_booking, index) => (
-                          <React.Fragment key={room_booking.RoomBookingID}>
-                              <tr style={{ borderRadius: '20px', padding: '10px' }}>
-                                  <td style={{color: '#665651'}}>{room_booking.RoomBookingID}</td>
-                                  <td style={{ color: '#665651' }}>
-                                  {room_booking.bookings.guests
-                                    ? `${room_booking.bookings.guests.FirstName} ${room_booking.bookings.guests.LastName}`
-                                    : 'N/A'}
-                                </td>
-                                  <td style={{color: '#665651'}}>{room_booking.RoomNumber}</td>
-                                  <td style={{ color: '#665651' }}>
-                                    {room_booking.bookings.CheckIn ? new Date(room_booking.bookings.CheckIn).toLocaleDateString() : 'N/A'}
-                                  </td>
-                                  <td style={{ color: getStatusColor(room_booking.bookings.Status) }}>
-                                  {room_booking.bookings.Status}
-                                </td>
-                              </tr>
-                          </React.Fragment>
-                      ))}
+                    {filteredbookingList.length === 0 ? (
+                      <tr>
+                        <td colSpan="5" style={{ textAlign: 'center' }}>No Bookings</td>
+                      </tr>
+                    ) : (
+                      filteredbookingList.map((room_booking, index) => (
+                        <React.Fragment key={room_booking.RoomBookingID}>
+                          <tr style={{ borderRadius: '20px', padding: '10px' }}>
+                            <td style={{color: '#665651'}}>{room_booking.RoomBookingID}</td>
+                            <td style={{ color: '#665651' }}>
+                              {room_booking.bookings.guests
+                                ? `${room_booking.bookings.guests.FirstName} ${room_booking.bookings.guests.LastName}`
+                                : 'N/A'}
+                            </td>
+                            <td style={{color: '#665651'}}>{room_booking.RoomNumber}</td>
+                            <td style={{ color: '#665651' }}>
+                              {room_booking.bookings.CheckIn ? new Date(room_booking.bookings.CheckIn).toLocaleDateString() : 'N/A'}
+                            </td>
+                            <td style={{ color: getStatusColor(room_booking.bookings.Status) }}>
+                              {room_booking.bookings.Status}
+                            </td>
+                          </tr>
+                        </React.Fragment>
+                      ))
+                    )}
                   </tbody>
               </Table>
           </CardBody>
@@ -484,13 +494,13 @@ function Home() {
 </Row>
 
 
-                                  */}
+
       
       
 
       </Row>
 
-      
+</Container>
       
 
       
